@@ -1,6 +1,6 @@
 ---
-title: "MY WILD THING REPORT"
-author: "YOUR TEAM NAME AND MEMBERS HERE"
+title: "weeping mulla mulla: Ptilotus calostachyus"
+author: "ACDC: Minh Pham, Kelly Nguyen"
 format: html
 ---
 
@@ -19,6 +19,22 @@ format: html
 <!--
 2. Download all the occurrence records from the Atlas of Living Australia, ideally scripted using the `atlas_occurrences()` function from the `galah` package. Make sure you include date, time, collector identification details. Save this into a `data-raw` folder in your repo.
 -->
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(galah)
+library(tidyverse)
+library(kableExtra)
+
+galah_config(email = "mpha0054@student.monash.edu",
+             download_reason_id = 10, 
+             verbose = TRUE)
+
+raw_data <- ala_occurrences(
+  taxa = select_taxa("Ptilotus calostachyus"))
+
+save(raw_data, file = "raw-data.rda")
+```
+
 
 ## Initial data analysis
 
