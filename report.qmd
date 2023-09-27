@@ -4,27 +4,28 @@ author: "ACDC: Minh Pham, Kelly Nguyen"
 format: html
 ---
 
+```{r libraries, echo=False}
+library(galah)
+library(tidyverse)
+library(kableExtra)
+```
+
+
 ## Introduction
 
-<!-- 
-1. For your assigned Australian wild thing, read all you can about it, and write a paragraph describing it's key features, such as it's habitat, usual active time, whether numbers are increasing or declining, and even things like, if it is common for tourists to travel to see them, or there are special spotting promotions occurring as is happening [this month for the platypus](https://platypus.asn.au/report-a-sighting/). The write five unique expectations on what you might find when you explore the data, for example: 
-<br><br>"We expect to see the occurrences only in the summer months."
-<br>"We expect to find the most occurrences near the coast."
-<br>"We expect to observe declining numbers since 1994."
-<br><br> Be as specific as reasonably possible for your wild thing!
--->
+The *Ptilotus calostachyus F.Muell*, which is also known as the **Weeping Mulla Mulla**, is an endemic plant that is commonly found in the Western Australia territory(1). This species thrives in arid region, particular in sandy habitats with red and stony plains(1).  Being a *perennial* plant, it can live up to more than two years with the seasonal pattern of being dormant in the winter and sprouting again in springtime - (1). Moreover, **Weeping Mulla Mulla** displays erect or spreading, herb or shrub characteristics, meaning that it can be found as a tall plant and/or covering an area, as well as with/without a woody body. They can grow from 0.2 to 2 meters tall with pink-white flowers, blooming from March to October. Despite the widespread of its coverage, there are little to none organized sighting campaign of the **Weeping Mulla Mulla** due to the outback nature of its habitat and lesser popularity as compared to other iconic Australia ecotourism species. 
+
+Five expectations when exploring the **Weeping Mulla Mulla** sighting:
+- We expect most of the sightings to occur between March to October.
+- We expect most of the sighting location to be in the Western Australia territory.
+- We expect the sightings to be consistent numbers of sightings with an increasing trend as sighting/reporting/monitoring methods become better. 
 
 ## Data description
 
 <!--
 2. Download all the occurrence records from the Atlas of Living Australia, ideally scripted using the `atlas_occurrences()` function from the `galah` package. Make sure you include date, time, collector identification details. Save this into a `data-raw` folder in your repo.
 -->
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-library(galah)
-library(tidyverse)
-library(kableExtra)
-
+```{r , eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 galah_config(email = "mpha0054@student.monash.edu",
              download_reason_id = 10, 
              verbose = TRUE)
@@ -32,7 +33,7 @@ galah_config(email = "mpha0054@student.monash.edu",
 raw_data <- ala_occurrences(
   taxa = select_taxa("Ptilotus calostachyus"))
 
-save(raw_data, file = "raw-data.rda")
+save(raw_data, file = "data-raw/raw-data.rda")
 ```
 
 
@@ -43,6 +44,24 @@ save(raw_data, file = "raw-data.rda")
 
 Weather data pre-processing here too.
 -->
+
+### Processing the data. 
+
+* This is to differentiate between wild sightings and collected sample in museums.
+
+```{r}
+galah_config(email = "mpha0054@student.monash.edu",
+             download_reason_id = 10, 
+             verbose = TRUE)
+
+storage <- galah_call() %>%
+  galah_identify("Weeping mulla mulla") %>%
+  galah_select(basisOfRecord , decimalLatitude, decimalLongitude,eventDate, scientificName, taxonConceptID, recordID, dataResourceName, eventRemarks, eventTime, eventID, eventDate, samplingEffort, samplingProtocol, group = c("basic", "event")) %>% 
+  atlas_occurrences() %>%
+  filter(basisOfRecord == "HUMAN_OBSERVATION")
+```
+
+
 
 ## Exploratory data analysis
 
