@@ -1,41 +1,100 @@
 ---
-title: "MY WILD THING REPORT"
-author: "YOUR TEAM NAME AND MEMBERS HERE"
+title: "Weeping Mulla Mulla: Ptilotus Calostachyus"
+author: "**Team name:** ACDC **Team members:** Khuyen Nguyen kngu0086@student.monash.edu & Khanh Pham"
 format: html
 ---
 
 ## Introduction
 
-<!-- 
-1. For your assigned Australian wild thing, read all you can about it, and write a paragraph describing it's key features, such as it's habitat, usual active time, whether numbers are increasing or declining, and even things like, if it is common for tourists to travel to see them, or there are special spotting promotions occurring as is happening [this month for the platypus](https://platypus.asn.au/report-a-sighting/). The write five unique expectations on what you might find when you explore the data, for example: 
-<br><br>"We expect to see the occurrences only in the summer months."
-<br>"We expect to find the most occurrences near the coast."
-<br>"We expect to observe declining numbers since 1994."
-<br><br> Be as specific as reasonably possible for your wild thing!
--->
+ - We expect the species to thrive in dry conditions, with temperatures ranging from approximately 24 to 34 degrees Celsius _(TravelOnline Australia)_.
+ - We anticipate that there may have been fewer sightings during the COVID-19 pandemic. Since the data relies on volunteer work, there might have been fewer sightings due to a lack of reporting during this time.
 
 ## Data description
 
-<!--
-2. Download all the occurrence records from the Atlas of Living Australia, ideally scripted using the `atlas_occurrences()` function from the `galah` package. Make sure you include date, time, collector identification details. Save this into a `data-raw` folder in your repo.
--->
+```{r species-data, message=FALSE}
+library(kableExtra)
+library(galah)
+library(tidyverse)
+galah_config(email = "kngu0086@student.monash.edu",
+             download_reason_id = 10,
+             verbose = FALSE)
+rawdata <- galah_call() %>% 
+  galah_identify("Ptilotus calostachyus")  %>% 
+  atlas_occurrences()
+save(rawdata, file = "data-raw/rawdata.rda")
+```
+
+The data is sourced from the Atlas of Living Australia website, which aggregates multiple data sources and includes variables indicating location, date, time, scientific name, resource names, and species status. For our analysis, we will primarily utilise the location and event time data. However, a comprehensive dictionary is provided below:
+
+```{r data-dictionary, echo=FALSE, warning=FALSE}
+data <- data.frame(
+  Variable = c("decimalLatitude", "decimalLongitude", "eventDate", "scientificName", "taxonConceptID", "recordID", "dataResourceName",  "occurrenceStatus" ),
+  Description = c(
+    "Latitude value of sighting in decimal format.",
+    "Longitude value of sighting in decimal format.",
+    "Recorded sighting date and time in the format YYYY-MM-DD, hh:mm:ss. In some cases, no time was recorded, and therefore, it is left as 00:00:00.",
+    "The scientific name of the species: Ptilotus Calostachyus.",
+    "The taxonomy website ID: https://id.biodiversity.org.au/node/apni/2910906.",
+    "The record ID of each observation.",
+    "The data resource of the observation of the 23 [data partners](https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#data-partners).",
+    "The occurrence status: Present."
+  )
+)
+
+kable(data, format = "markdown")
+```
 
 ## Initial data analysis
 
-<!--
-3. Perform a data quality check, and then go ahead and clean the data, saving only the wild sightings. Save the resulting data in a `data` folder as an `WILD_THING_COMMON_NAME.rda` file, so that any special variable types are clearly available. (Replace `WILD_THING_COMMON_NAME` with lower case common name of your assigned wild thing.) *Note:* Some are museum or historical records or live in an animal sanctuary or zoo, which do not truly capture their wild behaviour. Downloading the event information (`galah_select(group = "event")`) can help identify wild sightings.
+```{r species-data-cleaning}
+weeping_mulla_mulla <- rawdata %>% 
+  select(decimalLongitude, decimalLatitude, eventDate) %>% 
+  rename(Longitude = decimalLongitude,
+         Latitude = decimalLatitude) %>%
+  mutate(eventDate = as.Date(eventDate)) %>%
+  filter(!is.na(eventDate)) %>%
+  filter(!is.na(Longitude)) 
+save(weeping_mulla_mulla, file = ("data/weeping_mulla_mulla.rda"))
+```
 
-Weather data pre-processing here too.
--->
+```{r weather-data, warning=FALSE, message=FALSE}
+library(rnoaa)
+aus_stations <- ghcnd_stations() |>
+  filter(str_starts(id, "ASN")) |>
+  filter(last_year >= 2020) |>
+  mutate(wmo_id = as.numeric(wmo_id),
+         name = str_to_lower(name)) |>
+  select(-state, -gsn_flag) |>
+  filter(element %in% c("PRCP", "TMAX", "TMIN")) |>
+  nest(element: last_year) |>
+  rowwise() |>
+  filter(nrow(data) == 3) |>
+  select(-data) 
+```
+
+```{r, warning=FALSE, message=FALSE}
+narrogin <- aus_stations |>
+  filter(id == "ASN00010614") |>
+  rowwise() |>
+  mutate(ts = list(meteo_pull_monitors(
+    monitors = id, var = c("PRCP", "TMAX", "TMIN"),
+    date_min = "2004-01-01",
+    date_max = "2023-09-13") |>
+      select(-id))) |>
+  rename(lat = latitude, long = longitude, elev = elevation) |> select(id, long, lat, elev, name, wmo_id, ts) %>%
+  unnest(ts) |>
+  mutate(tmax = tmax/10, tmin = tmin/ 10)
+```
 
 ## Exploratory data analysis
 
-<!--
-4. Make plots of the data to check each of your expectations, and report what you learn. *Note:* This might also be a place where visual inference methods *may* be useful to determine if what is seen agrees or disputes what you expected. 
 
-Weather data exploration here too.
--->
 
 ## Summary 
 
 ## References
+
+ - TravelOnline Australia Pty Ltd. Western Australia Weather & Climate. Retrieved September 27, 2023, from https://www.travelonline.com/western-australia/weather
+ - The Atlas of Living Australia. Ptilotus calostachyus F.Muell.Retrieved September 27, 2023, from https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#overview
+
+
