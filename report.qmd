@@ -14,6 +14,7 @@ format: html
 ```{r species-data, message=FALSE}
 library(kableExtra)
 library(galah)
+library(spData)
 library(tidyverse)
 galah_config(email = "kngu0086@student.monash.edu",
              download_reason_id = 10,
@@ -24,7 +25,9 @@ rawdata <- galah_call() %>%
 save(rawdata, file = "data-raw/rawdata.rda")
 ```
 
-The data is sourced from the Atlas of Living Australia website, which aggregates multiple data sources and includes variables indicating location, date, time, scientific name, resource names, and species status. For our analysis, we will primarily utilise the location and event time data. However, a comprehensive dictionary is provided below:
+The data is sourced from the Atlas of Living Australia website, which aggregates multiple data sources and includes variables indicating location, date, time, scientific name, resource names, and species status. There are `r nrow(rawdata)` observations and `r ncol(rawdata)` variables in the raw data set.
+
+For our analysis, we will primarily utilise the location and event time data. However, a comprehensive dictionary is provided below:
 
 ```{r data-dictionary, echo=FALSE, warning=FALSE}
 data <- data.frame(
@@ -47,13 +50,19 @@ kable(data, format = "markdown")
 ## Initial data analysis
 
 ```{r species-data-cleaning}
-weeping_mulla_mulla <- rawdata %>% 
-  select(decimalLongitude, decimalLatitude, eventDate) %>% 
+weeping_mulla_mulla <- rawdata %>%
+  select(decimalLongitude, decimalLatitude, eventDate) %>%
   rename(Longitude = decimalLongitude,
          Latitude = decimalLatitude) %>%
-  mutate(eventDate = as.Date(eventDate)) %>%
+  mutate(
+    eventDate = as.Date(eventDate),
+    Year = lubridate::year(eventDate),
+    Month = lubridate::month(eventDate),
+    monthName = lubridate::month(eventDate, label = TRUE, abbr = TRUE),
+    Day = lubridate::day(eventDate)
+  ) %>%
   filter(!is.na(eventDate)) %>%
-  filter(!is.na(Longitude)) 
+  filter(!is.na(Longitude))
 save(weeping_mulla_mulla, file = ("data/weeping_mulla_mulla.rda"))
 ```
 
@@ -87,6 +96,32 @@ narrogin <- aus_stations |>
 ```
 
 ## Exploratory data analysis
+
+```{r}
+data(world, package = "spData")
+australia <- world[world$iso_a2 == "AU",]
+
+australia_plot <- ggplot(australia) + geom_sf(fill = "#5b9b2e")
+
+combined_plot <- australia_plot +
+  geom_point(
+    data = weeping_mulla_mulla,
+    aes(x = Longitude, y = Latitude),
+     colour = "#c599b2", 
+) +
+  labs(title = "Weeping Mulla Mulla Sightings Across Australia") +
+  theme_minimal() 
+
+combined_plot
+```
+```{r}
+combined_plot +
+  facet_wrap(~monthName, ncol = 6) +
+  theme_void() +
+  labs(title = "Weeping Mulla Mulla Sightings By Month") 
+```
+
+
 
 
 
