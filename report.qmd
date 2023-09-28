@@ -19,9 +19,27 @@ library(tidyverse)
 galah_config(email = "kngu0086@student.monash.edu",
              download_reason_id = 10,
              verbose = FALSE)
-rawdata <- galah_call() %>% 
-  galah_identify("Ptilotus calostachyus")  %>% 
-  atlas_occurrences()
+rawdata <- galah_call() %>%
+  galah_identify("Weeping mulla mulla") %>%
+  galah_select(
+    basisOfRecord ,
+    decimalLatitude,
+    decimalLongitude,
+    eventDate,
+    scientificName,
+    taxonConceptID,
+    recordID,
+    dataResourceName,
+    eventRemarks,
+    eventTime,
+    eventID,
+    eventDate,
+    samplingEffort,
+    samplingProtocol,
+    group = c("basic", "event")
+  ) %>%
+  atlas_occurrences() %>%
+  filter(basisOfRecord == "HUMAN_OBSERVATION")
 save(rawdata, file = "data-raw/rawdata.rda")
 ```
 
@@ -31,16 +49,22 @@ For our analysis, we will primarily utilise the location and event time data. Ho
 
 ```{r data-dictionary, echo=FALSE, warning=FALSE}
 data <- data.frame(
-  Variable = c("decimalLatitude", "decimalLongitude", "eventDate", "scientificName", "taxonConceptID", "recordID", "dataResourceName",  "occurrenceStatus" ),
+  Variable = c("decimalLatitude", "decimalLongitude", "eventDate", "scientificName", "taxonConceptID", "recordID", "dataResourceName",  "occurrenceStatus", "eventRemarks", "eventTime", "eventID", "samplingEffort", "samplingProtocol", "basisOfRecord"),
   Description = c(
     "Latitude value of sighting in decimal format.",
     "Longitude value of sighting in decimal format.",
     "Recorded sighting date and time in the format YYYY-MM-DD, hh:mm:ss. In some cases, no time was recorded, and therefore, it is left as 00:00:00.",
-    "The scientific name of the species: Ptilotus Calostachyus.",
-    "The taxonomy website ID: https://id.biodiversity.org.au/node/apni/2910906.",
+    "The scientific name of the observed species.",
+    "The taxonomy website ID: [Ptilotus calostachyus](https://id.biodiversity.org.au/node/apni/2910906).",
     "The record ID of each observation.",
-    "The data resource of the observation of the 23 [data partners](https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#data-partners).",
-    "The occurrence status: Present."
+    "The data resource associated with the observation: [List of 23 partners](https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#data-partners).",
+    "The occurrence status: Present.",
+    "Any additional remarks or comments related to the observation.",
+    "Time of the event recorded in the format hh:mm:ss, including the time zone difference.",
+    "The event ID of each obsercation.",
+    "A description of the effort or area that was surveyed or sampled to locate the species.",
+    "The protocol that was used to sample the species.",
+    "Indicates how the record was made: Human observation."
   )
 )
 

@@ -118,12 +118,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">galah_config</span>(<span class="at">email =</span> <span class="st">"kngu0086@student.monash.edu"</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">download_reason_id =</span> <span class="dv">10</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>rawdata <span class="ot">&lt;-</span> <span class="fu">galah_call</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">galah_identify</span>(<span class="st">"Ptilotus calostachyus"</span>)  <span class="sc">%&gt;%</span> </span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">atlas_occurrences</span>()</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(rawdata, <span class="at">file =</span> <span class="st">"data-raw/rawdata.rda"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>rawdata <span class="ot">&lt;-</span> <span class="fu">galah_call</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">galah_identify</span>(<span class="st">"Weeping mulla mulla"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">galah_select</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    basisOfRecord ,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    decimalLatitude,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    decimalLongitude,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    eventDate,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    scientificName,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    taxonConceptID,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    recordID,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    dataResourceName,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    eventRemarks,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    eventTime,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    eventID,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    eventDate,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    samplingEffort,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    samplingProtocol,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">group =</span> <span class="fu">c</span>(<span class="st">"basic"</span>, <span class="st">"event"</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">atlas_occurrences</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(basisOfRecord <span class="sc">==</span> <span class="st">"HUMAN_OBSERVATION"</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(rawdata, <span class="at">file =</span> <span class="st">"data-raw/rawdata.rda"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The data is sourced from the Atlas of Living Australia website, which aggregates multiple data sources and includes variables indicating location, date, time, scientific name, resource names, and species status. There are 955 observations and 8 variables in the raw data set.</p>
+<p>The data is sourced from the Atlas of Living Australia website, which aggregates multiple data sources and includes variables indicating location, date, time, scientific name, resource names, and species status. There are 356 observations and 14 variables in the raw data set.</p>
 <p>For our analysis, we will primarily utilise the location and event time data. However, a comprehensive dictionary is provided below:</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -149,11 +167,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td style="text-align: left;">scientificName</td>
-<td style="text-align: left;">The scientific name of the species: Ptilotus Calostachyus.</td>
+<td style="text-align: left;">The scientific name of the observed species.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">taxonConceptID</td>
-<td style="text-align: left;">The taxonomy website ID: https://id.biodiversity.org.au/node/apni/2910906.</td>
+<td style="text-align: left;">The taxonomy website ID: <a href="https://id.biodiversity.org.au/node/apni/2910906">Ptilotus calostachyus</a>.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">recordID</td>
@@ -161,11 +179,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td style="text-align: left;">dataResourceName</td>
-<td style="text-align: left;">The data resource of the observation of the 23 <a href="https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#data-partners">data partners</a>.</td>
+<td style="text-align: left;">The data resource associated with the observation: <a href="https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#data-partners">List of 23 partners</a>.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">occurrenceStatus</td>
 <td style="text-align: left;">The occurrence status: Present.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eventRemarks</td>
+<td style="text-align: left;">Any additional remarks or comments related to the observation.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eventTime</td>
+<td style="text-align: left;">Time of the event recorded in the format hh:mm:ss, including the time zone difference.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eventID</td>
+<td style="text-align: left;">The event ID of each obsercation.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">samplingEffort</td>
+<td style="text-align: left;">A description of the effort or area that was surveyed or sampled to locate the species.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">samplingProtocol</td>
+<td style="text-align: left;">The protocol that was used to sample the species.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">basisOfRecord</td>
+<td style="text-align: left;">Indicates how the record was made: Human observation.</td>
 </tr>
 </tbody>
 </table>
