@@ -11,9 +11,9 @@ format: html
 
 ## Data description
 
-Below is the code to download the raw data directly from the Atlas of Living Australia.
+Below is the code to download the raw data directly from the [Atlas of Living Australia](https://www.ala.org.au/).
 
-The basis of record was filtered to "human observations" only. This decision was made because we intended to focus solely on sightings of the species in the wild, rather than any specimens that were preserved or in controlled environments. The other options, such as "living specimen," could imply captivity or control, "preserved" typically refers to non-living specimens, and "occurrence" is too general to confirm its wild state.
+The basis of record was filtered to "human observations" only. This decision was made because we intended to focus solely on sightings of the species in the wild, rather than any specimens that were preserved or in controlled environments. The other options, such as "living specimen," could imply captivity or control, "preserved specimen" typically refers to non-living specimens, and "occurrence" is too general to confirm its wild state.
 
 ```{r species-data, message=FALSE}
 library(kableExtra)
@@ -52,7 +52,7 @@ The data is sourced from the Atlas of Living Australia website, which aggregates
 For our analysis, we will primarily utilise the location and event time data. However, a comprehensive dictionary is provided below:
 
 ```{r data-dictionary, echo=FALSE, warning=FALSE}
-data <- data.frame(
+dictionary <- data.frame(
   Variable = c("decimalLatitude", "decimalLongitude", "eventDate", "scientificName", "taxonConceptID", "recordID", "dataResourceName",  "occurrenceStatus", "eventRemarks", "eventTime", "eventID", "samplingEffort", "samplingProtocol", "basisOfRecord"),
   Description = c(
     "Latitude value of sighting in decimal format.",
@@ -72,7 +72,7 @@ data <- data.frame(
   )
 )
 
-kable(data, format = "markdown")
+kable(dictionary, format = "markdown")
 ```
 
 ## Initial data analysis
@@ -109,9 +109,25 @@ aus_stations <- ghcnd_stations() |>
   select(-data) 
 ```
 
+The distribution of the Weeping Mulla Mulla commonly spans the local government areas (LGAs) of Ashburton, Broome, Derby-West Kimberley, East Pilbara, Halls Creek, Karratha, Laverton, Meekatharra, Ngaanyatjarraku, Port Hedland, Upper Gascoyne, Wyndham-East Kimberley, as per ([Florabase](https://florabase.dbca.wa.gov.au/browse/profile.php/2704)).
+
+As such, we can subset the temperature data for some of these specific suburbs.
+
+broome airport ASN00003003
+derby aero ASN00003032
+halls creek airport ASN00002012
+karratha aero ASN00004083
+laverton aero ASN00012305
+laverton raaf ASN00087031
+meekatharra airport ASN00007045
+port hedland airport ASN00004032
+gascoyne junction ASN00006022
+wynyard airport ASN00091107
+wyndham aero ASN00001006
+
 ```{r, warning=FALSE, message=FALSE}
-narrogin <- aus_stations |>
-  filter(id == "ASN00010614") |>
+broomeairport <- aus_stations |>
+  filter(id == "ASN00003003") |>
   rowwise() |>
   mutate(ts = list(meteo_pull_monitors(
     monitors = id, var = c("PRCP", "TMAX", "TMIN"),
@@ -125,6 +141,10 @@ narrogin <- aus_stations |>
 
 ## Exploratory data analysis
 
+**Spatial expectation**
+
+We expect most of the sighting locations to be in Western Australia territory. The plot of sightings below has met our expectations; however, there are also many sightings in the Northern Territory.
+
 ```{r}
 data(world, package = "spData")
 australia <- world[world$iso_a2 == "AU", ]
@@ -135,26 +155,48 @@ combined_plot <- australia_plot +
   geom_point(data = weeping_mulla_mulla,
              aes(x = longitude, y = latitude),
              colour = "#c599b2",) +
-  labs(title = "Weeping Mulla Mulla Sightings Across Australia", x = "Longitude", y = "Latitude") +
+  labs(title = "Weeping Mulla Mulla Sightings Across Australia", x = "Longitude", y = "Latitude", subtitle = "1987 - Present") +
   theme_minimal()
 
 combined_plot
 ```
+
+**Temporal expectation**
+
+We expect sightings of the Weeping Mulla Mulla to be more frequent from March to October. This expectation aligns with our observations, as there are fewer points on the map in January, February, November, and December.
+
 ```{r}
 combined_plot +
   facet_wrap(~monthName, ncol = 6) +
   theme_void() +
-  labs(title = "Weeping Mulla Mulla Sightings By Month") 
+  labs(title = "Weeping Mulla Mulla Sightings By Month")
+```
+So far, the map data has shown us the areas where observations are most frequent. We can see that there are primarily two clusters, one in Western Australia and another in the Northern Territory. These clusters are also evident on some of the maps by month.
+
+**Trend expectation**
+
+```{r}
+weeping_mulla_mulla %>%
+  group_by(Year) %>%
+  count() %>%
+  ggplot(aes(x = Year, y = n, fill = as.factor(Year))) +
+  geom_histogram(stat = "identity") +
+  scale_fill_manual(values = c("2020" = "#c599b2", "2021" = "#c599b2")) +
+  labs(
+    title = "Weeping Mulla Mulla Observations by Year",
+    y = "Number of observations"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none", legend.title = element_blank())
 ```
 
-
-
-
+We can see that the yearly observations do not meet our expectation of reduced observations during COVID-19. There was no decrease in observations from 2000 to 2021.
 
 ## Summary 
 
 ## References
 
+ - Florabase, Ptilotus calostachyus F.Muell., Retrieved September 29, 2023, from https://florabase.dbca.wa.gov.au/browse/profile.php/2704
  - TravelOnline Australia Pty Ltd. Western Australia Weather & Climate. Retrieved September 27, 2023, from https://www.travelonline.com/western-australia/weather
  - The Atlas of Living Australia. Ptilotus calostachyus F.Muell.Retrieved September 27, 2023, from https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#overview
 
