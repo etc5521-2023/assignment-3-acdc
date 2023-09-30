@@ -2,6 +2,9 @@
 title: "weeping mulla mulla: Ptilotus calostachyus"
 author: "ACDC: Minh Pham, Kelly Nguyen"
 format: html
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r libraries, echo=False}
@@ -10,21 +13,38 @@ library(tidyverse)
 library(kableExtra)
 ```
 
-
 ## Introduction
 
-The *Ptilotus calostachyus F.Muell*, which is also known as the **Weeping Mulla Mulla**, is an endemic plant that is commonly found in the Western Australia territory(1). This species thrives in arid region, particular in sandy habitats with red and stony plains(1).  Being a *perennial* plant, it can live up to more than two years with the seasonal pattern of being dormant in the winter and sprouting again in springtime - (1). Moreover, **Weeping Mulla Mulla** displays erect or spreading, herb or shrub characteristics, meaning that it can be found as a tall plant and/or covering an area, as well as with/without a woody body. They can grow from 0.2 to 2 meters tall with pink-white flowers, blooming from March to October. Despite the widespread of its coverage, there are little to none organized sighting campaign of the **Weeping Mulla Mulla** due to the outback nature of its habitat and lesser popularity as compared to other iconic Australia ecotourism species. 
+The *Ptilotus calostachyus F.Muell*, which is also known as the
+**Weeping Mulla Mulla**, is an endemic plant that is commonly found in
+the Western Australia territory (Florabase n. d.). This species thrives
+in arid region, particular in sandy habitats with red and stony
+plains(1). Being a *perennial* plant, it can live up to more than two
+years with the seasonal pattern of being dormant in the winter and
+sprouting again in springtime - (1). Moreover, **Weeping Mulla Mulla**
+displays erect or spreading, herb or shrub characteristics, meaning that
+it can be found as a tall plant and/or covering an area, as well as
+with/without a woody body. They can grow from 0.2 to 2 meters tall with
+pink-white flowers, blooming from March to October. Despite the
+widespread of its coverage, there are little to none organized sighting
+campaign of the **Weeping Mulla Mulla** due to the outback nature of its
+habitat and lesser popularity as compared to other iconic Australia
+ecotourism species.
 
-Five expectations when exploring the **Weeping Mulla Mulla** sighting:
-- We expect most of the sightings to occur between March to October.
-- We expect most of the sighting location to be in the Western Australia territory.
-- We expect the sightings to be consistent numbers of sightings with an increasing trend as sighting/reporting/monitoring methods become better. 
+Five expectations when exploring the **Weeping Mulla Mulla** sighting: -
+We expect most of the sightings to occur between March to October. - We
+expect most of the sighting location to be in the Western Australia
+territory. - We expect the sightings to be consistent numbers of
+sightings with an increasing trend as sighting/reporting/monitoring
+methods become better.
 
 ## Data description
 
+```{=html}
 <!--
 2. Download all the occurrence records from the Atlas of Living Australia, ideally scripted using the `atlas_occurrences()` function from the `galah` package. Make sure you include date, time, collector identification details. Save this into a `data-raw` folder in your repo.
 -->
+```
 ```{r , eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 galah_config(email = "mpha0054@student.monash.edu",
              download_reason_id = 10, 
@@ -36,18 +56,19 @@ raw_data <- ala_occurrences(
 save(raw_data, file = "data-raw/raw-data.rda")
 ```
 
-
 ## Initial data analysis
 
+```{=html}
 <!--
 3. Perform a data quality check, and then go ahead and clean the data, saving only the wild sightings. Save the resulting data in a `data` folder as an `WILD_THING_COMMON_NAME.rda` file, so that any special variable types are clearly available. (Replace `WILD_THING_COMMON_NAME` with lower case common name of your assigned wild thing.) *Note:* Some are museum or historical records or live in an animal sanctuary or zoo, which do not truly capture their wild behaviour. Downloading the event information (`galah_select(group = "event")`) can help identify wild sightings.
 
 Weather data pre-processing here too.
 -->
+```
+### Processing the data.
 
-### Processing the data. 
-
-* This is to differentiate between wild sightings and collected sample in museums.
+This is to differentiate between wild sightings and collected sample in museums. We have also checked the `BASIS_OF_RECORD_INVALID` to determine the reliability of each observation, in which all the `TRUE` results were removed in the process of sub-setting `HUMAN_OBSERVATION` entry in ``basisOfRecord`.
+  
 
 ```{r}
 galah_config(email = "mpha0054@student.monash.edu",
@@ -56,21 +77,164 @@ galah_config(email = "mpha0054@student.monash.edu",
 
 storage <- galah_call() %>%
   galah_identify("Weeping mulla mulla") %>%
-  galah_select(basisOfRecord , decimalLatitude, decimalLongitude,eventDate, scientificName, taxonConceptID, recordID, dataResourceName, eventRemarks, eventTime, eventID, eventDate, samplingEffort, samplingProtocol, group = c("basic", "event")) %>% 
+  galah_select(basisOfRecord , decimalLatitude, decimalLongitude,eventDate, scientificName, taxonConceptID, recordID, dataResourceName, eventRemarks, eventTime, eventID, eventDate, samplingEffort, samplingProtocol, group = c("basic", "event","assertions")) %>% 
   atlas_occurrences() %>%
   filter(basisOfRecord == "HUMAN_OBSERVATION")
 ```
 
+```{r species-data-cleaning}
+weeping_mulla_mulla <- storage %>%
+  select(decimalLongitude, decimalLatitude, eventDate) %>%
+  rename(longitude = decimalLongitude,
+         latitude = decimalLatitude) %>%
+  mutate(
+    eventDate = as.Date(eventDate),
+    Year = lubridate::year(eventDate),
+    Month = lubridate::month(eventDate),
+    monthName = lubridate::month(eventDate, label = TRUE, abbr = TRUE),
+    Day = lubridate::day(eventDate)
+  ) %>%
+  filter(!is.na(eventDate)) %>%
+  filter(!is.na(longitude))
+```
 
+### Checking data quality
+
+We will be using `visdat` library to check for data type errors
+
+```{r message=FALSE, warning=FALSE}
+library(visdat)
+
+vis_dat(weeping_mulla_mulla)
+```
+
+**Discussion**
+The result of `visdat` does not signify any anomalies that needed to be addressed before proceeding with further analysis.
+
+```{r message=FALSE, warning=FALSE}
+vis_guess(weeping_mulla_mulla)
+```
+
+**Discussion**
+`vis_guess` shows that the *longitude* and *latitude* columns both have a record with potentially integer coordinates entry. While this is a sign of rounding given that the coordinates span from a length of values with 5 decimal places precision, we believe this value does not need any alterations as sighting coordinates span across a very wide geographical area, making rounding to the nearest whole number (1.0 degree is 111 kilometers) insignificant in our spatial analysis.
+
+### Weather data
+
+```{r weather-data, warning=FALSE, message=FALSE}
+library(rnoaa)
+aus_stations <- ghcnd_stations() |>
+  filter(str_starts(id, "ASN")) |>
+  filter(last_year >= 2020) |> 
+  mutate(wmo_id = as.numeric(wmo_id),
+         name = str_to_lower(name)) |>
+  select(-state, -gsn_flag) |>
+  filter(element %in% c("PRCP", "TMAX", "TMIN")) |>
+  nest(element: last_year) |>
+  rowwise() |>
+  filter(nrow(data) == 3) |>
+  select(-data) 
+```
+
+
+The distribution of the Weeping Mulla Mulla commonly spans the local
+government areas (LGAs) of Ashburton, Broome, Derby-West Kimberley, East
+Pilbara, Halls Creek, Karratha, Laverton, Meekatharra, Ngaanyatjarraku,
+Port Hedland, Upper Gascoyne, Wyndham-East Kimberley, as per
+([Florabase](https://florabase.dbca.wa.gov.au/browse/profile.php/2704)).
+
+As such, we can subset the temperature data for some of these specific
+suburbs.
+
+* broome airport ASN00003003 
+* derby aero ASN00003032 
+* halls creek airport ASN00002012 
+* karratha aero ASN00004083 
+* laverton aero ASN00012305 
+* laverton raaf ASN00087031 
+* meekatharra airport ASN00007045 
+* port hedland airport ASN00004032 
+* gascoyne junction ASN00006022 
+* wynyard airport ASN00091107
+* wyndham aero ASN00001006
+
+```{r, warning=FALSE, message=FALSE}
+broomeairport <- aus_stations |>
+  filter(id == "ASN00003003") |>
+  rowwise() |>
+  mutate(ts = list(meteo_pull_monitors(
+    monitors = id, var = c("PRCP", "TMAX", "TMIN"),
+    date_min = "2004-01-01",
+    date_max = "2023-09-13") |>
+      select(-id))) |>
+  rename(lat = latitude, long = longitude, elev = elevation) |> select(id, long, lat, elev, name, wmo_id, ts) %>%
+  unnest(ts) |>
+  mutate(tmax = tmax/10, tmin = tmin/ 10)
+```
 
 ## Exploratory data analysis
 
-<!--
-4. Make plots of the data to check each of your expectations, and report what you learn. *Note:* This might also be a place where visual inference methods *may* be useful to determine if what is seen agrees or disputes what you expected. 
+**Spatial expectation**
 
-Weather data exploration here too.
--->
+We expect most of the sighting locations to be in Western Australia
+territory. The plot of sightings below has met our expectations;
+however, there are also many sightings in the Northern Territory.
 
-## Summary 
+```{r}
+data(world, package = "spData")
+australia <- world[world$iso_a2 == "AU", ]
+
+australia_plot <- ggplot(australia) + geom_sf(fill = "#5b9b2e")
+
+combined_plot <- australia_plot +
+  geom_point(data = weeping_mulla_mulla,
+             aes(x = longitude, y = latitude),
+             colour = "#c599b2",) +
+  labs(title = "Weeping Mulla Mulla Sightings Across Australia", x = "Longitude", y = "Latitude", subtitle = "1987 - Present") +
+  theme_minimal()
+
+combined_plot
+```
+
+**Temporal expectation**
+
+We expect sightings of the Weeping Mulla Mulla to be more frequent from
+March to October. This expectation aligns with our observations, as
+there are fewer points on the map in January, February, November, and
+December.
+
+```{r}
+combined_plot +
+  facet_wrap(~monthName, ncol = 6) +
+  theme_void() +
+  labs(title = "Weeping Mulla Mulla Sightings By Month")
+```
+
+So far, the map data has shown us the areas where observations are most
+frequent. We can see that there are primarily two clusters, one in
+Western Australia and another in the Northern Territory. These clusters
+are also evident on some of the maps by month.
+
+**Trend expectation**
+
+```{r}
+weeping_mulla_mulla %>%
+  group_by(Year) %>%
+  count() %>%
+  ggplot(aes(x = Year, y = n, fill = as.factor(Year))) +
+  geom_histogram(stat = "identity") +
+  scale_fill_manual(values = c("2020" = "#c599b2", "2021" = "#c599b2")) +
+  labs(
+    title = "Weeping Mulla Mulla Observations by Year",
+    y = "Number of observations"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none", legend.title = element_blank())
+```
+
+We can see that the yearly observations do not meet our expectation of
+reduced observations during COVID-19. There was no decrease in
+observations from 2000 to 2021.
+
+## Summary
 
 ## References
