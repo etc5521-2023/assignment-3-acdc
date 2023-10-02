@@ -192,7 +192,7 @@ broomeairport <- aus_stations |>
 
 ## Exploratory data analysis
 
-**Spatial expectation**
+### **Spatial expectation**
 
 We expect most of the sighting locations to be in Western Australia
 territory. The plot of sightings below has met our expectations;
@@ -214,7 +214,7 @@ combined_plot <- australia_plot +
 combined_plot
 ```
 
-**Temporal expectation**
+### **Temporal expectation**
 
 We expect sightings of the Weeping Mulla Mulla to be more frequent from
 March to October. This expectation aligns with our observations, as
@@ -233,7 +233,7 @@ frequent. We can see that there are primarily two clusters, one in
 Western Australia and another in the Northern Territory. These clusters
 are also evident on some of the maps by month.
 
-**Seasonality expectation**
+### **Seasonality expectation**
 
 To test whether our expectation that the **Weeping Mulla Mulla** becomes
 more active after rainfall seasons is accurate, we decided to plot the
@@ -268,7 +268,7 @@ believe this is due to thunderstorms and flooding, preventing casual
 observers to stumble upon these plants. Only August has high sighting
 occurrences, as the end of winter has milder downpours.
 
-**Trend expectation**
+### **Trend expectation**
 
 ```{r}
 weeping_mulla_mulla %>%
@@ -288,6 +288,49 @@ weeping_mulla_mulla %>%
 We can see that the yearly observations do not meet our expectation of
 reduced observations during COVID-19. There was no decrease in
 observations from 2000 to 2021.
+
+### **Habitat expectation**
+
+Given that the **Weeping Mulla Mul**la prefers stony and sandy
+environments, we expect the plants to be sighted near areas with
+freshwater such as river banks,... Moreover, observations by travelers
+might be more likely to be located near and/or on the way to a water
+source. To test our this expectation, we deploy a `leaflet` map, which
+displays geographical features such as subsurface water, creeks, lakes,
+and rivers.
+
+```{r}
+library(leaflet)
+
+weeping_mulla_mulla %>%
+  leaflet() %>%
+  addProviderTiles("Esri.DeLorme") %>%
+  setView(lat = -21.833, lng = 128.583, zoom = 5) %>%
+  addCircleMarkers(lng = ~longitude, lat = ~latitude,  stroke = FALSE, fillOpacity = 0.1
+)
+```
+
+Due to the zoom level, we could not see the water body features of the
+map; Therefore, we decided to investigate a cluster of sightings near
+Ali Curung.
+
+```{r}
+library(leaflet)
+
+weeping_mulla_mulla %>%
+  leaflet() %>%
+  addProviderTiles("Esri.DeLorme") %>%
+  setView(lat = -20.9358, lng = 134.2996, zoom = 10) %>%
+  addCircleMarkers(lng = ~longitude, lat = ~latitude,  stroke = FALSE, fillOpacity = 0.3, color = "#5b9b2e"
+)
+```
+
+Based on the map above, we can see that the main cluster of **Weeping
+Mulla Mulla** does not live near a water source, which is different from
+what we expected. This suggests that the plant is dependent on rain,
+meaning that high precipitation periods might lead to higher sightings.
+It is also interesting to see that these sightings were near the
+National 87 road, implying that these reports were made by passersby.
 
 ## Summary
 
