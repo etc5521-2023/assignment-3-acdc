@@ -31,12 +31,23 @@ campaign of the **Weeping Mulla Mulla** due to the outback nature of its
 habitat and lesser popularity as compared to other iconic Australia
 ecotourism species.
 
-Five expectations when exploring the **Weeping Mulla Mulla** sighting: -
-We expect most of the sightings to occur between March to October. - We
-expect most of the sighting location to be in the Western Australia
-territory. - We expect the sightings to be consistent numbers of
-sightings with an increasing trend as sighting/reporting/monitoring
-methods become better.
+Five expectations when exploring the **Weeping Mulla Mulla** sighting:
+
+-   We expect most of the sightings to occur between March to October.
+
+-   We expect most of the sighting location to be in the Western
+    Australia territory.
+
+-   We expect the sightings to be consistent numbers of sightings with
+    an increasing trend as sighting/reporting/monitoring methods become
+    better.
+
+-   We expect the sightings to be clustered in areas with a water source
+    as the plant prefer harsh, dry, and hot sandy habitats.
+
+-   We expect the sightings records to increase after rainfall events,
+    as plants typically begin to bloom after wet season, which is around
+    June - August for Perth.
 
 ## Data description
 
@@ -67,8 +78,11 @@ Weather data pre-processing here too.
 ```
 ### Processing the data.
 
-This is to differentiate between wild sightings and collected sample in museums. We have also checked the `BASIS_OF_RECORD_INVALID` to determine the reliability of each observation, in which all the `TRUE` results were removed in the process of sub-setting `HUMAN_OBSERVATION` entry in ``basisOfRecord`.
-  
+This is to differentiate between wild sightings and collected sample in
+museums. We have also checked the `BASIS_OF_RECORD_INVALID` to determine
+the reliability of each observation, in which all the `TRUE` results
+were removed in the process of sub-setting `HUMAN_OBSERVATION` entry in
+the `basisOfRecord`.
 
 ```{r}
 galah_config(email = "mpha0054@student.monash.edu",
@@ -108,15 +122,20 @@ library(visdat)
 vis_dat(weeping_mulla_mulla)
 ```
 
-**Discussion**
-The result of `visdat` does not signify any anomalies that needed to be addressed before proceeding with further analysis.
+**Discussion** The result of `visdat` does not signify any anomalies
+that needed to be addressed before proceeding with further analysis.
 
 ```{r message=FALSE, warning=FALSE}
 vis_guess(weeping_mulla_mulla)
 ```
 
-**Discussion**
-`vis_guess` shows that the *longitude* and *latitude* columns both have a record with potentially integer coordinates entry. While this is a sign of rounding given that the coordinates span from a length of values with 5 decimal places precision, we believe this value does not need any alterations as sighting coordinates span across a very wide geographical area, making rounding to the nearest whole number (1.0 degree is 111 kilometers) insignificant in our spatial analysis.
+**Discussion** `vis_guess` shows that the *longitude* and *latitude*
+columns both have a record with potentially integer coordinates entry.
+While this is a sign of rounding given that the coordinates span from a
+length of values with 5 decimal places precision, we believe this value
+does not need any alterations as sighting coordinates span across a very
+wide geographical area, making rounding to the nearest whole number (1.0
+degree is 111 kilometers) insignificant in our spatial analysis.
 
 ### Weather data
 
@@ -135,7 +154,6 @@ aus_stations <- ghcnd_stations() |>
   select(-data) 
 ```
 
-
 The distribution of the Weeping Mulla Mulla commonly spans the local
 government areas (LGAs) of Ashburton, Broome, Derby-West Kimberley, East
 Pilbara, Halls Creek, Karratha, Laverton, Meekatharra, Ngaanyatjarraku,
@@ -145,17 +163,17 @@ Port Hedland, Upper Gascoyne, Wyndham-East Kimberley, as per
 As such, we can subset the temperature data for some of these specific
 suburbs.
 
-* broome airport ASN00003003 
-* derby aero ASN00003032 
-* halls creek airport ASN00002012 
-* karratha aero ASN00004083 
-* laverton aero ASN00012305 
-* laverton raaf ASN00087031 
-* meekatharra airport ASN00007045 
-* port hedland airport ASN00004032 
-* gascoyne junction ASN00006022 
-* wynyard airport ASN00091107
-* wyndham aero ASN00001006
+-   broome airport ASN00003003
+-   derby aero ASN00003032
+-   halls creek airport ASN00002012
+-   karratha aero ASN00004083
+-   laverton aero ASN00012305
+-   laverton raaf ASN00087031
+-   meekatharra airport ASN00007045
+-   port hedland airport ASN00004032
+-   gascoyne junction ASN00006022
+-   wynyard airport ASN00091107
+-   wyndham aero ASN00001006
 
 ```{r, warning=FALSE, message=FALSE}
 broomeairport <- aus_stations |>
@@ -166,7 +184,8 @@ broomeairport <- aus_stations |>
     date_min = "2004-01-01",
     date_max = "2023-09-13") |>
       select(-id))) |>
-  rename(lat = latitude, long = longitude, elev = elevation) |> select(id, long, lat, elev, name, wmo_id, ts) %>%
+  rename(lat = latitude, long = longitude, elev = elevation) |> 
+  select(id, long, lat, elev, name, wmo_id, ts) %>%
   unnest(ts) |>
   mutate(tmax = tmax/10, tmin = tmin/ 10)
 ```
@@ -213,6 +232,41 @@ So far, the map data has shown us the areas where observations are most
 frequent. We can see that there are primarily two clusters, one in
 Western Australia and another in the Northern Territory. These clusters
 are also evident on some of the maps by month.
+
+**Seasonality expectation**
+
+To test whether our expectation that the **Weeping Mulla Mulla** becomes
+more active after rainfall seasons is accurate, we decided to plot the
+occurrences by month. While there are some indications from the previous
+*Temporal expectation* section, where June to August plots show
+considerably more observation points, we would like create a bar plot
+for a better visualization inference.
+
+```{r}
+weeping_mulla_mulla %>%
+  group_by(monthName) %>%
+  count() %>%
+  ggplot(aes(x = monthName, y = n, fill = as.factor(monthName))) +
+  geom_bar(stat = "identity", col = "#5b9b2e") +
+  scale_fill_manual(values = c("Jun" = "#c599b2", "Jul" = "#c599b2", "Aug" = "#c599b2")) +
+  labs(
+    title = "Weeping Mulla Mulla Observations by Month",
+    y = "Number of observations",
+    x = "Month"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none", legend.title = element_blank())
+```
+
+Interestingly, we observe decreased sightings during June and July while
+August has the highest sighting occurrences. March marks the start of
+the blooming cycle with April and May being the autumn season in Western
+Australia (Tourism Australia n. d.), which has occasional showers. This
+explains the large rise in sightings for these months. However, the main
+raining events (June to August) saw significantly lower occurrences - we
+believe this is due to thunderstorms and flooding, preventing casual
+observers to stumble upon these plants. Only August has high sighting
+occurrences, as the end of winter has milder downpours.
 
 **Trend expectation**
 
