@@ -2,6 +2,7 @@
 title: "Weeping Mulla Mulla: Ptilotus Calostachyus"
 author: "**Team name:** ACDC **Team members:** Khuyen Nguyen kngu0086@student.monash.edu & Khanh Pham"
 format: html
+title-block-banner: true
 ---
 
 ## Introduction
@@ -40,6 +41,7 @@ rawdata <- galah_call() %>%
     eventDate,
     samplingEffort,
     samplingProtocol,
+    cl959,
     group = c("basic", "event")
   ) %>%
   atlas_occurrences() %>%
@@ -53,7 +55,7 @@ For our analysis, we will primarily utilise the location and event time data. Ho
 
 ```{r data-dictionary, echo=FALSE, warning=FALSE}
 dictionary <- data.frame(
-  Variable = c("decimalLatitude", "decimalLongitude", "eventDate", "scientificName", "taxonConceptID", "recordID", "dataResourceName",  "occurrenceStatus", "eventRemarks", "eventTime", "eventID", "samplingEffort", "samplingProtocol", "basisOfRecord"),
+  Variable = c("decimalLatitude", "decimalLongitude", "eventDate", "scientificName", "taxonConceptID", "recordID", "dataResourceName",  "occurrenceStatus", "eventRemarks", "eventTime", "eventID", "samplingEffort", "samplingProtocol", "basisOfRecord", "cl959"),
   Description = c(
     "Latitude value of sighting in decimal format.",
     "Longitude value of sighting in decimal format.",
@@ -68,7 +70,8 @@ dictionary <- data.frame(
     "The event ID of each obsercation.",
     "A description of the effort or area that was surveyed or sampled to locate the species.",
     "The protocol that was used to sample the species.",
-    "Indicates how the record was made: Human observation."
+    "Indicates how the record was made: Human observation.",
+    "Denotes the local government area where the observation was made."
   )
 )
 
@@ -79,19 +82,25 @@ kable(dictionary, format = "markdown")
 
 ```{r species-data-cleaning}
 weeping_mulla_mulla <- rawdata %>%
-  select(decimalLongitude, decimalLatitude, eventDate) %>%
+  select(decimalLongitude, decimalLatitude, eventDate, cl959) %>%
   rename(longitude = decimalLongitude,
-         latitude = decimalLatitude) %>%
+         latitude = decimalLatitude,
+         lga = cl959) %>%
   mutate(
     eventDate = as.Date(eventDate),
     Year = lubridate::year(eventDate),
     Month = lubridate::month(eventDate),
     monthName = lubridate::month(eventDate, label = TRUE, abbr = TRUE),
-    Day = lubridate::day(eventDate)
+    Day = lubridate::day(eventDate),
+    lga = str_remove(lga, "\\(.*")
   ) %>%
   filter(!is.na(eventDate)) %>%
-  filter(!is.na(longitude))
+  filter(!is.na(longitude)) 
 save(weeping_mulla_mulla, file = ("data/weeping_mulla_mulla.rda"))
+```
+
+```{r}
+max(weeping_mulla_mulla$lga)
 ```
 
 ```{r weather-data, warning=FALSE, message=FALSE}
@@ -126,8 +135,8 @@ wynyard airport ASN00091107
 wyndham aero ASN00001006
 
 ```{r, warning=FALSE, message=FALSE}
-broomeairport <- aus_stations |>
-  filter(id == "ASN00003003") |>
+wyndhamaero <- aus_stations |>
+  filter(id == "ASN00001006") |>
   rowwise() |>
   mutate(ts = list(meteo_pull_monitors(
     monitors = id, var = c("PRCP", "TMAX", "TMIN"),
@@ -155,7 +164,10 @@ combined_plot <- australia_plot +
   geom_point(data = weeping_mulla_mulla,
              aes(x = longitude, y = latitude),
              colour = "#c599b2",) +
-  labs(title = "Weeping Mulla Mulla Sightings Across Australia", x = "Longitude", y = "Latitude", subtitle = "1987 - Present") +
+  labs(title = "Weeping Mulla Mulla Sightings Across Australia", 
+       x = "Longitude", 
+       y = "Latitude", 
+       subtitle = "1987 - Present") +
   theme_minimal()
 
 combined_plot
@@ -175,7 +187,7 @@ So far, the map data has shown us the areas where observations are most frequent
 
 **Trend expectation**
 
-```{r}
+```{r, warning=FALSE}
 weeping_mulla_mulla %>%
   group_by(Year) %>%
   count() %>%
@@ -191,6 +203,34 @@ weeping_mulla_mulla %>%
 ```
 
 We can see that the yearly observations do not meet our expectation of reduced observations during COVID-19. There was no decrease in observations from 2000 to 2021.
+
+```{r}
+library(leaflet)
+
+weeping_mulla_mulla %>%
+  leaflet() %>%
+  addProviderTiles("Esri.DeLorme") %>%
+  setView(lat = -21.833, lng = 128.583, zoom = 5) %>%
+  addCircleMarkers(lng = ~longitude, 
+                   lat = ~latitude,  
+                   stroke = FALSE, 
+                   fillOpacity = 0.1
+)
+```
+```{r}
+library(leaflet)
+
+weeping_mulla_mulla %>%
+  leaflet() %>%
+  addProviderTiles("Esri.DeLorme") %>%
+  setView(lat = -20.9358, lng = 134.2996, zoom = 10) %>%
+  addCircleMarkers(lng = ~longitude, 
+                   lat = ~latitude,  
+                   stroke = FALSE, 
+                   fillOpacity = 0.3,
+                   color = "#5b9b2e"
+)
+```
 
 ## Summary 
 
