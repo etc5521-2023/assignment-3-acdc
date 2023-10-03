@@ -83,7 +83,7 @@ galah_config(email = "mpha0054@student.monash.edu",
 raw_data <- ala_occurrences(
   taxa = select_taxa("Ptilotus calostachyus"))
 
-save(raw_data, file = "data-raw/raw-data.rda")
+save(raw_data, file = "data-raw/raw_data.rda")
 ```
 
 ```{r message=FALSE, warning=FALSE}
