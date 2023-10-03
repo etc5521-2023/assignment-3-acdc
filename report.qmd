@@ -2,12 +2,11 @@
 title: "Weeping Mulla Mulla: Ptilotus Calostachyus"
 author: "**Team name:** ACDC </br> **Team members:** </br> Khuyen Nguyen _kngu0086@student.monash.edu_ </br> Khanh Pham _mpha0054@student.monash.edu_"
 format: html
+toc: true
 editor: 
   markdown: 
     wrap: 72
 ---
-
-![](https://static.inaturalist.org/photos/54862576/medium.jpg)
 
 ```{r, echo=FALSE, message=FALSE}
 library(galah)
@@ -52,6 +51,8 @@ Five expectations when exploring the **Weeping Mulla Mulla** sighting:
 -   We expect the sightings records to increase after rainfall events,
     as plants typically begin to bloom after wet season, which is around
     June - August for Perth.
+    
+![](https://static.inaturalist.org/photos/54862576/medium.jpg){fig-align="center"}
 
 ## Data description
 
@@ -245,7 +246,9 @@ degree is 111 kilometers) insignificant in our spatial analysis.
 
 ### Spatial expectation
 
-```{r}
+We expect most of the sighting locations to be in Western Australia territory. The plot of sightings below has met our expectations; however, there are also many sightings in the Northern Territory.
+
+```{r, echo=FALSE}
 data(world, package = "spData")
 australia <- world[world$iso_a2 == "AU", ]
 
@@ -266,10 +269,10 @@ combined_plot
 
 ### Temporal expectation
 
-We expect sightings of the Weeping Mulla Mulla to be more frequent from March to October. This expectation aligns with our observations, as there are fewer points on the map in January, February, November, and December.
+We expect sightings of the **Weeping Mulla Mulla** to be more frequent from March to October. This expectation aligns with our observations, as there are fewer points on the map in January, February, November, and December.
 
 
-```{r}
+```{r, echo = FALSE}
 combined_plot +
   facet_wrap(~monthName, ncol = 6) +
   theme_void() +
@@ -279,7 +282,7 @@ So far, the map data has shown us the areas where observations are most frequent
 
 ### Trend expectation
 
-```{r}
+```{r, echo=FALSE, warning =FALSE}
 weeping_mulla_mulla %>%
   group_by(Year) %>%
   count() %>%
