@@ -1,18 +1,20 @@
 ---
 title: "Weeping Mulla Mulla: Ptilotus Calostachyus"
-author: "**Team name:** ACDC </br> **Team members:** Khuyen Nguyen & Khanh Pham kngu0086@student.monash.edu, "
+author: "**Team name:** ACDC </br> **Team members:** </br> Khuyen Nguyen _kngu0086@student.monash.edu_ </br> Khanh Pham _mpha0054@student.monash.edu_"
 format: html
-title-block-banner: true
 editor: 
   markdown: 
     wrap: 72
 ---
 
+![](https://static.inaturalist.org/photos/54862576/medium.jpg)
+
 ```{r, echo=FALSE, message=FALSE}
 library(galah)
-library(tidyverse)
 library(kableExtra)
+library(leaflet)
 library(spData)
+library(tidyverse)
 ```
 
 ## Introduction
@@ -59,7 +61,18 @@ Five expectations when exploring the **Weeping Mulla Mulla** sighting:
 -->
 ```
 
+### Processing the data
+
 Below is the code to download the raw data directly from the [Atlas of Living Australia](https://www.ala.org.au/).
+
+The basis of record was filtered to `HUMAN_OBSERVATION` only. This decision was made because we intended to focus solely on sightings of the species in the wild, and differentiate between specimens that were preserved, collected samples, or in controlled environments such as museums. 
+
+We have also checked the `BASIS_OF_RECORD_INVALID` to determine
+the reliability of each observation, in which all the `TRUE` results
+were removed in the process of sub-setting `HUMAN_OBSERVATION` entry in
+the `basisOfRecord`.
+
+The other options, such as `LIVING SPECIMEN`, could imply captivity or control, `PRESERVED SPECIMEN` typically refers to non-living specimens, and `OCCURRENCE` was too general to confirm its wild state.
 
 ```{r raw-data, eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 galah_config(email = "mpha0054@student.monash.edu",
@@ -72,29 +85,6 @@ raw_data <- ala_occurrences(
 save(raw_data, file = "data-raw/raw-data.rda")
 ```
 
-
-## Initial data analysis
-
-```{=html}
-<!--
-3. Perform a data quality check, and then go ahead and clean the data, saving only the wild sightings. Save the resulting data in a `data` folder as an `WILD_THING_COMMON_NAME.rda` file, so that any special variable types are clearly available. (Replace `WILD_THING_COMMON_NAME` with lower case common name of your assigned wild thing.) *Note:* Some are museum or historical records or live in an animal sanctuary or zoo, which do not truly capture their wild behaviour. Downloading the event information (`galah_select(group = "event")`) can help identify wild sightings.
-
-Weather data pre-processing here too.
--->
-```
-
-### Processing the data
-
-The basis of record was filtered to `HUMAN_OBSERVATION` only. This decision was made because we intended to focus solely on sightings of the species in the wild, and differentiate between specimens that were preserved, collected samples, or in controlled environments such as museums. 
-
-We have also checked the `BASIS_OF_RECORD_INVALID` to determine
-the reliability of each observation, in which all the `TRUE` results
-were removed in the process of sub-setting `HUMAN_OBSERVATION` entry in
-the `basisOfRecord`.
-
-The other options, such as `LIVING SPECIMEN`, could imply captivity or control, `PRESERVED SPECIMEN` typically refers to non-living specimens, and `OCCURRENCE` was too general to confirm its wild state.
-
-
 ```{r message=FALSE, warning=FALSE}
 galah_config(email = "mpha0054@student.monash.edu",
              download_reason_id = 10, 
@@ -103,21 +93,9 @@ galah_config(email = "mpha0054@student.monash.edu",
 storage <- galah_call() %>%
   galah_identify("Weeping mulla mulla") %>%
   galah_select(
-    basisOfRecord ,
-    decimalLatitude,
-    decimalLongitude,
-    eventDate,
-    scientificName,
-    taxonConceptID,
-    recordID,
-    dataResourceName,
-    eventRemarks,
-    eventTime,
-    eventID,
-    eventDate,
-    samplingEffort,
-    samplingProtocol,
-    cl959,
+    basisOfRecord, decimalLatitude, decimalLongitude, eventDate, scientificName,
+    taxonConceptID, recordID, dataResourceName, eventRemarks, eventTime, eventID,
+    eventDate, samplingEffort, samplingProtocol, cl959,
     group = c("basic", "event")
   ) %>%
   atlas_occurrences() %>%
@@ -228,6 +206,16 @@ wyndhamaero <- aus_stations |>
   mutate(tmax = tmax/10, tmin = tmin/ 10)
 ```
 
+## Initial data analysis
+
+```{=html}
+<!--
+3. Perform a data quality check, and then go ahead and clean the data, saving only the wild sightings. Save the resulting data in a `data` folder as an `WILD_THING_COMMON_NAME.rda` file, so that any special variable types are clearly available. (Replace `WILD_THING_COMMON_NAME` with lower case common name of your assigned wild thing.) *Note:* Some are museum or historical records or live in an animal sanctuary or zoo, which do not truly capture their wild behaviour. Downloading the event information (`galah_select(group = "event")`) can help identify wild sightings.
+
+Weather data pre-processing here too.
+-->
+```
+
 ### Checking data quality
 
 We will be using `visdat` library to check for data type errors
@@ -255,7 +243,7 @@ degree is 111 kilometers) insignificant in our spatial analysis.
 
 ## Exploratory data analysis
 
-### **Spatial expectation**
+### Spatial expectation
 
 ```{r}
 data(world, package = "spData")
@@ -276,7 +264,7 @@ combined_plot <- australia_plot +
 combined_plot
 ```
 
-### **Temporal expectation**
+### Temporal expectation
 
 We expect sightings of the Weeping Mulla Mulla to be more frequent from March to October. This expectation aligns with our observations, as there are fewer points on the map in January, February, November, and December.
 
@@ -289,74 +277,7 @@ combined_plot +
 ```
 So far, the map data has shown us the areas where observations are most frequent. We can see that there are primarily two clusters, one in Western Australia and another in the Northern Territory. These clusters are also evident on some of the maps by month.
 
-**Trend expectation**
-
-```{r, warning=FALSE}
-weeping_mulla_mulla %>%
-  group_by(Year) %>%
-  count() %>%
-  ggplot(aes(x = Year, y = n, fill = as.factor(Year))) +
-  geom_histogram(stat = "identity") +
-  scale_fill_manual(values = c("2020" = "#c599b2", "2021" = "#c599b2")) +
-  labs(
-    title = "Weeping Mulla Mulla Observations by Year",
-    y = "Number of observations"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "none", legend.title = element_blank())
-```
-
-We can see that the yearly observations do not meet our expectation of reduced observations during COVID-19. There was no decrease in observations from 2000 to 2021.
-
-```{r}
-library(leaflet)
-
-weeping_mulla_mulla %>%
-  leaflet() %>%
-  addProviderTiles("Esri.DeLorme") %>%
-  setView(lat = -21.833, lng = 128.583, zoom = 5) %>%
-  addCircleMarkers(lng = ~longitude, 
-                   lat = ~latitude,  
-                   stroke = FALSE, 
-                   fillOpacity = 0.1
-)
-```
-```{r}
-library(leaflet)
-
-weeping_mulla_mulla %>%
-  leaflet() %>%
-  addProviderTiles("Esri.DeLorme") %>%
-  setView(lat = -20.9358, lng = 134.2996, zoom = 10) %>%
-  addCircleMarkers(lng = ~longitude, 
-                   lat = ~latitude,  
-                   stroke = FALSE, 
-                   fillOpacity = 0.3,
-                   color = "#5b9b2e"
-)
-```
-
-
-### **Temporal expectation**
-
-We expect sightings of the Weeping Mulla Mulla to be more frequent from
-March to October. This expectation aligns with our observations, as
-there are fewer points on the map in January, February, November, and
-December.
-
-```{r}
-combined_plot +
-  facet_wrap(~monthName, ncol = 6) +
-  theme_void() +
-  labs(title = "Weeping Mulla Mulla Sightings By Month")
-```
-
-So far, the map data has shown us the areas where observations are most
-frequent. We can see that there are primarily two clusters, one in
-Western Australia and another in the Northern Territory. These clusters
-are also evident on some of the maps by month.
-
-### **Seasonality expectation**
+### Seasonality expectation
 
 To test whether our expectation that the **Weeping Mulla Mulla** becomes
 more active after rainfall seasons is accurate, we decided to plot the
@@ -371,7 +292,9 @@ weeping_mulla_mulla %>%
   count() %>%
   ggplot(aes(x = monthName, y = n, fill = as.factor(monthName))) +
   geom_bar(stat = "identity", col = "#5b9b2e") +
-  scale_fill_manual(values = c("Jun" = "#c599b2", "Jul" = "#c599b2", "Aug" = "#c599b2")) +
+  scale_fill_manual(values = c("Jun" = "#c599b2", 
+                               "Jul" = "#c599b2", 
+                               "Aug" = "#c599b2")) +
   labs(
     title = "Weeping Mulla Mulla Observations by Month",
     y = "Number of observations",
@@ -392,7 +315,7 @@ observers to stumble upon these plants. Only August has high sighting
 occurrences, as the end of winter has milder downpours.
 
 
-### **Habitat expectation**
+### Habitat expectation
 
 Given that the **Weeping Mulla Mulla** prefers stony and sandy
 environments, we expect the plants to be sighted near areas with
@@ -409,7 +332,10 @@ weeping_mulla_mulla %>%
   leaflet() %>%
   addProviderTiles("Esri.DeLorme") %>%
   setView(lat = -21.833, lng = 128.583, zoom = 5) %>%
-  addCircleMarkers(lng = ~longitude, lat = ~latitude,  stroke = FALSE, fillOpacity = 0.1
+  addCircleMarkers(lng = ~longitude, 
+                   lat = ~latitude,  
+                   stroke = FALSE, 
+                   fillOpacity = 0.1
 )
 ```
 
@@ -424,7 +350,11 @@ weeping_mulla_mulla %>%
   leaflet() %>%
   addProviderTiles("Esri.DeLorme") %>%
   setView(lat = -20.9358, lng = 134.2996, zoom = 10) %>%
-  addCircleMarkers(lng = ~longitude, lat = ~latitude,  stroke = FALSE, fillOpacity = 0.3, color = "#5b9b2e"
+  addCircleMarkers(lng = ~longitude, 
+                   lat = ~latitude,  
+                   stroke = FALSE, 
+                   fillOpacity = 0.3, 
+                   color = "#5b9b2e"
 )
 ```
 
@@ -439,8 +369,20 @@ National 87 road, implying that these reports were made by passersby.
 
 ## References
 
- - Florabase, Ptilotus calostachyus F.Muell., Retrieved September 29, 2023, from https://florabase.dbca.wa.gov.au/browse/profile.php/2704
- - TravelOnline Australia Pty Ltd. Western Australia Weather & Climate. Retrieved September 27, 2023, from https://www.travelonline.com/western-australia/weather
- - The Atlas of Living Australia. Ptilotus calostachyus F.Muell.Retrieved September 27, 2023, from https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#overview
+### Websites
+ - **iNaturalist**. Ptilotus calostachyus Image., Retrieved October 03, 2023, from https://www.inaturalist.org/taxa/869581-Ptilotus-calostachyus.
+ - **Florabase**, Ptilotus calostachyus F.Muell., Retrieved September 29, 2023, from https://florabase.dbca.wa.gov.au/browse/profile.php/2704
+ - **The Atlas of Living Australia**. Ptilotus calostachyus F.Muell.Retrieved September 27, 2023, from https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#overview
 
+### Packages
+ - **leaflet**: Cheng J, Schloerke B, Karambelkar B, Xie Y (2023). _leaflet: Create Interactive Web Maps with the JavaScript 'Leaflet' Library_. R package version 2.2.0,
+  https://CRAN.R-project.org/package=leaflet.
+ - **galah**: Westgate M, Kellie D, Stevenson M, Newman P (2023). _galah: Biodiversity Data from
+  the Living Atlas Community_. R package version 1.5.3,
+  https://CRAN.R-project.org/package=galah.
+ - **kableExtra**: Zhu H (2021). _kableExtra: Construct Complex Table with 'kable' and Pipe Syntax_. R package version 1.3.4, https://CRAN.R-project.org/package=kableExtra.
+ - **spData**: Bivand R, Nowosad J, Lovelace R (2023). _spData: Datasets for Spatial Analysis_. R
+ - **tidyverse**:  Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A, Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019). “Welcome to the tidyverse.” _Journal of Open Source Software_, *4*(43), 1686. doi:10.21105/joss.01686 https://doi.org/10.21105/joss.01686.
+ - **visdat**: Tierney N (2017). “visdat: Visualising Whole Data Frames.” _JOSS_, *2*(16), 355.
+  doi:10.21105/joss.00355 https://doi.org/10.21105/joss.00355, http://dx.doi.org/10.21105/joss.00355.
 
