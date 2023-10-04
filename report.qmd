@@ -189,7 +189,7 @@ aus_stations_filtered <- aus_stations %>%
 data(world, package = "spData")
 australia <- world[world$iso_a2 == "AU", ]
 
-australia_plot <- ggplot(australia) + geom_sf(fill = "#5b9b2e")
+australia_plot <- ggplot(australia) + geom_sf(fill = "#f3edd7")
 
 combined_plot <- australia_plot +
   geom_point(data = weeping_mulla_mulla,
@@ -211,7 +211,7 @@ combined_plot +
     ),
     shape = 2
   ) +
-  scale_color_manual(values = c("FALSE" = "#222233", "TRUE" = "white")) +
+  scale_color_manual(values = c("FALSE" = "#222233", "TRUE" = "red")) +
   theme(legend.position = "none")
 ```
 ```{r echo=FALSE}
