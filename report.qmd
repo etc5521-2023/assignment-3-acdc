@@ -331,7 +331,6 @@ data, a comprehensive dataset can be generated that encompasses both
 observational data and daily weather information.
 
 ```{r}
-# duplicated dates 
 temperature <- tennant_creek_airport %>%
   left_join(weeping_mulla_mulla, by = c("date" = "eventDate")) %>%
   select(date:Day) %>% 
@@ -524,7 +523,7 @@ weeping_mulla_mulla %>%
   group_by(monthName) %>%
   count() %>%
   ggplot(aes(x = monthName, y = n, fill = as.factor(monthName))) +
-  geom_bar(stat = "identity", col = "#5b9b2e") +
+  geom_bar(stat = "identity") +
   scale_fill_manual(values = c("Jun" = "#c599b2", 
                                "Jul" = "#c599b2", 
                                "Aug" = "#c599b2")) +
@@ -597,6 +596,39 @@ what we expected. This suggests that the plant is dependent on rain,
 meaning that high precipitation periods might lead to higher sightings.
 It is also interesting to see that these sightings were near the
 National 87 road, implying that these reports were made by passersby.
+
+### Precipitation and sighting annually
+
+```{r}
+
+average_precipitation <- temperature %>%
+  mutate(Year = lubridate::year(date)) %>%
+  group_by(Year) %>%
+  summarise(total_prcp = sum(prcp, na.rm = TRUE)) %>%
+  mutate(avg_prcp = total_prcp / 365)
+  
+
+rainplot <- temperature %>%
+  filter(sighting == 1) %>%
+  group_by(Year) %>%
+  summarise(sighting_count = n()) %>%
+  ggplot() +
+  geom_bar(aes(x = as.factor(Year), y = sighting_count), stat = "identity", fill = "aquamarine4") +
+  geom_line(data = average_precipitation, aes(x = as.factor(Year), y = avg_prcp, group = 1), color = "#c599b2") +
+  geom_point(data = average_precipitation, aes(x = as.factor(Year), y = avg_prcp), color = "#c599b2") +
+  labs(x = "Year", y = "Sighting Count",
+       title = "Sighting Count and Average Precipitation by Year (Barkly and Tennant Creek Station)",
+       color = "Average Precipitation",
+       secondary = "Average Precipitation (mm)") +
+  scale_y_continuous(name = "Sighting Count",
+                     sec.axis = sec_axis(~., name = "Average Precipitation (mm)")) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(rainplot)
+
+```
+
 
 ## Summary
 
