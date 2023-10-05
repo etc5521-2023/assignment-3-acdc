@@ -366,6 +366,28 @@ combined_plot +
   labs(title = "Weeping Mulla Mulla Sightings By Month")
 ```
 
+```{r, echo=FALSE}
+# WIP
+
+data(world, package = "spData")
+australia <- world[world$iso_a2 == "AU", ]
+
+australia_plot <- ggplot(australia) + geom_sf(fill = "#f3edd7") 
+
+combined_plot <- australia_plot +
+  geom_point(data = weeping_mulla_mulla,
+             aes(x = longitude, y = latitude, color = as.factor(Month))) +
+  coord_sf(xlim = c(110 , 145 ), ylim = c(-10, -30)) +
+  labs(title = "Weeping Mulla Mulla Sightings Across Australia", 
+       x = "Longitude", 
+       y = "Latitude", 
+       subtitle = "1987 - Present") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+combined_plot
+```
+
 ### Trend expectation
 
 Since the data relies on human observation, it was anticipated that there might have been fewer sightings due to a lack of reporting.
