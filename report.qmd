@@ -270,12 +270,14 @@ tennant_creek_airport <- aus_stations |>
 
 **Tennant Creek in Barkly Region**
 
-The species dataset includes local government information, and as Tennant Creek is situated in the Barkly region, the final step is to integrate temperature data from weather stations into observations within the Barkly region, creating a comprehensive dataset encompassing both observations and temperature data.
+The `weeping_mulla_mulla` dataset has included local government information. Given that Tennant Creek is situated in the local government area of Barkly, the final step involves integrating the species data set with temperature data from weather stations and highlighting those observations belonging to the Barkly region.
+
+A new column named `sighting` is created. This column serves the crucial purpose of indicating whether a sighting occurred on a particular day or not and whether temperature data is available. Consequently, as all the observations within the Barkly region have corresponding temperature data, a comprehensive dataset can be generated that encompasses both observational data and daily weather information.
 
 ```{r}
 temperature <- tennant_creek_airport %>%
   left_join(weeping_mulla_mulla, by = c("date" = "eventDate")) %>%
-  select(latitude:Day, prcp:tmin) %>% 
+  select(date:Day) %>% 
   mutate(sighting = ifelse(lga == "Barkly ", 1, 0))
 
 save(temperature, file = ("data/temperature.rda"))
