@@ -268,16 +268,17 @@ tennant_creek_airport <- aus_stations |>
   mutate(tmax = tmax/10, tmin = tmin/ 10)
 ```
 
-**Joining the species and weather data set**
+**Tennant Creek in Barkly Region**
 
-The final step is to integrate the temperature data back into the species observations, thereby creating a comprehensive dataset that encompasses both observations and temperature data.
+The species dataset includes local government information, and as Tennant Creek is situated in the Barkly region, the final step is to integrate temperature data from weather stations into observations within the Barkly region, creating a comprehensive dataset encompassing both observations and temperature data.
 
 ```{r}
 temperature <- weeping_mulla_mulla %>%
   left_join(tennant_creek_airport, by = c("eventDate" = "date")) %>%
+  filter(!is.na(tmax) & !is.na(tmin)) %>% 
   select(latitude:Day, prcp:tmin) %>% 
-  mutate(sighting = ifelse(is.na(tmax) & is.na(tmin), 0, 1)) 
-
+  mutate(sighting = ifelse(lga == "Barkly ", 1, 0)) %>% 
+  mutate_at(vars(prcp:tmin), ~ifelse(sighting == 0, NA, .))
 save(temperature, file = ("data/temperature.rda"))
 ```
 
@@ -332,7 +333,7 @@ Most of the sightings are clustered in the northern regions of Western Australia
 data(world, package = "spData")
 australia <- world[world$iso_a2 == "AU", ]
 
-australia_plot <- ggplot(australia) + geom_sf(fill = "#f3edd7")
+australia_plot <- ggplot(australia) + geom_sf(fill = "#f3edd7") 
 
 combined_plot <- australia_plot +
   geom_point(data = weeping_mulla_mulla,
