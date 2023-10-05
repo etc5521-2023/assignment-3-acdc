@@ -43,15 +43,21 @@ Five expectations when exploring the **Weeping Mulla Mulla** sighting:
 
 -   We expect the sightings to be consistent numbers of sightings with
     an increasing trend as sighting/reporting/monitoring methods become
-    better. However, this anticipation may exclude years during the COVID-19 pandemic. Since the data relies on human observation, there may have been fewer sightings due to a lack of reporting.
+    better. However, this anticipation will exclude years during the COVID-19 pandemic. Since the data relies on human observation, there may be fewer sightings due to a lack of reporting.
 
 -   We expect the sightings to be clustered in areas with a water source
-    as the plant prefer harsh, dry, and hot sandy habitats.
+    as the plant prefers harsh, dry, and hot sandy habitats.
 
 -   We expect the sightings records to increase after rainfall events,
     as plants typically begin to bloom after wet season, which is around
     June - August for Perth.
-    
+
+This report aims to provide a comprehensive analysis of the **Weeping Mulla Mulla**, utilising primary data sources from the ALA Atlas of Living Australia and the Global Historical Climatology Network (GHCN) database.
+
+Throughout this exploration of expectations, numerous intriguing observations were uncovered that were not initially anticipated. Notably, the employment of `spData` and `leaflet` effectively visualised these findings.
+
+Several limitations have impacted the final analysis. Firstly, there is a scarcity of observations, primarily because this plant is not commonly sought after or reported by individuals. Secondly, the absence of weather recordings in remote areas may result in gaps in the dataset. Additionally, extrapolating weather data from one region to the entire species range, instead of relying on the actual weather conditions recorded in each area, could introduce inaccuracies into the analysis.
+
 ![](https://static.inaturalist.org/photos/54862576/medium.jpg){fig-align="center"}
 
 ## Data description
@@ -479,7 +485,8 @@ National 87 road, implying that these reports were made by passersby.
 ### Websites
  - **iNaturalist**. Ptilotus calostachyus Image., Retrieved October 03, 2023, from https://www.inaturalist.org/taxa/869581-Ptilotus-calostachyus.
  - **Florabase**, Ptilotus calostachyus F.Muell., Retrieved September 29, 2023, from https://florabase.dbca.wa.gov.au/browse/profile.php/2704
- - **The Atlas of Living Australia**. Ptilotus calostachyus F.Muell.Retrieved September 27, 2023, from https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#overview
+ - **The Atlas of Living Australia**. Ptilotus calostachyus F.Muell.Retrieved September 27, 2023, from https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#
+ overview
 
 ### Packages
  - **leaflet**: Cheng J, Schloerke B, Karambelkar B, Xie Y (2023). _leaflet: Create Interactive Web Maps with the JavaScript 'Leaflet' Library_. R package version 2.2.0,
