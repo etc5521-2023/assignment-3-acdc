@@ -24,4 +24,11 @@ To determine the specific reasons for the variation in observations, it would be
 
 ANALYSIS: ChatGPT could not help us identify why there were more sightings in 2015 than other years. However it did suggest reasons why it may have been the case which helped shaped our thinking about what possibilities we could explore.
 
+--------
 
+OTHER SOURCES:
+
+1. We have cited the appropriate packages that we used. 
+2. All the works we have done are our own.
+3. We have used internet sources to back up our claims/description/expectations and we have referenced these sources both in-text and in the bibliography.
+4. Our internet search queries were conducted on Google.com's search engine. 
