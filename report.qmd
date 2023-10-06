@@ -1,11 +1,14 @@
 ---
 title: "Weeping Mulla Mulla: Ptilotus Calostachyus"
 author: "**Team name:** ACDC </br> **Team members:** </br> Khuyen Nguyen _kngu0086@student.monash.edu_ </br> Khanh Pham _mpha0054@student.monash.edu_"
-format: html
+format: 
+  html: 
+    theme: minty
 toc: true
 editor: 
   markdown: 
     wrap: 72
+    
 ---
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -103,11 +106,25 @@ raw_data <- ala_occurrences(
 save(raw_data, file = "data-raw/raw_data.rda")
 ```
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, echo=FALSE}
 galah_config(email = "mpha0054@student.monash.edu",
              download_reason_id = 10, 
              verbose = TRUE)
+```
 
+```{r message=FALSE, warning=FALSE, include=FALSE}
+storage <- galah_call() %>%
+  galah_identify("Weeping mulla mulla") %>%
+  galah_select(
+    basisOfRecord, decimalLatitude, decimalLongitude, eventDate, scientificName,
+    taxonConceptID, recordID, dataResourceName, eventRemarks, eventTime, eventID,
+    eventDate, samplingEffort, samplingProtocol, cl959,
+    group = c("basic", "event")
+  ) %>%
+  atlas_occurrences() %>%
+  filter(basisOfRecord == "HUMAN_OBSERVATION")
+```
+```{r eval=FALSE}
 storage <- galah_call() %>%
   galah_identify("Weeping mulla mulla") %>%
   galah_select(
