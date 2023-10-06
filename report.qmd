@@ -15,6 +15,7 @@ library(leaflet)
 library(spData)
 library(tidyverse)
 library(nullabor)
+library(ggplotly)
 ```
 
 ## Introduction
@@ -439,10 +440,12 @@ combined_plot +
 ```
 
 To test the validity of our visual inference, we decided to employ
-`nullabor` null plots. Our hypotheses are as follows: 
+`nullabor` null plots. Our hypotheses are as follows:
 
-* $H_0:$ There is no difference in the distribution of geographical points between the "Active" months and the "Others" months.
-* $H_1:$ There is a difference in the distribution of geographical points between the "Active" months and the "Others" months.
+-   $H_0:$ There is no difference in the distribution of geographical
+    points between the "Active" months and the "Others" months.
+-   $H_1:$ There is a difference in the distribution of geographical
+    points between the "Active" months and the "Others" months.
 
 ```{r, echo=FALSE}
 set.seed(20190709)
@@ -469,12 +472,19 @@ combined_plot <- australia_plot +
 combined_plot
 ```
 
-We have given the null plots to around 14 friends and only one of them picked the true plot at 16. This equates to the p-values below:
+We have given the null plots to around 14 friends and only one of them
+picked the true plot at 16. This equates to the p-values below:
 
 ```{r}
 pvisual(1,14,20)
 ```
-`x simulated` shows 0.4612 and `binom` shows 0.512325 - both are above the threshold 0.05, which means that we reject the null hypothesis in favor of the alternative hypothesis. Consequently, we are 95% confident that the selection of the true plot is by chance and there is an association between the combinations of `longitude` and `latitude` for different `Month` periods ("*Active*" and "*Others*").
+
+`x simulated` shows 0.4612 and `binom` shows 0.512325 - both are above
+the threshold 0.05, which means that we reject the null hypothesis in
+favor of the alternative hypothesis. Consequently, we are 95% confident
+that the selection of the true plot is by chance and there is an
+association between the combinations of `longitude` and `latitude` for
+different `Month` periods ("*Active*" and "*Others*").
 
 ### Trend expectation
 
@@ -492,7 +502,7 @@ spike in sightings occurred in 2015. This spike was the highest,
 surpassing even the sightings in 2021, with 108 observations compared to
 34, which is more than three times as many.
 
-Currently, there are no findings that can explain this phenomenon.
+Currently, there are no findings that can explain this phenomenon. Given that the years after 2015 usually saw much higher reported sightings as compared to the previous, we hypothesize that this effect is due to the proliferation of internet-of-things, allowing sightings to be reported with greater ease and more reliable reporting platforms/databanks. 
 
 ```{r, echo=FALSE, warning =FALSE}
 weeping_mulla_mulla %>%
@@ -599,8 +609,7 @@ National 87 road, implying that these reports were made by passersby.
 
 ### Precipitation and sighting annually
 
-```{r}
-
+```{r echo=FALSE}
 average_precipitation <- temperature %>%
   mutate(Year = lubridate::year(date)) %>%
   group_by(Year) %>%
@@ -614,22 +623,48 @@ rainplot <- temperature %>%
   summarise(sighting_count = n()) %>%
   ggplot() +
   geom_bar(aes(x = as.factor(Year), y = sighting_count), stat = "identity", fill = "aquamarine4") +
-  geom_line(data = average_precipitation, aes(x = as.factor(Year), y = avg_prcp, group = 1), color = "#c599b2") +
+  geom_line(data = average_precipitation, aes(x = as.factor(Year), y = avg_prcp, group = 1), color = "#c599b2", linewidth = 1) +
   geom_point(data = average_precipitation, aes(x = as.factor(Year), y = avg_prcp), color = "#c599b2") +
   labs(x = "Year", y = "Sighting Count",
-       title = "Sighting Count and Average Precipitation by Year (Barkly and Tennant Creek Station)",
+       title = "Sighting Count and Average Precipitation by Year \n(Barkly and Tennant Creek Station)",
        color = "Average Precipitation",
        secondary = "Average Precipitation (mm)") +
   scale_y_continuous(name = "Sighting Count",
                      sec.axis = sec_axis(~., name = "Average Precipitation (mm)")) +
   theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.y = element_text(color = "aquamarine4"),
+        axis.title.y.right = element_text(color = "#c599b2"))
 
-print(rainplot)
-
+rainplot
 ```
 
+From the figure above, we can see there are multiple gaps in the sighting of the **Weeping Mulla Mulla** from 2004 to 2023. This inconsistency can be explained by the lack of popularity of our plant species. As addressed above in the **Trend expectation** section, 2015 saw an abnormally high sighting count, despite a normal annual average precipitation figure for that year, especially when there were no sighting records in 2013-2014. 
+We can hypothesize a delayed effect of plant sightings where years with decreasing rainfall will be accompanied by sightings when the annual average precipitation begins to trend upward. For instance, 2006 - 2007 saw a decreasing trend in rainfall without any plant sightings; However, 2008 saw new reported sightings, as well as the start of increasing precipitation trend from 2008 to 2011. Another example is when the downward trend from 2011 to 2013 saw dwindling sightings with increasing rainfall but from 2015 onwards, sightings were much higher and there were fewer gaps in annual sightings. Perhaps this is due to preference for dry weather of the plants; therefore, decreasing precips allow the **Weeping Mulla Mulla** to thrive better in constrast to being overwatered in wetter years. 
 
+### Temperature and sightings
+
+```{r}
+temperature$date <- as.Date(temperature$date)
+
+monthly_avg <- temperature %>%
+  mutate(month = format(date, "%Y-%m")) %>%
+  group_by(month) %>%
+  summarise(avg_tmax = mean(tmax), avg_tmin = mean(tmin))
+
+tempt_plot <- ggplot(monthly_avg, aes(x = as.Date(paste0(month, "-01")))) +
+  geom_line(aes(y = avg_tmax, color = "Hot Temperature"), size = 1, alpha = 0.5) +
+  geom_line(aes(y = avg_tmin, color = "Cold Temperature"), size = 1, alpha = 0.5) +
+  scale_color_manual(values = c("Hot Temperature" = "#FF0000", "Cold Temperature" = "#0000FF")) +
+  labs(x = "Date", y = "Temperature",
+       title = "Monthly Average Maximum and Minimum Temperature",
+       color = "Temperature") +
+  theme_minimal()
+
+tempt_plot
+```
+
+ 
 ## Summary
 
 ## References
