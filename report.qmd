@@ -8,7 +8,6 @@ toc: true
 editor: 
   markdown: 
     wrap: 72
-    
 ---
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -30,17 +29,17 @@ The *Ptilotus calostachyus F.Muell*, which is also known as the
 **Weeping Mulla Mulla**, is an endemic plant that is commonly found in
 the Western Australia territory (Florabase n. d.). This species thrives
 in arid region, particular in sandy habitats with red and stony
-plains(Florabase n. d.). Being a *perennial* plant, it can live up to more than two
-years with the seasonal pattern of being dormant in the winter and
-sprouting again in springtime - (Florabase n. d.). Moreover, **Weeping Mulla Mulla**
-displays erect or spreading, herb or shrub characteristics, meaning that
-it can be found as a tall plant and/or covering an area, as well as
-with/without a woody body. They can grow from 0.2 to 2 meters tall with
-pink-white flowers, blooming from March to October. Despite the
-widespread of its coverage, there are little to none organized sighting
-campaign of the **Weeping Mulla Mulla** due to the outback nature of its
-habitat and lesser popularity as compared to other iconic Australia
-ecotourism species.
+plains(Florabase n. d.). Being a *perennial* plant, it can live up to
+more than two years with the seasonal pattern of being dormant in the
+winter and sprouting again in springtime - (Florabase n. d.). Moreover,
+**Weeping Mulla Mulla** displays erect or spreading, herb or shrub
+characteristics, meaning that it can be found as a tall plant and/or
+covering an area, as well as with/without a woody body. They can grow
+from 0.2 to 2 meters tall with pink-white flowers, blooming from March
+to October. Despite the widespread of its coverage, there are little to
+none organized sighting campaign of the **Weeping Mulla Mulla** due to
+the outback nature of its habitat and lesser popularity as compared to
+other iconic Australia ecotourism species.
 
 Five expectations when exploring the **Weeping Mulla Mulla** sighting:
 
@@ -63,15 +62,20 @@ Five expectations when exploring the **Weeping Mulla Mulla** sighting:
     June - August for Perth.
 
 This report aims to provide a comprehensive analysis of the **Weeping
-Mulla Mulla**, utilising primary data sources from the _ALA Atlas of Living Australia_
-and the _Global Historical Climatology Network (GHCN)_
+Mulla Mulla**, utilising primary data sources from the *ALA Atlas of
+Living Australia* and the *Global Historical Climatology Network (GHCN)*
 database.
 
 Throughout this exploration of expectations, numerous intriguing
 observations were uncovered that were not initially anticipated.
-Notably, the employment of `spData` and `leaflet` effectively visualised these findings and allows for interactivity.
+Notably, the employment of `spData` and `leaflet` effectively visualised
+these findings and allows for interactivity.
 
-It is important to note several limitations that have affected the final analysis. Firstly, there is a scarcity of observations, primarily because this plant is not commonly sought after or reported by individuals. Secondly, the absence of weather recordings in remote areas may lead to gaps in the dataset.
+It is important to note several limitations that have affected the final
+analysis. Firstly, there is a scarcity of observations, primarily
+because this plant is not commonly sought after or reported by
+individuals. Secondly, the absence of weather recordings in remote areas
+may lead to gaps in the dataset.
 
 ![](https://static.inaturalist.org/photos/54862576/medium.jpg){fig-align="center"}
 
@@ -79,7 +83,8 @@ It is important to note several limitations that have affected the final analysi
 
 ### Species data
 
-Below is the code to download the raw data directly from _ALA Atlas of Living Australia_.
+Below is the code to download the raw data directly from *ALA Atlas of
+Living Australia*.
 
 The basis of record was filtered to `HUMAN_OBSERVATION` only. This
 decision was made because we intended to focus solely on sightings of
@@ -176,9 +181,15 @@ dictionary <- data.frame(
 
 kable(dictionary, format = "markdown", caption = "**Data Dictionary for the Weeping Mulla Mulla dataset**")
 ```
+
 ### Data cleaning
 
-As mentioned earlier, only location and event time variables significantly contribute to the analysis. Methods for selecting and renaming variables, extracting time variables from the date, and removing unnecessary strings and missing values were applied before saving a clean version for further analysis. The code for data cleaning can be referred to below:
+As mentioned earlier, only location and event time variables
+significantly contribute to the analysis. Methods for selecting and
+renaming variables, extracting time variables from the date, and
+removing unnecessary strings and missing values were applied before
+saving a clean version for further analysis. The code for data cleaning
+can be referred to below:
 
 ```{r species-data-cleaning}
 weeping_mulla_mulla <- storage %>%
@@ -289,7 +300,8 @@ records the majority of observations. Given this focus, the analysis can
 be narrowed down by filtering the weather station data specifically for
 Tennant Creek.
 
-For another view of these findings, the same map was recreated using `leaflet`:
+For another view of these findings, the same map was recreated using
+`leaflet`:
 
 ```{r echo=FALSE}
 #| fig-align: center
@@ -320,11 +332,11 @@ weeping_mulla_mulla %>%
                    radius = 5)
 ```
 
-
-
 #### **Obtaining weather data for Tennant Creek**
 
-The code for obtaining precipitation, maximum temperature, and minimum temperature data for Tennant Creek is provided below by filtering using the station ID ASN00015135:
+The code for obtaining precipitation, maximum temperature, and minimum
+temperature data for Tennant Creek is provided below by filtering using
+the station ID ASN00015135:
 
 ```{r, warning=FALSE, message=FALSE}
 tennant_creek_airport <- aus_stations |>
@@ -354,13 +366,15 @@ purpose of indicating whether a sighting occurred on a particular day or
 not and whether temperature data is available. Consequently, as all the
 observations within the Barkly region have corresponding temperature
 data, a comprehensive dataset can be generated that encompasses both
-observational data and daily weather information.
+observational data and daily weather information. Dates with records in
+this region would be given **1** while others would be **0**.
 
 ```{r}
 temperature <- tennant_creek_airport %>%
   left_join(weeping_mulla_mulla, by = c("date" = "eventDate")) %>%
-  select(date:Day) %>% 
-  mutate(sighting = ifelse(lga == "Barkly ", 1, 0))
+  mutate(sighting = ifelse(lga == "Barkly ", 1, 0)) %>%
+  mutate(sighting = ifelse(is.na(sighting), 0, sighting)) %>%
+  select(-11:-17) 
 
 save(temperature, file = ("data/temperature.rda"))
 ```
@@ -377,7 +391,7 @@ We will be using `visdat` library to check for data type errors
 vis_dat(weeping_mulla_mulla)
 ```
 
-**Discussion** 
+**Discussion**
 
 In @fig-plots1, the result of `visdat` does not signify any anomalies
 that needed to be addressed before proceeding with further analysis.
@@ -390,7 +404,7 @@ that needed to be addressed before proceeding with further analysis.
 vis_guess(weeping_mulla_mulla)
 ```
 
-**Discussion** 
+**Discussion**
 
 In @fig-plots2, `vis_guess` shows that the *longitude* and *latitude*
 columns both have a record with potentially integer coordinates entry.
@@ -400,6 +414,40 @@ does not need any alterations as sighting coordinates span across a very
 wide geographical area, making rounding to the nearest whole number (1.0
 degree is 111 kilometers) insignificant in our spatial analysis.
 
+### Checking data quality (Temperature)
+
+Similarly, we will be using `visdat` library to check for data type errors
+
+```{r message=FALSE, warning=FALSE}
+#| label: fig-plots98
+#| fig-cap: "vis_dat() results of temperature"
+#| fig-align: center
+#| echo: false
+vis_dat(temperature)
+```
+
+
+From the @fig-plots98, we can see that there are some NAs in `prcp`, `tmax`, and `tmin` columns. These empty data observations will then be removed accordingly.
+
+```{r message=FALSE, warning=FALSE}
+#| label: fig-plots97
+#| fig-cap: "vis_guess() results of temperature"
+#| fig-align: center
+#| echo: false
+vis_guess(temperature)
+```
+
+@fig-plots97 shows that both `tmax` and `tmin` consists of both integers and double, which is reasonable as there might be some dates where the temperature is rounded up to the whole numbers. Moreover, this is rounding up is neglectable to us since we are not interested in such precision in temperature measurements. Some NAs were carried over fromt the previous vis_dat() results, which will be removed as they lack the necessary data from further analysis.
+
+```{r}
+modified_temperature <- 
+  temperature %>% 
+  na.omit()
+save(modified_temperature, file = ("data/temperature.rda"))
+```
+
+The modified temperature data has been updated.
+
 ## Exploratory data analysis
 
 ### Spatial expectation
@@ -408,7 +456,15 @@ To evaluate the spatial distribution of the species, a method involving
 the use of a map to pinpoint locations was employed. This was achieved
 by utilising the `spData` package in conjunction with its `world` data.
 
-```{r, echo=FALSE}
+```{r ,include=FALSE}
+#| include: false
+temperature <- tennant_creek_airport %>%
+  left_join(weeping_mulla_mulla, by = c("date" = "eventDate")) %>%
+  select(date:Day) %>% 
+  mutate(sighting = ifelse(lga == "Barkly ", 1, 0))
+```
+
+```{r}
 #| label: fig-plots3
 #| fig-cap: "Weeping Mulla Mulla Sightings Across Australia"
 #| fig-align: center
@@ -451,11 +507,12 @@ step was introduced, involving the segmentation of the data by month to
 distribute the results throughout the year.
 
 The initial expectation was that the **Weeping Mulla Mulla** would
-exhibit a higher frequency of observations from March to October ("Active" months).
+exhibit a higher frequency of observations from March to October
+("Active" months).
 
-The map (@fig-plots4) displaying the sightings by month validates this initial
-hypothesis, as there are fewer data points on the map in January and
-February, as well as in November and December.
+The map (@fig-plots4) displaying the sightings by month validates this
+initial hypothesis, as there are fewer data points on the map in January
+and February, as well as in November and December.
 
 Interestingly, a new insight emerges when the data is segmented by
 month. The previous map showed the regions where observations were most
@@ -511,18 +568,22 @@ combined_plot <- australia_plot +
 combined_plot
 ```
 
-We have given the null plots (@fig-plots5) to around 14 friends and only one of them
-picked the true plot at 16. This equates to the p-values below:
+We have given the null plots (@fig-plots5) to around 14 friends and only
+one of them picked the true plot at 16. This equates to the p-values
+below:
 
 ```{r}
 pvisual(1,14,20)
 ```
 
 `x simulated` shows 0.4612 and `binom` shows 0.512325 - both are above
-the threshold 0.05, which means that we fail to reject the null hypothesis in favor of the alternative hypothesis. Consequently, we are 95% confident
-that the selection of the true plot is by chance and there is no
-association between the combinations of `longitude` and `latitude` for
-different `Month` periods ("*Active*" and "*Others*"). This means that the **Weeping Mulla Mulla** can still be found outside of their active months without being in specific area. 
+the threshold 0.05, which means that we fail to reject the null
+hypothesis in favor of the alternative hypothesis. Consequently, we are
+95% confident that the selection of the true plot is by chance and there
+is no association between the combinations of `longitude` and `latitude`
+for different `Month` periods ("*Active*" and "*Others*"). This means
+that the **Weeping Mulla Mulla** can still be found outside of their
+active months without being in specific area.
 
 ### Trend expectation
 
@@ -530,17 +591,21 @@ Since the data relies on human observation, it was anticipated that
 there might have been fewer sightings due to a lack of reporting.
 
 By employing a simple method of plotting the number of observations
-against the years using a histogram (@fig-plots99), it can be seen that there was no
-indication of reduced observations during the COVID-19 years from 2000
-to 2021. In fact, 2021 recorded the second-highest number of
-observations for the species.
+against the years using a histogram (@fig-plots99), it can be seen that
+there was no indication of reduced observations during the COVID-19
+years from 2000 to 2021. In fact, 2021 recorded the second-highest
+number of observations for the species.
 
 Nevertheless, an interesting new observation stands out - a significant
 spike in sightings occurred in 2015. This spike was the highest,
 surpassing even the sightings in 2021, with 108 observations compared to
 34, which is more than three times as many.
 
-Currently, there are no findings that can explain this phenomenon. Given that the years after 2015 usually saw much higher reported sightings as compared to the previous, we hypothesize that this effect is due to the proliferation of internet-of-things, allowing sightings to be reported with greater ease and more reliable reporting platforms/databanks. 
+Currently, there are no findings that can explain this phenomenon. Given
+that the years after 2015 usually saw much higher reported sightings as
+compared to the previous, we hypothesize that this effect is due to the
+proliferation of internet-of-things, allowing sightings to be reported
+with greater ease and more reliable reporting platforms/databanks.
 
 ```{r, echo=FALSE, warning =FALSE}
 #| label: fig-plots99
@@ -595,14 +660,15 @@ ggplotly(wrapper1)
 ```
 
 Interestingly, we observe decreased sightings during June and July while
-August has the highest sighting occurrences (@fig-plots6). March marks the start of
-the blooming cycle with April and May being the autumn season in Western
-Australia (Tourism Australia n. d.), which has occasional showers. This
-explains the large rise in sightings for these months. However, the main
-raining events (June to August) saw significantly lower occurrences - we
-believe this is due to thunderstorms and flooding, preventing casual
-observers to stumble upon these plants. Only August has high sighting
-occurrences, as the end of winter has milder downpours.
+August has the highest sighting occurrences (@fig-plots6). March marks
+the start of the blooming cycle with April and May being the autumn
+season in Western Australia (Tourism Australia n. d.), which has
+occasional showers. This explains the large rise in sightings for these
+months. However, the main raining events (June to August) saw
+significantly lower occurrences - we believe this is due to
+thunderstorms and flooding, preventing casual observers to stumble upon
+these plants. Only August has high sighting occurrences, as the end of
+winter has milder downpours.
 
 ### Habitat expectation
 
@@ -631,7 +697,9 @@ weeping_mulla_mulla %>%
 )
 ```
 
-The map is seen in the @fig-plots7, but due to the zoom level, we could not see the water body features of the map; Therefore, we decided to investigate a cluster of sightings near Ali Curung.
+The map is seen in the @fig-plots7, but due to the zoom level, we could
+not see the water body features of the map; Therefore, we decided to
+investigate a cluster of sightings near Ali Curung.
 
 ```{r}
 #| label: fig-plots8
@@ -650,16 +718,20 @@ weeping_mulla_mulla %>%
 ) 
 ```
 
-Based on the map above (@fig-plots8), we can see that the main cluster of **Weeping
-Mulla Mulla** does not live near a water source, which is different from
-what we expected. This suggests that the plant is dependent on rain,
-meaning that high precipitation periods might lead to higher sightings.
-It is also interesting to see that these sightings were near the
-National 87 road, implying that these reports were made by passersby.
+Based on the map above (@fig-plots8), we can see that the main cluster
+of **Weeping Mulla Mulla** does not live near a water source, which is
+different from what we expected. This suggests that the plant is
+dependent on rain, meaning that high precipitation periods might lead to
+higher sightings. It is also interesting to see that these sightings
+were near the National 87 road, implying that these reports were made by
+passersby.
 
 ### Precipitation and sighting annually
 
-The additional data from the `tenant creek airport` weather station allows us to investigate the relation between precipitation and sighting directly, resulting in the graph below which visualizes annual average rainfall and annual sightings.
+The additional data from the `tenant creek airport` weather station
+allows us to investigate the relation between precipitation and sighting
+directly, resulting in the graph below which visualizes annual average
+rainfall and annual sightings.
 
 ```{r echo=FALSE}
 #| label: fig-plots9
@@ -695,12 +767,31 @@ rainplot <- temperature %>%
 rainplot
 ```
 
-From the @fig-plots9, we can see there are multiple gaps in the sighting of the **Weeping Mulla Mulla** from 2004 to 2023. This inconsistency can be explained by the lack of popularity of our plant species. As addressed above in the **Trend expectation** section, 2015 saw an abnormally high sighting count, despite a normal annual average precipitation figure for that year, especially when there were no sighting records in 2013-2014. 
-We can hypothesize a delayed effect of plant sightings where years with decreasing rainfall will be accompanied by sightings when the annual average precipitation begins to trend upward. For instance, 2006 - 2007 saw a decreasing trend in rainfall without any plant sightings; However, 2008 saw new reported sightings, as well as the start of increasing precipitation trend from 2008 to 2011. Another example is when the downward trend from 2011 to 2013 saw dwindling sightings with increasing rainfall but from 2015 onwards, sightings were much higher and there were fewer gaps in annual sightings. Perhaps this is due to preference for dry weather of the plants; therefore, decreasing precips allow the **Weeping Mulla Mulla** to thrive better in constrast to being overwatered in wetter years. 
+From the @fig-plots9, we can see there are multiple gaps in the sighting
+of the **Weeping Mulla Mulla** from 2004 to 2023. This inconsistency can
+be explained by the lack of popularity of our plant species. As
+addressed above in the **Trend expectation** section, 2015 saw an
+abnormally high sighting count, despite a normal annual average
+precipitation figure for that year, especially when there were no
+sighting records in 2013-2014. We can hypothesize a delayed effect of
+plant sightings where years with decreasing rainfall will be accompanied
+by sightings when the annual average precipitation begins to trend
+upward. For instance, 2006 - 2007 saw a decreasing trend in rainfall
+without any plant sightings; However, 2008 saw new reported sightings,
+as well as the start of increasing precipitation trend from 2008 to
+2011. Another example is when the downward trend from 2011 to 2013 saw
+dwindling sightings with increasing rainfall but from 2015 onwards,
+sightings were much higher and there were fewer gaps in annual
+sightings. Perhaps this is due to preference for dry weather of the
+plants; therefore, decreasing precips allow the **Weeping Mulla Mulla**
+to thrive better in constrast to being overwatered in wetter years.
 
-### Temperature and sightings 
+### Temperature and sightings
 
-Since the rainfall data did not signify any concrete answers, we decided to also investigate the daily average temperature and whether that date has a reported sighting. This is to determine at what average temperature that sighting is likely to be made. 
+Since the rainfall data did not signify any concrete answers, we decided
+to also investigate the daily average temperature and whether that date
+has a reported sighting. This is to determine at what average
+temperature that sighting is likely to be made.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 #| label: fig-plots10
@@ -725,7 +816,11 @@ ggplot(temperature, aes(x = as.Date(date))) +
 
 **Discussion**
 
-@fig-plots10 depicts that, even when the data ranges from 2004 to 2023, there are very little reported sightings of the **Weeping Mulla Mulla** in *Barkly*. Nonetheless, we can observe that most of the years have very similar seasonality trend for average temperatures; thus, we decided to investigate 2015 as it has the most reported sightings.
+@fig-plots10 depicts that, even when the data ranges from 2004 to 2023,
+there are very little reported sightings of the **Weeping Mulla Mulla**
+in *Barkly*. Nonetheless, we can observe that most of the years have
+very similar seasonality trend for average temperatures; thus, we
+decided to investigate 2015 as it has the most reported sightings.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 #| label: fig-plots11
@@ -773,24 +868,67 @@ combined_plot
 
 **Discussion**
 
-By narrowing it down to `2015`, we recognize that most of the sightings happened in the later half of the year, specifically when the weather begins to get warmer but not during the warmest days (@fig-plots11). While most of the observations were reported within the "Active" months of the flower, it is interesting to see that March to early July saw no reported sightings. We believe that lack of observations is caused by lack of human observers rather than the plant's blooming characteristics since we have explored this habit earlier in the **Temporal expectation** section. Additionally, it is intriguing to observe that the active months of the plant coincide with the transition from colder to warmer weather in the lower figure.
-We also consider the possibility that the mentality effect of *"the weather is getting warmer"* enables a greater inclination in people for outdoor ventures - increasing the sighting frequency of the plant. 
+By narrowing it down to `2015`, we recognize that most of the sightings
+happened in the later half of the year, specifically when the weather
+begins to get warmer but not during the warmest days (@fig-plots11).
+While most of the observations were reported within the "Active" months
+of the flower, it is interesting to see that March to early July saw no
+reported sightings. We believe that lack of observations is caused by
+lack of human observers rather than the plant's blooming characteristics
+since we have explored this habit earlier in the **Temporal
+expectation** section. Additionally, it is intriguing to observe that
+the active months of the plant coincide with the transition from colder
+to warmer weather in the lower figure. We also consider the possibility
+that the mentality effect of *"the weather is getting warmer"* enables a
+greater inclination in people for outdoor ventures - increasing the
+sighting frequency of the plant.
 
 ## Summary
 
-Our analysis of the **Weeping Mulla Mulla** has confirmed or debunked several key expectations:
+Our analysis of the **Weeping Mulla Mulla** has confirmed or debunked
+several key expectations:
 
-1. **Spatial Distribution**: The species' sightings are concentrated in the north of Western Australia and in the Northern Territory, forming the two primary clusters of observations.
+1.  **Spatial Distribution**: The species' sightings are concentrated in
+    the north of Western Australia and in the Northern Territory,
+    forming the two primary clusters of observations.
 
-2. **Temporal Patterns**: The majority of **Weeping Mulla Mulla** sightings occur between March and October, in line with its thriving period during these months.
+2.  **Temporal Patterns**: The majority of **Weeping Mulla Mulla**
+    sightings occur between March and October, in line with its thriving
+    period during these months.
 
-3. **Trend Confirmation**: We have observed a consistent number of sightings with an increasing trend, attributed to enhanced sighting, reporting, and monitoring methods, particularly evident since 2015. Remarkably, there was no decline in observations even during the COVID lockdown period.
+3.  **Trend Confirmation**: We have observed a consistent number of
+    sightings with an increasing trend, attributed to enhanced sighting,
+    reporting, and monitoring methods, particularly evident since 2015.
+    Remarkably, there was no decline in observations even during the
+    COVID lockdown period.
 
-4. **Habitat Preferences**: Initial expectations were that sightings would cluster around areas with a water source, given the plant's preference for harsh, dry, and hot sandy habitats. However, our analysis reveals a surprising finding. The primary cluster of sightings does not necessarily align with water sources, indicating the plant's reliance on rain for survival. Additionally, sightings are frequently reported near roads, suggesting observations by passersby.
+4.  **Habitat Preferences**: Initial expectations were that sightings
+    would cluster around areas with a water source, given the plant's
+    preference for harsh, dry, and hot sandy habitats. However, our
+    analysis reveals a surprising finding. The primary cluster of
+    sightings does not necessarily align with water sources, indicating
+    the plant's reliance on rain for survival. Additionally, sightings
+    are frequently reported near roads, suggesting observations by
+    passersby.
 
-5. **Rainfall Influence**: Considering that the **Weeping Mulla Mulla** typically blooms after the wet season, which occurs approximately between June and August, we conducted an in-depth analysis of rainfall and precipitation. Intriguingly, while there were more sightings in March and April during the blooming cycle and occasional showers, there was a decrease in sightings during thunderstorms and flooding in June and July. The highest number of sightings was recorded in August, likely attributed to milder downpours. This observation aligns with the inherent nature of the **Weeping Mulla Mulla** as a desert plant that thrives without relying heavily on water.
+5.  **Rainfall Influence**: Considering that the **Weeping Mulla Mulla**
+    typically blooms after the wet season, which occurs approximately
+    between June and August, we conducted an in-depth analysis of
+    rainfall and precipitation. Intriguingly, while there were more
+    sightings in March and April during the blooming cycle and
+    occasional showers, there was a decrease in sightings during
+    thunderstorms and flooding in June and July. The highest number of
+    sightings was recorded in August, likely attributed to milder
+    downpours. This observation aligns with the inherent nature of the
+    **Weeping Mulla Mulla** as a desert plant that thrives without
+    relying heavily on water.
 
-In conclusion, the findings in this report affirm that the **Weeping Mulla Mulla** is an exceptionally unique and endemic plant, exclusively located in the northern regions of Australia. Tourists seeking to experience the harsh desert climate can observe it at its peak during the months of March to October. This desert plant thrives with minimal water requirements for survival.
+In conclusion, the findings in this report affirm that the **Weeping
+Mulla Mulla** is an exceptionally unique and endemic plant, exclusively
+located in the northern regions of Australia. Tourists seeking to
+experience the harsh desert climate can observe it at its peak during
+the months of March to October. This desert plant thrives with minimal
+water requirements for survival.
 
 ## References
 
@@ -809,28 +947,29 @@ In conclusion, the findings in this report affirm that the **Weeping Mulla Mulla
 
 ### Packages
 
-- **cowplot**: Wilke C (2020). _cowplot: Streamlined Plot Theme and Plot Annotations
-  for 'ggplot2'_. R package version 1.1.1,
-  https://CRAN.R-project.org/package=cowplot.
+-   **cowplot**: Wilke C (2020). *cowplot: Streamlined Plot Theme and
+    Plot Annotations for 'ggplot2'*. R package version 1.1.1,
+    https://CRAN.R-project.org/package=cowplot.
 -   **galah**: Westgate M, Kellie D, Stevenson M, Newman P (2023).
     *galah: Biodiversity Data from the Living Atlas Community*. R
     package version 1.5.3, https://CRAN.R-project.org/package=galah.
 -   **kableExtra**: Zhu H (2021). *kableExtra: Construct Complex Table
     with 'kable' and Pipe Syntax*. R package version 1.3.4,
     https://CRAN.R-project.org/package=kableExtra.
-- **leaflet**: Cheng J, Schloerke B, Karambelkar B, Xie Y (2023).
+-   **leaflet**: Cheng J, Schloerke B, Karambelkar B, Xie Y (2023).
     *leaflet: Create Interactive Web Maps with the JavaScript 'Leaflet'
     Library*. R package version 2.2.0,
     https://CRAN.R-project.org/package=leaflet.
-- **nullabor**:  Buja, A., Cook, D., Hofmann, H., Lawrence, M., Lee, E.-K., Swayne, D.
-  F, Wickham, H. (2009) Statistical Inference for Exploratory Data
-  Analysis and Model Diagnostics Royal Society Philosophical
-  Transactions A, 367(1906):4361-4383. URL
-  http://rsta.royalsocietypublishing.org/content/367/1906/4361.article-info
-- **plotly**: C. Sievert. Interactive Web-Based Data Visualization with R, plotly,
-  and shiny. Chapman and Hall/CRC Florida, 2020.
-- **rnoaa**: Chamberlain S, Hocking D (2023). _rnoaa: 'NOAA' Weather Data from R_. R package version
-  1.4.0, https://CRAN.R-project.org/package=rnoaa.
+-   **nullabor**: Buja, A., Cook, D., Hofmann, H., Lawrence, M., Lee,
+    E.-K., Swayne, D. F, Wickham, H. (2009) Statistical Inference for
+    Exploratory Data Analysis and Model Diagnostics Royal Society
+    Philosophical Transactions A, 367(1906):4361-4383. URL
+    http://rsta.royalsocietypublishing.org/content/367/1906/4361.article-info
+-   **plotly**: C. Sievert. Interactive Web-Based Data Visualization
+    with R, plotly, and shiny. Chapman and Hall/CRC Florida, 2020.
+-   **rnoaa**: Chamberlain S, Hocking D (2023). *rnoaa: 'NOAA' Weather
+    Data from R*. R package version 1.4.0,
+    https://CRAN.R-project.org/package=rnoaa.
 -   **spData**: Bivand R, Nowosad J, Lovelace R (2023). *spData:
     Datasets for Spatial Analysis*. R
 -   **tidyverse**: Wickham H, Averick M, Bryan J, Chang W, McGowan LD,
