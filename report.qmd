@@ -15,7 +15,9 @@ library(leaflet)
 library(spData)
 library(tidyverse)
 library(nullabor)
-library(ggplotly)
+library(plotly)
+library(cowplot)
+library(visdat)
 ```
 
 ## Introduction
@@ -232,6 +234,8 @@ aus_stations_filtered <- aus_stations %>%
 ```
 
 ```{r echo=FALSE}
+#| fig-align: center
+#| echo: false
 data(world, package = "spData")
 australia <- world[world$iso_a2 == "AU", ]
 
@@ -262,6 +266,8 @@ combined_plot +
 ```
 
 ```{r echo=FALSE}
+#| fig-align: center
+#| echo: false
 weeping_mulla_mulla %>%
   leaflet() %>%
   addProviderTiles("Esri.DeLorme") %>%
@@ -354,19 +360,29 @@ Weather data pre-processing here too.
 We will be using `visdat` library to check for data type errors
 
 ```{r message=FALSE, warning=FALSE}
-library(visdat)
-
+#| label: fig-plots1
+#| fig-cap: "vis_dat() results of weeping_mulla_mulla"
+#| fig-align: center
+#| echo: false
 vis_dat(weeping_mulla_mulla)
 ```
 
-**Discussion** The result of `visdat` does not signify any anomalies
+**Discussion** 
+
+In @fig-plots1, the result of `visdat` does not signify any anomalies
 that needed to be addressed before proceeding with further analysis.
 
 ```{r message=FALSE, warning=FALSE}
+#| label: fig-plots2
+#| fig-cap: "vis_guess() results of weeping_mulla_mulla"
+#| fig-align: center
+#| echo: false
 vis_guess(weeping_mulla_mulla)
 ```
 
-**Discussion** `vis_guess` shows that the *longitude* and *latitude*
+**Discussion** 
+
+In @fig-plots2, `vis_guess` shows that the *longitude* and *latitude*
 columns both have a record with potentially integer coordinates entry.
 While this is a sign of rounding given that the coordinates span from a
 length of values with 5 decimal places precision, we believe this value
@@ -382,18 +398,12 @@ To evaluate the spatial distribution of the species, a method involving
 the use of a map to pinpoint locations was employed. This was achieved
 by utilising the `spData` package in conjunction with its `world` data.
 
-The initial expectation was that the majority of sightings would be
-concentrated in Western Australia.
-
-The map displaying the sightings below validates the initial hypothesis.
-However, it also reveals a significant number of sightings in the
-Northern Territory.
-
-Most of the sightings are clustered in the northern regions of Western
-Australia, aligning with expectations. Notably, there are no sightings
-in the southern areas of Western Australia, including the city of Perth.
-
 ```{r, echo=FALSE}
+#| label: fig-plots3
+#| fig-cap: "Weeping Mulla Mulla Sightings Across Australia"
+#| fig-align: center
+#| echo: false
+
 data(world, package = "spData")
 australia <- world[world$iso_a2 == "AU", ]
 
@@ -412,6 +422,17 @@ combined_plot <- australia_plot +
 combined_plot
 ```
 
+The initial expectation was that the majority of sightings would be
+concentrated in Western Australia (@fig-plots3).
+
+The map displaying the sightings below validates the initial hypothesis.
+However, it also reveals a significant number of sightings in the
+Northern Territory.
+
+Most of the sightings are clustered in the northern regions of Western
+Australia, aligning with expectations. Notably, there are no sightings
+in the southern areas of Western Australia, including the city of Perth.
+
 ### Temporal expectation
 
 To assess the temporal occurrences of the species, the same method of
@@ -420,9 +441,9 @@ step was introduced, involving the segmentation of the data by month to
 distribute the results throughout the year.
 
 The initial expectation was that the **Weeping Mulla Mulla** would
-exhibit a higher frequency of observations from March to October.
+exhibit a higher frequency of observations from March to October ("Active" months).
 
-The map displaying the sightings by month validates this initial
+The map (@fig-plots4) displaying the sightings by month validates this initial
 hypothesis, as there are fewer data points on the map in January and
 February, as well as in November and December.
 
@@ -433,6 +454,10 @@ the data is subset by month, it becomes apparent that these two regions
 remain the primary clusters.
 
 ```{r, echo = FALSE}
+#| label: fig-plots4
+#| fig-cap: "Weeping Mulla Mulla Sightings By Month"
+#| fig-align: center
+#| echo: false
 combined_plot +
   facet_wrap(~monthName, ncol = 6) +
   theme_void() +
@@ -448,6 +473,10 @@ To test the validity of our visual inference, we decided to employ
     points between the "Active" months and the "Others" months.
 
 ```{r, echo=FALSE}
+#| label: fig-plots5
+#| fig-cap: "Weeping Mulla Mulla Sightings Null Plots"
+#| fig-align: center
+#| echo: false
 set.seed(20190709)
 
 custom_weep <- weeping_mulla_mulla
@@ -472,7 +501,7 @@ combined_plot <- australia_plot +
 combined_plot
 ```
 
-We have given the null plots to around 14 friends and only one of them
+We have given the null plots (@fig-plots5) to around 14 friends and only one of them
 picked the true plot at 16. This equates to the p-values below:
 
 ```{r}
@@ -480,11 +509,10 @@ pvisual(1,14,20)
 ```
 
 `x simulated` shows 0.4612 and `binom` shows 0.512325 - both are above
-the threshold 0.05, which means that we reject the null hypothesis in
-favor of the alternative hypothesis. Consequently, we are 95% confident
-that the selection of the true plot is by chance and there is an
+the threshold 0.05, which means that we fail to reject the null hypothesis in favor of the alternative hypothesis. Consequently, we are 95% confident
+that the selection of the true plot is by chance and there is no
 association between the combinations of `longitude` and `latitude` for
-different `Month` periods ("*Active*" and "*Others*").
+different `Month` periods ("*Active*" and "*Others*"). This means that the **Weeping Mulla Mulla** can still be found outside of their active months without being in specific area. 
 
 ### Trend expectation
 
@@ -492,7 +520,7 @@ Since the data relies on human observation, it was anticipated that
 there might have been fewer sightings due to a lack of reporting.
 
 By employing a simple method of plotting the number of observations
-against the years using a histogram, it can be seen that there was no
+against the years using a histogram (@fig-plots99), it can be seen that there was no
 indication of reduced observations during the COVID-19 years from 2000
 to 2021. In fact, 2021 recorded the second-highest number of
 observations for the species.
@@ -505,7 +533,11 @@ surpassing even the sightings in 2021, with 108 observations compared to
 Currently, there are no findings that can explain this phenomenon. Given that the years after 2015 usually saw much higher reported sightings as compared to the previous, we hypothesize that this effect is due to the proliferation of internet-of-things, allowing sightings to be reported with greater ease and more reliable reporting platforms/databanks. 
 
 ```{r, echo=FALSE, warning =FALSE}
-weeping_mulla_mulla %>%
+#| label: fig-plots99
+#| fig-cap: "Weeping Mulla Mulla Observations by Year"
+#| fig-align: center
+#| echo: false
+wrapper <- weeping_mulla_mulla %>%
   group_by(Year) %>%
   count() %>%
   ggplot(aes(x = Year, y = n, fill = as.factor(Year))) +
@@ -517,6 +549,7 @@ weeping_mulla_mulla %>%
   ) +
   theme_minimal() +
   theme(legend.position = "none", legend.title = element_blank())
+ggplotly(wrapper)
 ```
 
 ### Seasonality expectation
@@ -529,7 +562,11 @@ considerably more observation points, we would like create a bar plot
 for a better visualization inference.
 
 ```{r}
-weeping_mulla_mulla %>%
+#| label: fig-plots6
+#| fig-cap: "Weeping Mulla Mulla Observations by Month (Bars)"
+#| fig-align: center
+#| echo: false
+wrapper1 <- weeping_mulla_mulla %>%
   group_by(monthName) %>%
   count() %>%
   ggplot(aes(x = monthName, y = n, fill = as.factor(monthName))) +
@@ -544,10 +581,11 @@ weeping_mulla_mulla %>%
   ) +
   theme_minimal() +
   theme(legend.position = "none", legend.title = element_blank())
+ggplotly(wrapper1)
 ```
 
 Interestingly, we observe decreased sightings during June and July while
-August has the highest sighting occurrences. March marks the start of
+August has the highest sighting occurrences (@fig-plots6). March marks the start of
 the blooming cycle with April and May being the autumn season in Western
 Australia (Tourism Australia n. d.), which has occasional showers. This
 explains the large rise in sightings for these months. However, the main
@@ -567,8 +605,10 @@ displays geographical features such as subsurface water, creeks, lakes,
 and rivers.
 
 ```{r}
-library(leaflet)
-
+#| label: fig-plots7
+#| fig-cap: "Habitat Map Of Weeping Mulla Mulla Distribution"
+#| fig-align: center
+#| echo: false
 weeping_mulla_mulla %>%
   leaflet() %>%
   addProviderTiles("Esri.DeLorme") %>%
@@ -581,13 +621,15 @@ weeping_mulla_mulla %>%
 )
 ```
 
-Due to the zoom level, we could not see the water body features of the
+The map is seen in the @fig-plots7, but due to the zoom level, we could not see the water body features of the
 map; Therefore, we decided to investigate a cluster of sightings near
 Ali Curung.
 
 ```{r}
-library(leaflet)
-
+#| label: fig-plots8
+#| fig-cap: "Habitat Map Of Weeping Mulla Mulla Distribution(Ali Curung, Barkly)"
+#| fig-align: center
+#| echo: false
 weeping_mulla_mulla %>%
   leaflet() %>%
   addProviderTiles("Esri.DeLorme") %>%
@@ -600,7 +642,7 @@ weeping_mulla_mulla %>%
 ) 
 ```
 
-Based on the map above, we can see that the main cluster of **Weeping
+Based on the map above (fig-plots8), we can see that the main cluster of **Weeping
 Mulla Mulla** does not live near a water source, which is different from
 what we expected. This suggests that the plant is dependent on rain,
 meaning that high precipitation periods might lead to higher sightings.
@@ -609,7 +651,13 @@ National 87 road, implying that these reports were made by passersby.
 
 ### Precipitation and sighting annually
 
+The additional data from the `tenant creek airport` weather station allows us to investigate the relation between precipitation and sighting directly, resulting in the graph below which visualizes annual average rainfall and annual sightings.
+
 ```{r echo=FALSE}
+#| label: fig-plots9
+#| fig-cap: "Sighting Count and Average Precipitation by Year \n(Barkly and Tennant Creek Station)"
+#| fig-align: center
+#| echo: false
 average_precipitation <- temperature %>%
   mutate(Year = lubridate::year(date)) %>%
   group_by(Year) %>%
@@ -639,32 +687,87 @@ rainplot <- temperature %>%
 rainplot
 ```
 
-From the figure above, we can see there are multiple gaps in the sighting of the **Weeping Mulla Mulla** from 2004 to 2023. This inconsistency can be explained by the lack of popularity of our plant species. As addressed above in the **Trend expectation** section, 2015 saw an abnormally high sighting count, despite a normal annual average precipitation figure for that year, especially when there were no sighting records in 2013-2014. 
+From the @fig-plots9, we can see there are multiple gaps in the sighting of the **Weeping Mulla Mulla** from 2004 to 2023. This inconsistency can be explained by the lack of popularity of our plant species. As addressed above in the **Trend expectation** section, 2015 saw an abnormally high sighting count, despite a normal annual average precipitation figure for that year, especially when there were no sighting records in 2013-2014. 
 We can hypothesize a delayed effect of plant sightings where years with decreasing rainfall will be accompanied by sightings when the annual average precipitation begins to trend upward. For instance, 2006 - 2007 saw a decreasing trend in rainfall without any plant sightings; However, 2008 saw new reported sightings, as well as the start of increasing precipitation trend from 2008 to 2011. Another example is when the downward trend from 2011 to 2013 saw dwindling sightings with increasing rainfall but from 2015 onwards, sightings were much higher and there were fewer gaps in annual sightings. Perhaps this is due to preference for dry weather of the plants; therefore, decreasing precips allow the **Weeping Mulla Mulla** to thrive better in constrast to being overwatered in wetter years. 
 
-### Temperature and sightings
+### Temperature and sightings 
 
-```{r}
-temperature$date <- as.Date(temperature$date)
+Since the rainfall data did not signify any concrete answers, we decided to also investigate the daily average temperature and whether that date has a reported sighting. This is to determine at what average temperature that sighting is likely to be made. 
 
-monthly_avg <- temperature %>%
-  mutate(month = format(date, "%Y-%m")) %>%
-  group_by(month) %>%
-  summarise(avg_tmax = mean(tmax), avg_tmin = mean(tmin))
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+#| label: fig-plots10
+#| fig-cap: "Daily Mean Temperature and Sightings (Barkly) (2004-2023)"
+#| fig-align: center
+#| echo: false
+sighting_data <- temperature %>%
+  filter(sighting == 1) %>%
+  distinct(date, .keep_all = TRUE)
 
-tempt_plot <- ggplot(monthly_avg, aes(x = as.Date(paste0(month, "-01")))) +
-  geom_line(aes(y = avg_tmax, color = "Hot Temperature"), size = 1, alpha = 0.5) +
-  geom_line(aes(y = avg_tmin, color = "Cold Temperature"), size = 1, alpha = 0.5) +
-  scale_color_manual(values = c("Hot Temperature" = "#FF0000", "Cold Temperature" = "#0000FF")) +
-  labs(x = "Date", y = "Temperature",
-       title = "Monthly Average Maximum and Minimum Temperature",
-       color = "Temperature") +
-  theme_minimal()
+temperature$mean_temp <- (temperature$tmax + temperature$tmin) / 2
 
-tempt_plot
+ggplot(temperature, aes(x = as.Date(date))) +
+  geom_line(aes(y = mean_temp), size = 1, color = "aquamarine4", alpha = 0.5) +
+  geom_bar(data = sighting_data, aes(y = 40), stat = "identity", width = 5, fill = "maroon", alpha = 0.7) +
+  labs(x = "Date", y = "Mean Temperature (Celsius)",
+       title = "Daily Mean Temperature and Sightings (Barkly)",
+       color = "Mean Temperature") +
+  coord_cartesian(ylim = c(10, 40)) +
+  theme_classic()
 ```
 
- 
+**Discussion**
+
+@fig-plots10 depicts that, even when the data ranges from 2004 to 2023, there are very little reported sightings of the **Weeping Mulla Mulla** in *Barkly*. Nonetheless, we can observe that most of the years have very similar seasonality trend for average temperatures; thus, we decided to investigate 2015 as it has the most reported sightings.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+#| label: fig-plots11
+#| fig-cap: "Daily Mean Temperature, Sighting, Plant Active Window (Barkly, 2015)"
+#| fig-align: center
+#| echo: false
+sighting_data <- temperature %>%
+  filter(sighting == 1) %>%
+  distinct(date, .keep_all = TRUE)
+
+temperature$mean_temp <- (temperature$tmax + temperature$tmin) / 2
+
+march_oct_data <- temperature %>%
+  filter(as.Date(date) >= as.Date("2015-03-01") & as.Date(date) <= as.Date("2015-10-31"))
+
+plot_down <- ggplot() +
+  geom_line(data = temperature, aes(x = as.Date(date), y = mean_temp), size = 1, color = "aquamarine4", alpha = 0.5) +
+  geom_ribbon(data = march_oct_data, aes(x = as.Date(date), ymin = 0, ymax = 40), fill = "maroon", alpha = 0.3) +
+  labs(x = "Date", y = "Mean Temperature (Celsius)",
+       title = "Daily Mean Temperature and Plant Active Window (Barkly, 2015)",
+       color = "Mean Temperature") +
+  coord_cartesian(ylim = c(10, 40)) +
+  scale_x_date(limits = as.Date(c("2015-01-01", "2015-12-31"))) +
+  theme_classic()
+  
+plotup <-  
+  ggplot(temperature, aes(x = as.Date(date))) +
+    geom_line(aes(y = mean_temp), size = 1, color = "aquamarine4", alpha = 0.5) +
+    geom_bar(data = sighting_data, aes(y = 40), stat = "identity", width = 0.5, fill = "maroon", alpha = 0.7) +
+    labs(x = "Date", y = "Mean Temperature (Celsius)",
+         title = "Daily Mean Temperature and Sightings (Barkly, 2015)",
+         color = "Mean Temperature") +
+    coord_cartesian(ylim = c(10, 40)) +
+    scale_x_date(limits = as.Date(c("2015-01-01", "2015-12-31"))) +
+    theme_classic()
+
+combined_plot <- plot_grid(
+  plotup,
+  plot_down,
+  ncol = 1
+)
+
+combined_plot
+```
+
+**Discussion**
+
+By narrowing it down to `2015`, we recognize that most of the sightings happened in the later half of the year, specifically when the weather begins to get warmer but not during the warmest days (@fig-plots11). While most of the observations were reported within the "Active" months of the flower, it is interesting to see that March to early July saw no reported sightings. We believe that lack of observations is caused by lack of human observers rather than the plant's blooming characteristics since we have explored this habit earlier in the **Temporal expectation** section. Additionally, it is intriguing to observe that the active months of the plant coincide with the transition from colder to warmer weather in the lower figure.
+We also consider the possibility that the mentality effect of *"the weather is getting warmer"* enables a greater inclination in people for outdoor ventures - increasing the sighting frequency of the plant. 
+
 ## Summary
 
 ## References
