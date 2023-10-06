@@ -12,14 +12,15 @@ editor:
 ---
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(cowplot)
 library(galah)
 library(kableExtra)
 library(leaflet)
-library(spData)
-library(tidyverse)
 library(nullabor)
 library(plotly)
-library(cowplot)
+library(rnoaa)
+library(spData)
+library(tidyverse)
 library(visdat)
 ```
 
@@ -124,6 +125,7 @@ storage <- galah_call() %>%
   atlas_occurrences() %>%
   filter(basisOfRecord == "HUMAN_OBSERVATION")
 ```
+
 ```{r eval=FALSE}
 storage <- galah_call() %>%
   galah_identify("Weeping mulla mulla") %>%
@@ -217,7 +219,6 @@ and precipitation. Obtaining the data via the `rnoaa` package for
 Australia was completed using the code below:
 
 ```{r weather-data, warning=FALSE, message=FALSE}
-library(rnoaa)
 aus_stations <- ghcnd_stations() |>
   filter(str_starts(id, "ASN")) |>
   filter(last_year >= 2020) |> 
@@ -808,16 +809,28 @@ In conclusion, the findings in this report affirm that the **Weeping Mulla Mulla
 
 ### Packages
 
--   **leaflet**: Cheng J, Schloerke B, Karambelkar B, Xie Y (2023).
-    *leaflet: Create Interactive Web Maps with the JavaScript 'Leaflet'
-    Library*. R package version 2.2.0,
-    https://CRAN.R-project.org/package=leaflet.
+- **cowplot**: Wilke C (2020). _cowplot: Streamlined Plot Theme and Plot Annotations
+  for 'ggplot2'_. R package version 1.1.1,
+  https://CRAN.R-project.org/package=cowplot.
 -   **galah**: Westgate M, Kellie D, Stevenson M, Newman P (2023).
     *galah: Biodiversity Data from the Living Atlas Community*. R
     package version 1.5.3, https://CRAN.R-project.org/package=galah.
 -   **kableExtra**: Zhu H (2021). *kableExtra: Construct Complex Table
     with 'kable' and Pipe Syntax*. R package version 1.3.4,
     https://CRAN.R-project.org/package=kableExtra.
+- **leaflet**: Cheng J, Schloerke B, Karambelkar B, Xie Y (2023).
+    *leaflet: Create Interactive Web Maps with the JavaScript 'Leaflet'
+    Library*. R package version 2.2.0,
+    https://CRAN.R-project.org/package=leaflet.
+- **nullabor**:  Buja, A., Cook, D., Hofmann, H., Lawrence, M., Lee, E.-K., Swayne, D.
+  F, Wickham, H. (2009) Statistical Inference for Exploratory Data
+  Analysis and Model Diagnostics Royal Society Philosophical
+  Transactions A, 367(1906):4361-4383. URL
+  http://rsta.royalsocietypublishing.org/content/367/1906/4361.article-info
+- **plotly**: C. Sievert. Interactive Web-Based Data Visualization with R, plotly,
+  and shiny. Chapman and Hall/CRC Florida, 2020.
+- **rnoaa**: Chamberlain S, Hocking D (2023). _rnoaa: 'NOAA' Weather Data from R_. R package version
+  1.4.0, https://CRAN.R-project.org/package=rnoaa.
 -   **spData**: Bivand R, Nowosad J, Lovelace R (2023). *spData:
     Datasets for Spatial Analysis*. R
 -   **tidyverse**: Wickham H, Averick M, Bryan J, Chang W, McGowan LD,
