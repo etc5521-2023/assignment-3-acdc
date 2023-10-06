@@ -1,43 +1,27 @@
-# Sample AI script
+# AI script
 
-ME: Using dplyr how would you write the code to expand a categorical variable by a count variable?
+ME: How come there are more observations in 2015 for the Weeping Mulla Mulla in comparison to other years?
 
-CHATGPT: In R, the dplyr package provides various data manipulation functions. If you have a data frame that contains a categorical variable and a count variable, and you wish to expand the data frame based on the count variable, you can use the uncount function. Here's how to do it:
-...
+CHATGPT: I'm sorry, but I don't have access to specific data on the Weeping Mulla Mulla plant or its observations in different years, as my knowledge is up to date only until September 2021. To understand why there might be more observations of the Weeping Mulla Mulla in 2015 compared to other years, you would need to refer to relevant scientific studies, databases, or sources that track plant observations and environmental factors.
 
-ME: Can you tell me how to remove ( ) from a string with a regular expression?
+There could be various reasons for variations in plant observations from year to year, including:
 
-CHATGPT: Certainly! You can use regular expressions to remove parentheses from a string. In various programming languages, the regular expression to match parentheses would be \(|\). 
+1. Research and Monitoring Efforts: The number of observations can be influenced by the level of research and monitoring activities conducted in a particular year. If there were more researchers or organizations conducting studies on the Weeping Mulla Mulla in 2015, it could lead to more observations.
 
-Here's how to remove parentheses in some popular programming languages:
+2. Environmental Conditions: Weather and environmental conditions can also play a significant role. Some plants may flourish or become more noticeable during certain weather patterns or climate events, leading to increased observations.
 
-...
+3. Geographic Distribution: The Weeping Mulla Mulla's distribution may vary from year to year due to factors such as seed dispersal, habitat changes, or natural ecological fluctuations.
 
-ME: What about with stringr in R
+4. Data Collection Efforts: The availability of technology and data collection methods can change over time. Improved technology and data-sharing platforms may lead to more comprehensive data collection in a specific year.
 
-CHATGPT: In R, you can use the stringr package to work with strings, including using regular expressions to remove characters. To remove parentheses, you can use the str_replace_all function with the regular expression for matching parentheses, which is \\(|\\).
+5. Public Interest and Citizen Science: Increased public interest or participation in citizen science programs can lead to more observations of plants like the Weeping Mulla Mulla.
 
-Here's how you would do it:
-...
-
-ME: How would you write the code to make a lineup for a qqplot using the nullabor R package?
-
-CHATGPT: The nullabor package in R is used to generate lineup tests, which are a graphical diagnostic tool often used to evaluate the validity of the assumptions behind statistical models, such as whether data is normally distributed. The package can be used in combination with ggplot2 to create QQ plots.
-
-Here is a sample code snippet that shows how to create a lineup for a QQ plot using the nullabor package. This code assumes that you have some observed data that you want to compare against a theoretical normal distribution.
-
-First, you will need to install the nullabor and ggplot2 packages if you haven't already.
+To determine the specific reasons for the variation in observations, it would be necessary to consult the relevant scientific literature, databases, or experts who have studied the Weeping Mulla Mulla and its observations in 2015 and other years.
 
 ...
 
-```
-# Create lineup
-lineup(create_qqplot(data.frame(x = rnorm(100))), 
-       create_qqplot(data.frame(x = observed_data)),
-       n = 20)
-```
 --------
 
-ANALYSIS: ChatGPT helped me to make a start on code to use for different exercises. It provided mostly useful code. 
+ANALYSIS: ChatGPT could not help us identify why there were more sightings in 2015 than other years. However it did suggest reasons why it may have been the case which helped shaped our thinking about what possibilities we could explore.
 
 

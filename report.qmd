@@ -1,6 +1,6 @@
 ---
 title: "Weeping Mulla Mulla: Ptilotus Calostachyus"
-author: "**Team name:** ACDC </br> **Team members:** </br> Khuyen Nguyen _kngu0086@student.monash.edu_ </br> Khanh Pham </br> _mpha0054@student.monash.edu_"
+author: "**Team name:** ACDC </br> **Team members:** </br> Khuyen Nguyen _kngu0086@student.monash.edu_ </br> Khanh Pham _mpha0054@student.monash.edu_"
 format: html
 toc: true
 editor: 
@@ -15,7 +15,7 @@ library(leaflet)
 library(spData)
 library(tidyverse)
 library(nullabor)
-library(ggplotly)
+library(plotly)
 ```
 
 ## Introduction
@@ -57,36 +57,23 @@ Five expectations when exploring the **Weeping Mulla Mulla** sighting:
     June - August for Perth.
 
 This report aims to provide a comprehensive analysis of the **Weeping
-Mulla Mulla**, utilising primary data sources from the ALA Atlas of
-Living Australia and the Global Historical Climatology Network (GHCN)
+Mulla Mulla**, utilising primary data sources from the _ALA Atlas of Living Australia_ 
+and the _Global Historical Climatology Network (GHCN)_
 database.
 
 Throughout this exploration of expectations, numerous intriguing
 observations were uncovered that were not initially anticipated.
-Notably, the employment of `spData` and `leaflet` effectively visualised
-these findings.
+Notably, the employment of `spData` and `leaflet` effectively visualised these findings and allows for interactivity.
 
-Several limitations have impacted the final analysis. Firstly, there is
-a scarcity of observations, primarily because this plant is not commonly
-sought after or reported by individuals. Secondly, the absence of
-weather recordings in remote areas may result in gaps in the dataset.
-Additionally, extrapolating weather data from one region to the entire
-species range, instead of relying on the actual weather conditions
-recorded in each area, could introduce inaccuracies into the analysis.
+It is important to note several limitations that have affected the final analysis. Firstly, there is a scarcity of observations, primarily because this plant is not commonly sought after or reported by individuals. Secondly, the absence of weather recordings in remote areas may lead to gaps in the dataset.
 
 ![](https://static.inaturalist.org/photos/54862576/medium.jpg){fig-align="center"}
 
 ## Data description
 
-```{=html}
-<!--
-2. Download all the occurrence records from the Atlas of Living Australia, ideally scripted using the `atlas_occurrences()` function from the `galah` package. Make sure you include date, time, collector identification details. Save this into a `data-raw` folder in your repo.
--->
-```
 ### Species data
 
-Below is the code to download the raw data directly from the [Atlas of
-Living Australia](https://www.ala.org.au/).
+Below is the code to download the raw data directly from _ALA Atlas of Living Australia_.
 
 The basis of record was filtered to `HUMAN_OBSERVATION` only. This
 decision was made because we intended to focus solely on sightings of
@@ -164,8 +151,11 @@ dictionary <- data.frame(
   )
 )
 
-kable(dictionary, format = "markdown")
+kable(dictionary, format = "markdown", caption = "**Data Dictionary for the Weeping Mulla Mulla dataset**")
 ```
+### Data cleaning
+
+As mentioned earlier, only location and event time variables significantly contribute to the analysis. Methods for selecting and renaming variables, extracting time variables from the date, and removing unnecessary strings and missing values were applied before saving a clean version for further analysis. The code for data cleaning can be referred to below:
 
 ```{r species-data-cleaning}
 weeping_mulla_mulla <- storage %>%
@@ -185,6 +175,8 @@ weeping_mulla_mulla <- storage %>%
   filter(!is.na(longitude)) 
 save(weeping_mulla_mulla, file = ("data/weeping_mulla_mulla.rda"))
 ```
+
+## Initial data analysis
 
 ### Weather data
 
@@ -241,7 +233,7 @@ combined_plot <- australia_plot +
   geom_point(data = weeping_mulla_mulla,
              aes(x = longitude, y = latitude),
              colour = "#c599b2", alpha= 0.3, size = 2.5) +
-  labs(title = "Weeping Mulla Mulla Sightings and Weather Stations", 
+ labs(title = "Weeping Mulla Mulla Sightings & Weather Stations", 
        x = "Longitude", 
        y = "Latitude", 
        subtitle = "1987 - Present") +
@@ -257,9 +249,23 @@ combined_plot +
     ),
     shape = 2
   ) +
-  scale_color_manual(values = c("FALSE" = "#222233", "TRUE" = "red")) +
-  theme(legend.position = "none")
+ scale_color_manual(
+    name = "Weather Stations",
+    values = c("FALSE" = "#222233", "TRUE" = "red"),
+    breaks = c(FALSE, TRUE), 
+    labels = c("Other", "Tennant Creek Airport") 
+  )
 ```
+
+The triangles on the map represent the locations of 42 weather stations.
+The purple points, with varying alpha and size settings, help to
+identify the areas with the highest occurrence rates. Notably, the red
+triangle represents the Tennant Creek Airport weather station, which
+records the majority of observations. Given this focus, the analysis can
+be narrowed down by filtering the weather station data specifically for
+Tennant Creek.
+
+For another view of these findings, the same map was recreated using `leaflet`:
 
 ```{r echo=FALSE}
 weeping_mulla_mulla %>%
@@ -288,18 +294,11 @@ weeping_mulla_mulla %>%
                    radius = 5)
 ```
 
-The triangles on the map represent the locations of 42 weather stations.
-The purple points, with varying alpha and size settings, help to
-identify the areas with the highest occurrence rates. Notably, the white
-triangle represents the Tennant Creek Airport weather station, which
-records the majority of observations. Given this focus, the analysis can
-be narrowed down by filtering the weather station data specifically for
-Tennant Creek.
+
 
 #### **Obtaining weather data for Tennant Creek**
 
-The code for obtaining precipitation, maximum temperature, and minimum
-temperature data for the town is provided below:
+The code for obtaining precipitation, maximum temperature, and minimum temperature data for Tennant Creek is provided below by filtering using the station ID ASN00015135:
 
 ```{r, warning=FALSE, message=FALSE}
 tennant_creek_airport <- aus_stations |>
@@ -340,15 +339,6 @@ temperature <- tennant_creek_airport %>%
 save(temperature, file = ("data/temperature.rda"))
 ```
 
-## Initial data analysis
-
-```{=html}
-<!--
-3. Perform a data quality check, and then go ahead and clean the data, saving only the wild sightings. Save the resulting data in a `data` folder as an `WILD_THING_COMMON_NAME.rda` file, so that any special variable types are clearly available. (Replace `WILD_THING_COMMON_NAME` with lower case common name of your assigned wild thing.) *Note:* Some are museum or historical records or live in an animal sanctuary or zoo, which do not truly capture their wild behaviour. Downloading the event information (`galah_select(group = "event")`) can help identify wild sightings.
-
-Weather data pre-processing here too.
--->
-```
 ### Checking data quality
 
 We will be using `visdat` library to check for data type errors
@@ -666,6 +656,20 @@ tempt_plot
 
  
 ## Summary
+
+Our analysis of the **Weeping Mulla Mulla** has confirmed or debunked several key expectations:
+
+1. **Spatial Distribution**: The species' sightings are concentrated in the north of Western Australia and in the Northern Territory, forming the two primary clusters of observations.
+
+2. **Temporal Patterns**: The majority of **Weeping Mulla Mulla** sightings occur between March and October, in line with its thriving period during these months.
+
+3. **Trend Confirmation**: We have observed a consistent number of sightings with an increasing trend, attributed to enhanced sighting, reporting, and monitoring methods, particularly evident since 2015. Remarkably, there was no decline in observations even during the COVID lockdown period.
+
+4. **Habitat Preferences**: Initial expectations were that sightings would cluster around areas with a water source, given the plant's preference for harsh, dry, and hot sandy habitats. However, our analysis reveals a surprising finding. The primary cluster of sightings does not necessarily align with water sources, indicating the plant's reliance on rain for survival. Additionally, sightings are frequently reported near roads, suggesting observations by passersby.
+
+5. **Rainfall Influence**: Considering that the **Weeping Mulla Mulla** typically blooms after the wet season, which occurs approximately between June and August, we conducted an in-depth analysis of rainfall and precipitation. Intriguingly, while there were more sightings in March and April during the blooming cycle and occasional showers, there was a decrease in sightings during thunderstorms and flooding in June and July. The highest number of sightings was recorded in August, likely attributed to milder downpours. This observation aligns with the inherent nature of the **Weeping Mulla Mulla** as a desert plant that thrives without relying heavily on water.
+
+In conclusion, the findings in this report affirm that the **Weeping Mulla Mulla** is an exceptionally unique and endemic plant, exclusively located in the northern regions of Australia. Tourists seeking to experience the harsh desert climate can observe it at its peak during the months of March to October. This desert plant thrives with minimal water requirements for survival.
 
 ## References
 
