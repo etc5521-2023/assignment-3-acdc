@@ -29,9 +29,9 @@ The *Ptilotus calostachyus F.Muell*, which is also known as the
 **Weeping Mulla Mulla**, is an endemic plant that is commonly found in
 the Western Australia territory (Florabase n. d.). This species thrives
 in arid region, particular in sandy habitats with red and stony
-plains(1). Being a *perennial* plant, it can live up to more than two
+plains(Florabase n. d.). Being a *perennial* plant, it can live up to more than two
 years with the seasonal pattern of being dormant in the winter and
-sprouting again in springtime - (1). Moreover, **Weeping Mulla Mulla**
+sprouting again in springtime - (Florabase n. d.). Moreover, **Weeping Mulla Mulla**
 displays erect or spreading, herb or shrub characteristics, meaning that
 it can be found as a tall plant and/or covering an area, as well as
 with/without a woody body. They can grow from 0.2 to 2 meters tall with
@@ -62,7 +62,7 @@ Five expectations when exploring the **Weeping Mulla Mulla** sighting:
     June - August for Perth.
 
 This report aims to provide a comprehensive analysis of the **Weeping
-Mulla Mulla**, utilising primary data sources from the _ALA Atlas of Living Australia_ 
+Mulla Mulla**, utilising primary data sources from the _ALA Atlas of Living Australia_
 and the _Global Historical Climatology Network (GHCN)_
 database.
 
@@ -135,6 +135,8 @@ storage <- galah_call() %>%
   ) %>%
   atlas_occurrences() %>%
   filter(basisOfRecord == "HUMAN_OBSERVATION")
+
+# this workaround is done because the message "Checking queue Current queue size: 1 inqueue ." do not go away even if we use warning or message = false
 ```
 
 The data obtained from the Atlas of Living Australia website combines
@@ -362,7 +364,7 @@ temperature <- tennant_creek_airport %>%
 save(temperature, file = ("data/temperature.rda"))
 ```
 
-### Checking data quality
+### Checking data quality (Weeping Mulla Mulla)
 
 We will be using `visdat` library to check for data type errors
 
@@ -549,7 +551,7 @@ wrapper <- weeping_mulla_mulla %>%
   count() %>%
   ggplot(aes(x = Year, y = n, fill = as.factor(Year))) +
   geom_histogram(stat = "identity") +
-  scale_fill_manual(values = c("2020" = "#c599b2", "2021" = "#c599b2")) +
+  scale_fill_manual(values = c("2020" = "firebrick4", "2021" = "firebrick4")) +
   labs(
     title = "Weeping Mulla Mulla Observations by Year",
     y = "Number of observations"
@@ -605,7 +607,7 @@ occurrences, as the end of winter has milder downpours.
 
 Given that the **Weeping Mulla Mulla** prefers stony and sandy
 environments, we expect the plants to be sighted near areas with
-freshwater such as river banks,... Moreover, observations by travelers
+freshwater such as river banks. Moreover, observations by travelers
 might be more likely to be located near and/or on the way to a water
 source. To test our this expectation, we deploy a `leaflet` map, which
 displays geographical features such as subsurface water, creeks, lakes,
@@ -628,9 +630,7 @@ weeping_mulla_mulla %>%
 )
 ```
 
-The map is seen in the @fig-plots7, but due to the zoom level, we could not see the water body features of the
-map; Therefore, we decided to investigate a cluster of sightings near
-Ali Curung.
+The map is seen in the @fig-plots7, but due to the zoom level, we could not see the water body features of the map; Therefore, we decided to investigate a cluster of sightings near Ali Curung.
 
 ```{r}
 #| label: fig-plots8
@@ -649,7 +649,7 @@ weeping_mulla_mulla %>%
 ) 
 ```
 
-Based on the map above (fig-plots8), we can see that the main cluster of **Weeping
+Based on the map above (@fig-plots8), we can see that the main cluster of **Weeping
 Mulla Mulla** does not live near a water source, which is different from
 what we expected. This suggests that the plant is dependent on rain,
 meaning that high precipitation periods might lead to higher sightings.
