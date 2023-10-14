@@ -21,6 +21,8 @@ library(rnoaa)
 library(spData)
 library(tidyverse)
 library(visdat)
+library(tsibble)
+library(lubridate)
 ```
 
 ## Introduction
@@ -982,3 +984,10 @@ water requirements for survival.
     Frames." *JOSS*, *2*(16), 355. doi:10.21105/joss.00355
     https://doi.org/10.21105/joss.00355,
     http://dx.doi.org/10.21105/joss.00355.
+    
+
+```{r}
+load("data/tourism.rda")
+```
+
+
