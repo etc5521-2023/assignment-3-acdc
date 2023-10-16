@@ -381,7 +381,7 @@ tourism_tsibble <- tourism %>%
 
 tourism_subset <- tourism_tsibble %>% 
   left_join(weeping_mulla_mulla, by = c("Region" = "lga")) %>% 
-  filter(Region %in% c("Barkly", "Central Desert", "Ashburton", "Port Hedland", "Broome"))
+  filter(Region %in% c("Barkly", "Tennant Creek", "Tanami", "Ashburton", "Port Hedland", "Broome"))
 
 # Tennant Creek belongs to Barkly, Tanami belong to Central Desert
 ```
