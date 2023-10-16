@@ -134,19 +134,6 @@ storage <- galah_call() %>%
 # this workaround is done because the message "Checking queue Current queue size: 1 inqueue ." do not go away even if we use warning or message = false
 ```
 
-```{r eval=FALSE}
-storage <- galah_call() %>%
-  galah_identify("Weeping mulla mulla") %>%
-  galah_select(
-    basisOfRecord, decimalLatitude, decimalLongitude, eventDate, scientificName,
-    taxonConceptID, recordID, dataResourceName, eventRemarks, eventTime, eventID,
-    eventDate, samplingEffort, samplingProtocol, cl959,
-    group = c("basic", "event")
-  ) %>%
-  atlas_occurrences() %>%
-  filter(basisOfRecord == "HUMAN_OBSERVATION")
-```
-
 The data obtained from the Atlas of Living Australia website combines
 information from multiple sources and includes various variables such as
 location, date, time, scientific names, resource names, species status,
@@ -378,6 +365,25 @@ temperature <- tennant_creek_airport %>%
   select(-11:-17) 
 
 save(temperature, file = ("data/temperature.rda"))
+```
+
+# Subset tourism data
+```{r}
+library(dplyr)
+library(zoo)
+library(tsibble)
+library(lubridate)
+
+load("data/tourism.rda")
+
+tourism_tsibble <- tourism %>%
+  mutate(Quarter = as.Date(Quarter, format = "%YYYY Q%q")) 
+
+tourism_subset <- tourism_tsibble %>% 
+  left_join(weeping_mulla_mulla, by = c("Region" = "lga")) %>% 
+  filter(Region %in% c("Barkly", "Central Desert", "Ashburton", "Port Hedland", "Broome"))
+
+# Tennant Creek belongs to Barkly, Tanami belong to Central Desert
 ```
 
 ### Checking data quality (Weeping Mulla Mulla)
@@ -985,9 +991,4 @@ water requirements for survival.
     https://doi.org/10.21105/joss.00355,
     http://dx.doi.org/10.21105/joss.00355.
     
-
-```{r}
-load("data/tourism.rda")
-```
-
 
