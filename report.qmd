@@ -525,7 +525,7 @@ wmm_region <-
 
 ##### Join Temporal and Spatial Data
 
-Now, our Occurence data has matching region name with the region in the Tourism data, we also have transformed the format for temporal variables. Finally, We can start to join the temporal and spatial variables between these two dataset.
+Now, our Occurence data has matching region name with the region in the Tourism data, we also have transformed the format for temporal variables. Finally, We can start to join the temporal and spatial variables between these two datasets.
 ```{r joined_data, warning = false, message = false}
 wmm_tourism <- wmm_region %>%
                 left_join(tourism, by = c("region" = "Region", "Year_Quarter" = "Quarter"))
