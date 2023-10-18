@@ -23,6 +23,8 @@ library(tidyverse)
 library(visdat)
 library(tsibble)
 library(lubridate)
+library(sf)
+library(rmapshaper)
 ```
 
 ## Introduction
@@ -30,11 +32,11 @@ library(lubridate)
 The *Ptilotus calostachyus F.Muell*, which is also known as the
 **Weeping Mulla Mulla**, is an endemic plant that is commonly found in
 the Western Australia territory (Florabase n. d.). This species thrives
-in arid region, particular in sandy habitats with red and stony
-plains (Florabase n. d.). Being a *perennial* plant, it can live up to
-more than two years with the seasonal pattern of being dormant in the
-winter and sprouting again in springtime (Florabase n. d.). Moreover,
-**Weeping Mulla Mulla** displays erect or spreading, herb or shrub
+in arid region, particular in sandy habitats with red and stony plains
+(Florabase n. d.). Being a *perennial* plant, it can live up to more
+than two years with the seasonal pattern of being dormant in the winter
+and sprouting again in springtime (Florabase n. d.). Moreover, **Weeping
+Mulla Mulla** displays erect or spreading, herb or shrub
 characteristics, meaning that it can be found as a tall plant and/or
 covering an area, as well as with/without a woody body. They can grow
 from 0.2 to 2 meters tall with pink-white flowers, blooming from March
@@ -88,8 +90,9 @@ may lead to gaps in the dataset.
 Below is the code to download the raw data directly from *ALA Atlas of
 Living Australia*.
 
-The basis of record was filtered to `HUMAN_OBSERVATION` only. The intention of this analysis is to focus solely on sightings of
-the species in the wild, and differentiate between specimens that are
+The basis of record was filtered to `HUMAN_OBSERVATION` only. The
+intention of this analysis is to focus solely on sightings of the
+species in the wild, and differentiate between specimens that are
 preserved, collected samples, or in controlled environments such as
 museums.
 
@@ -188,6 +191,8 @@ weeping_mulla_mulla <- storage %>%
   mutate(
     eventDate = as.Date(eventDate),
     Year = lubridate::year(eventDate),
+    Quarter = paste("Q",lubridate::quarter(eventDate), sep = ""),
+    Year_Quarter = paste(Year, Quarter, sep = " "),
     Month = lubridate::month(eventDate),
     monthName = lubridate::month(eventDate, label = TRUE, abbr = TRUE),
     Day = lubridate::day(eventDate),
@@ -367,25 +372,6 @@ temperature <- tennant_creek_airport %>%
 save(temperature, file = ("data/temperature.rda"))
 ```
 
-# Subset tourism data
-```{r}
-library(dplyr)
-library(zoo)
-library(tsibble)
-library(lubridate)
-
-load("data/tourism.rda")
-
-tourism_tsibble <- tourism %>%
-  mutate(Quarter = as.Date(Quarter, format = "%YYYY Q%q")) 
-
-tourism_subset <- tourism_tsibble %>% 
-  left_join(weeping_mulla_mulla, by = c("Region" = "lga")) %>% 
-  filter(Region %in% c("Barkly", "Tennant Creek", "Tanami", "Ashburton", "Port Hedland", "Broome"))
-
-# Tennant Creek belongs to Barkly, Tanami belong to Central Desert
-```
-
 ### Checking data quality (Weeping Mulla Mulla)
 
 We will be using `visdat` library to check for data type errors
@@ -423,7 +409,8 @@ degree is 111 kilometers) insignificant in our spatial analysis.
 
 ### Checking data quality (Temperature)
 
-Similarly, we will be using `visdat` library to check for data type errors
+Similarly, we will be using `visdat` library to check for data type
+errors
 
 ```{r message=FALSE, warning=FALSE}
 #| label: fig-plots98
@@ -433,8 +420,9 @@ Similarly, we will be using `visdat` library to check for data type errors
 vis_dat(temperature)
 ```
 
-
-From the @fig-plots98, we can see that there are some NAs in `prcp`, `tmax`, and `tmin` columns. These empty data observations will then be removed accordingly.
+From the @fig-plots98, we can see that there are some NAs in `prcp`,
+`tmax`, and `tmin` columns. These empty data observations will then be
+removed accordingly.
 
 ```{r message=FALSE, warning=FALSE}
 #| label: fig-plots97
@@ -444,7 +432,13 @@ From the @fig-plots98, we can see that there are some NAs in `prcp`, `tmax`, and
 vis_guess(temperature)
 ```
 
-@fig-plots97 shows that both `tmax` and `tmin` consists of both integers and double, which is reasonable as there might be some dates where the temperature is rounded up to the whole numbers. Moreover, this is rounding up is neglectable to us since we are not interested in such precision in temperature measurements. Some NAs were carried over fromt the previous vis_dat() results, which will be removed as they lack the necessary data from further analysis.
+@fig-plots97 shows that both `tmax` and `tmin` consists of both integers
+and double, which is reasonable as there might be some dates where the
+temperature is rounded up to the whole numbers. Moreover, this is
+rounding up is neglectable to us since we are not interested in such
+precision in temperature measurements. Some NAs were carried over fromt
+the previous vis_dat() results, which will be removed as they lack the
+necessary data from further analysis.
 
 ```{r}
 modified_temperature <- 
@@ -454,6 +448,35 @@ save(modified_temperature, file = ("data/temperature.rda"))
 ```
 
 The modified temperature data has been updated.
+
+### Tourism Data
+
+We are going to extend our focus beyond the mere observation of this
+wild flower by looking into the tourism activities within its habitat.
+Leveraging data sourced from Tourism Research Australia (TRA), our objective
+is to discern whether the tourist activities have played a role in the
+number of Weeping Mulla Mulla sightings. In doing so, there are some
+steps that have to be done to combine the occurence information and the
+tourism activities.
+
+#### Loading Tourism Data
+
+As we have been given the tourism dataset, below is the table containing
+some variables in this data:
+
+```{r tourism}
+load("data/tourism.rda")
+```
+
+| Variables | Description                                                                        |
+|-------------|-----------------------------------------------------------|
+| Quarter   | The Year and Quarter when the trips happened                                       |
+| Region    | The Region where the people going to. Region is equivalent to Statistical Area 2.  |
+| Purpose   | The reason of the trips (Business, Holiday, Other).                                |
+| Trips     | Number of people doing the trip.                                                   |
+
+: Tourism Data
+
 
 ## Exploratory data analysis
 
@@ -990,5 +1013,3 @@ water requirements for survival.
     Frames." *JOSS*, *2*(16), 355. doi:10.21105/joss.00355
     https://doi.org/10.21105/joss.00355,
     http://dx.doi.org/10.21105/joss.00355.
-    
-
