@@ -25,6 +25,7 @@ library(tsibble)
 library(lubridate)
 library(sf)
 library(rmapshaper)
+library(zoo)
 ```
 
 ## Introduction
@@ -191,8 +192,6 @@ weeping_mulla_mulla <- storage %>%
   mutate(
     eventDate = as.Date(eventDate),
     Year = lubridate::year(eventDate),
-    Quarter = paste("Q",lubridate::quarter(eventDate), sep = ""),
-    Year_Quarter = paste(Year, Quarter, sep = " "),
     Month = lubridate::month(eventDate),
     monthName = lubridate::month(eventDate, label = TRUE, abbr = TRUE),
     Day = lubridate::day(eventDate),
@@ -476,6 +475,61 @@ load("data/tourism.rda")
 | Trips     | Number of people doing the trip.                                                   |
 
 : Tourism Data
+
+
+#### Join the Occurences Data with Tourism Data
+
+To join these two dataset, we are planning to use the spatial and temporal data that is contained in each dataset as the join condition. We are going to start the preparation for temporal variables before we move to spatial variables. Hence, in the next section the order will be temporal then spatial.
+
+##### Preparation for the Temporal Data
+
+The temporal variables between Occurences and Tourism data are represented by `eventDate` and `Quarter` variables, respectively. As both of these variables are in different format, we are going to transform one of them to enable the join process later. In this case, we are going to break down the `eventDate` variable into year & quarter format.
+
+```{r}
+# Adding new yearquarter column
+weeping_mulla_mulla <- weeping_mulla_mulla %>%
+                          mutate(Year_Quarter = yearquarter(eventDate))
+```
+
+
+##### Preparation for the Spatial Data
+
+As we know, the spatial variables between Tourism and Occurences data are presented by `Region` and `longitude` & `latitude`, respectively. It is not possible to just join the data based on the value of these variables, so some data transformations are needed. Looking at the extraction code (given) for Tourism data and researching TRA's website [here](https://www.tra.gov.au/en/regional/tourism-regions.html), we have got the idea that `Region` variable is the area level of the Statistical Area 2 (SA2). The SA2 is part of the main structure of the Australian Statistical Geography Standard (ASGS) Edition 3, meaning we can use its shapefile and extract the geometry of every region in Australia (which contain longitude & latitude values). We will match the `geometry` in the SA2 data with `longitude` & `latitude` in the Occurences dataset to get the SA2 region name of each sighting. The code below will provide the step-by-step of the extraction process.
+
+```{r}
+# Get shapefile
+AU_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")) %>%
+  ms_simplify(keep = 0.1) %>%
+  st_transform(crs = st_crs("WGS84")) %>%
+  st_make_valid() %>%
+  select(STE_NAME21, SA2_NAME21, SA2_CODE21, geometry) %>%
+  rename("state" = STE_NAME21,
+         "region" = SA2_NAME21,
+         "sa2_code21" = SA2_CODE21)
+
+
+# Convert Occurences data to a sf object
+wmm_sf <- weeping_mulla_mulla %>%
+  st_as_sf(coords = c("longitude", "latitude"),
+  crs = st_crs("WGS84"))
+
+
+# Join
+## some points are out of the polygon, lets filter out so we get only points in the polygon
+wmm_region <-
+  st_join(AU_region, wmm_sf, left = TRUE) %>%  # spatial join to get intersection of points and poly
+  filter(!is.na(region), # get only the points (sightings) that fall in the polygon (tourism region)
+         !is.na(eventDate)) # filter out the NA values that represents mismatch geometry with Occurences data
+
+```
+
+##### Join Temporal and Spatial Data
+
+Now, our Occurence data has matching region name with the region in the Tourism data, we also have transformed the format for temporal variables. Finally, We can start to join the temporal and spatial variables between these two dataset.
+```{r joined_data, warning = false, message = false}
+wmm_tourism <- wmm_region %>%
+                left_join(tourism, by = c("region" = "Region", "Year_Quarter" = "Quarter"))
+```
 
 
 ## Exploratory data analysis
