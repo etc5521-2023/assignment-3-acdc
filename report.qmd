@@ -465,6 +465,11 @@ some variables in this data:
 
 ```{r tourism}
 load("data/tourism.rda")
+
+tourism <- tourism %>% 
+  janitor::clean_names() %>% 
+  mutate(Region = as.factor(region),
+         Purpose = as.factor(purpose))
 ```
 
 | Variables | Description                                                                        |
@@ -472,7 +477,7 @@ load("data/tourism.rda")
 | Quarter   | The Year and Quarter when the trips happened                                       |
 | Region    | The Region where the people going to. Region is equivalent to Statistical Area 2.  |
 | Purpose   | The reason of the trips (Business, Holiday, Other).                                |
-| Trips     | Number of people doing the trip.                                                   |
+| Trips     | Number of people doing the trip (divide by 1000).                                                   |
 
 : Tourism Data
 
@@ -529,6 +534,45 @@ Now, our Occurence data has matching region name with the region in the Tourism 
 ```{r joined_data, warning = false, message = false}
 wmm_tourism <- wmm_region %>%
                 left_join(tourism, by = c("region" = "Region", "Year_Quarter" = "Quarter"))
+# Delete white spaces
+wmm_tourism <- wmm_tourism |> mutate(lga2 = str_trim(lga)) 
+tourism |> filter(region == "Ashburton (WA)",
+                  purpose == "Holiday") |>
+  ggplot(aes(x = quarter, y = trips))+
+  geom_line()
+```
+
+
+```{r, message = FALSE, warning = FALSE}
+# Narrow down the most-observed sighting areas
+wmm_tourism_nr <- wmm_tourism %>% 
+  filter(Purpose %in% c("Holiday")) %>% 
+  filter(lga %in% c("Broome ", "Port Hedland ", "Ashburton ", "Central Desert ", "Barkly "))
+```
+
+```{r}
+packages <- c("tidyverse","here","lubridate","GGally","tsibble","forcats","cartogram","sf","cartogram","patchwork","ggthemes", "sugarbag", "viridis", "rmapshaper", "cubble")
+
+lapply(packages, library, character.only = TRUE)
+
+wmm_tourism_tot <- wmm_tourism_nr %>% 
+  group_by(Purpose, lga, Year_Quarter, Year) %>% 
+  summarise(tot_trip = sum(Trips))
+
+ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip, color = lga))+
+  geom_line() +
+  labs(x = "Quarter of Year", 
+       y = "Total trips")+
+  facet_wrap(~lga, scales = "free_y")
+
+# tourism |> filter(region == "Ashburton")
+```
+
+
+```{r}
+ggplot(wmm_tourism_nr) +
+  geom_sf(aes(fill = lga))+
+  theme_map()
 ```
 
 
