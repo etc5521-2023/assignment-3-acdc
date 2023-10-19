@@ -532,6 +532,74 @@ wmm_tourism <- wmm_region %>%
 ```
 
 
+#### Temporal analysis of the seasonal patterns to understand if they are increasing or decreasing.
+
+```{r , warning = FALSE , message = FALSE}
+library(ggplot2)
+
+# Filter out "Total" and NA values in the "Purpose" column
+filtered_data <- wmm_tourism %>%
+  filter(!Purpose %in% c("Total", NA))
+
+# Group by Year_Quarter and Purpose, and calculate the total trips
+temporal_analysis <- filtered_data %>%
+  group_by(Year_Quarter, Purpose) %>%
+  summarise(Total_Trips = sum(Trips, na.rm = TRUE)) %>%
+  ungroup()
+
+# Calculate the moving average and seasonal component
+temporal_analysis <- temporal_analysis %>%
+  group_by(Purpose) %>%
+  mutate(Moving_Average = zoo::rollmean(Total_Trips, k = 4, fill = NA)) %>%
+  mutate(Seasonal_Component = Total_Trips - Moving_Average) %>%
+  ungroup()
+
+# Create a plot to visualize the seasonal trend
+ggplot(temporal_analysis, aes(x = Year_Quarter, y = Seasonal_Component, color = Purpose)) +
+  geom_line() +
+  labs(title = "Seasonal Trend Analysis by Purpose",
+       x = "Year and Quarter",
+       y = "Seasonal Component") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~ Purpose) +
+  scale_color_brewer(palette = "Set1") +
+  coord_cartesian(expand = FALSE)
+
+
+```
+
+
+```{r}
+# Load the necessary libraries
+library(ggplot2)
+library(dplyr)
+
+# Create a time series plot for the "Trips" variable
+wmm_tourism %>%
+  group_by(Year_Quarter) %>%
+  summarise(Total_Trips = sum(Trips)) %>%
+  ggplot(aes(x = Year_Quarter, y = Total_Trips)) +
+  geom_line() +
+  labs(title = "Tourist Trips Over Time",
+       x = "Year and Quarter",
+       y = "Total Trips") +
+  theme_minimal()
+
+
+wmm_tourism %>%
+  group_by(Year_Quarter, Purpose) %>%
+  summarise(Total_Trips = sum(Trips)) %>%
+  ggplot(aes(x = Year_Quarter, y = Total_Trips, color = Purpose)) +
+  geom_line() +
+  labs(title = "Tourist Trips Over Time by Purpose",
+       x = "Year and Quarter",
+       y = "Total Trips",
+       color = "Purpose") +
+  theme_minimal()
+
+```
+
 ## Exploratory data analysis
 
 ### Spatial expectation
