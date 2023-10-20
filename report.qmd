@@ -532,138 +532,6 @@ wmm_tourism <- wmm_region %>%
 ```
 
 
-#### Temporal analysis of the seasonal patterns to understand if they are increasing or decreasing.
-
-##### General Trend of tourists over time 
-
-```{r}
-
-time_series_plot <- wmm_tourism %>%
-  group_by(Year_Quarter) %>%
-  summarise(Total_Trips = sum(Trips)) %>%
-  ggplot(aes(x = Year_Quarter, y = Total_Trips)) +
-  geom_line() +
-  labs(title = "Interactive Tourist Trips Over Time",
-       x = "Year and Quarter",
-       y = "Total Trips") +
-  theme_minimal()
-
-interactive_time_series_plot <- ggplotly(time_series_plot)
-
-interactive_time_series_plot
-
-```
-
-
-- The plot shows the total number of tourist trips over time, grouped by year and quarter. There is a clear seasonal pattern, with more trips occurring in the summer months (Q1 and Q2). There is also a slight increasing trend over time.
-
-- The seasonal pattern is most likely due to a number of factors, including school holidays, summer vacations, and favorable weather conditions. The increasing trend over time is likely due to a combination of factors, including rising incomes, increasing globalization, and the growing popularity of air travel.
-
-
-###### Scatter Plot of Tourist Trips by Region and Purpose
-
-```{r , warning = FALSE , message=FALSE}
-library(plotly)
-
-scatter_plot <- wmm_tourism %>%
-  filter(!is.na(Purpose) & Purpose %in% c("Business", "Holiday", "Other", "Visiting")) %>%
-  group_by(Year_Quarter, region, Purpose) %>%
-  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
-  geom_point() +
-  labs(title = "Scatter Plot of Tourist Trips by Region and Purpose",
-       x = "Year and Quarter",
-       y = "Total Trips",
-       color = "Region") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~ Purpose)
-
-interactive_scatter_plot <- ggplotly(scatter_plot)
-
-interactive_scatter_plot
-
-```
-
-###### Temporal Trends by Quarter for Different Purposes and Regions
-
-```{r}
-
-# Filter out rows with NA values in the 'Purpose' and 'Region' columns
-filtered_data <- wmm_tourism %>%
-  filter(!is.na(Purpose) & !is.na(region) & Purpose != "Total")
-
-# Create a facetted plot with non-missing 'Purpose' and 'Region' data
-facet_by_purpose_region <- filtered_data %>%
-  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
-  geom_line() +
-  facet_wrap(~ Purpose, scales = "free") +
-  labs(
-    title = "Temporal Trends by Quarter for Different Purposes and Regions",
-    x = "Year and Quarter",
-    y = "Total Trips",
-    color = "Region"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-facet_by_purpose_region_plotly <- ggplotly(facet_by_purpose_region)
-
-facet_by_purpose_region_plotly
-
-
-```
-
-
-###### Temporal Trends by Quarter for Different Purposes
-
-```{r , warning = FALSE ,  message = FALSE}
-
-wmm_tourism %>%
-  filter(!is.na(Purpose) & Purpose != "Total") %>%
-  group_by(Year_Quarter, Purpose) %>%
-  ggplot(aes(x = Year_Quarter, y = Trips, color = Purpose)) +
-  geom_line(size = 1) +
-  labs(
-    title = "Temporal Trends by Quarter for Different Purposes",
-    x = "Year and Quarter",
-    y = "Trips",
-    color = "Purpose"
-  ) +
-  theme_minimal() +
-  facet_wrap(~ Purpose, scales = "free") +
-  scale_color_brewer(palette = "Set1") +
-  geom_smooth(method = "loess", se = FALSE) -> temporal_plot
-
-# Creating an interactive version of the plot using plotly
-temporal_plotly <- ggplotly(temporal_plot)
-
-temporal_plotly
-
-```
-
-
-###### Temporal Trends by Quarter for Different Regions
-
-```{r}
-# Create a temporal analysis for tourism data
-tourism_temporal <- wmm_tourism %>%
-  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
-  geom_line() +
-  labs(
-    title = "Temporal Trends by Quarter for Different Regions",
-    x = "Quarter",
-    y = "Trips",
-    color = "region"
-  ) +
-  theme_minimal()
-
-# Convert the ggplot object to Plotly
-tourism_temporal_plotly <- ggplotly(tourism_temporal)
-
-tourism_temporal_plotly
-
-```
-
 
 ## Exploratory data analysis
 
@@ -1101,11 +969,144 @@ greater inclination in people for outdoor ventures - increasing the
 sighting frequency of the plant.
 
 
+#### Temporal analysis of the seasonal patterns to understand if they are increasing or decreasing.
+
+##### General Trend of tourists over time 
+
+```{r}
+
+time_series_plot <- wmm_tourism %>%
+  group_by(Year_Quarter) %>%
+  summarise(Total_Trips = sum(Trips)) %>%
+  ggplot(aes(x = Year_Quarter, y = Total_Trips)) +
+  geom_line() +
+  labs(title = "Interactive Tourist Trips Over Time",
+       x = "Year and Quarter",
+       y = "Total Trips") +
+  theme_minimal()
+
+interactive_time_series_plot <- ggplotly(time_series_plot)
+
+interactive_time_series_plot
+
+```
+
+
+- The plot shows the total number of tourist trips over time, grouped by year and quarter. There is a clear seasonal pattern, with more trips occurring in the summer months (Q1 and Q2). There is also a slight increasing trend over time.
+
+- The seasonal pattern is most likely due to a number of factors, including school holidays, summer vacations, and favorable weather conditions. The increasing trend over time is likely due to a combination of factors, including rising incomes, increasing globalization, and the growing popularity of air travel.
+
+
+###### Scatter Plot of Tourist Trips by Region and Purpose
+
+```{r , warning = FALSE , message=FALSE}
+library(plotly)
+
+scatter_plot <- wmm_tourism %>%
+  filter(!is.na(Purpose) & Purpose %in% c("Business", "Holiday", "Other", "Visiting")) %>%
+  group_by(Year_Quarter, region, Purpose) %>%
+  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Tourist Trips by Region and Purpose",
+       x = "Year and Quarter",
+       y = "Total Trips",
+       color = "Region") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~ Purpose)
+
+interactive_scatter_plot <- ggplotly(scatter_plot)
+
+interactive_scatter_plot
+
+```
+
+###### Temporal Trends by Quarter for Different Purposes and Regions
+
+```{r}
+
+# Filter out rows with NA values in the 'Purpose' and 'Region' columns
+filtered_data <- wmm_tourism %>%
+  filter(!is.na(Purpose) & !is.na(region) & Purpose != "Total")
+
+# Create a facetted plot with non-missing 'Purpose' and 'Region' data
+facet_by_purpose_region <- filtered_data %>%
+  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
+  geom_line() +
+  facet_wrap(~ Purpose, scales = "free") +
+  labs(
+    title = "Temporal Trends by Quarter for Different Purposes and Regions",
+    x = "Year and Quarter",
+    y = "Total Trips",
+    color = "Region"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+facet_by_purpose_region_plotly <- ggplotly(facet_by_purpose_region)
+
+facet_by_purpose_region_plotly
+
+
+```
+
+
+###### Temporal Trends by Quarter for Different Purposes
+
+```{r , warning = FALSE ,  message = FALSE}
+
+wmm_tourism %>%
+  filter(!is.na(Purpose) & Purpose != "Total") %>%
+  group_by(Year_Quarter, Purpose) %>%
+  ggplot(aes(x = Year_Quarter, y = Trips, color = Purpose)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Temporal Trends by Quarter for Different Purposes",
+    x = "Year and Quarter",
+    y = "Trips",
+    color = "Purpose"
+  ) +
+  theme_minimal() +
+  facet_wrap(~ Purpose, scales = "free") +
+  scale_color_brewer(palette = "Set1") +
+  geom_smooth(method = "loess", se = FALSE) -> temporal_plot
+
+# Creating an interactive version of the plot using plotly
+temporal_plotly <- ggplotly(temporal_plot)
+
+temporal_plotly
+
+```
+
+
+###### Temporal Trends by Quarter for Different Regions
+
+```{r}
+# Create a temporal analysis for tourism data
+tourism_temporal <- wmm_tourism %>%
+  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
+  geom_line() +
+  labs(
+    title = "Temporal Trends by Quarter for Different Regions",
+    x = "Quarter",
+    y = "Trips",
+    color = "region"
+  ) +
+  theme_minimal()
+
+# Convert the ggplot object to Plotly
+tourism_temporal_plotly <- ggplotly(tourism_temporal)
+
+tourism_temporal_plotly
+
+```
+
+
 ## Tourism Exploratory
 
-### Ecotourist interest in Weeping mulla mulla
+### Ecotourist interest in Weeping Mulla Mulla
 
-We firstly narrow down the necessary data related to Ecotourst interest of Weeping mulla mulla by filtering out Trips with "Holiday" purpose only.
+We firstly narrow down the necessary data related to Eco-tourism interest of Weeping Mulla Mulla by filtering out Trips with "Holiday" purpose only. We assume that people who join eco-tourism activities must be on their vacation, hence the selection of of `Purpose` variable plays a role here.
 
 ```{r, message = FALSE, warning = FALSE}
 # Delete white spaces
@@ -1126,7 +1127,7 @@ wmm_tourism_tot <- wmm_tourism_holiday %>%
   summarise(tot_trip = sum(Trips))
 
 # Plotting time series of total number of trips to each region
-ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip, color = region))+
+ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip))+
   geom_line() +
   labs(title = "Total trips to investigated areas over the years",
        x = "Time series", 
@@ -1142,16 +1143,16 @@ ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip, color = region))+
 
 **Discussion**
 
-Through a visual representation of the total trips to each region, it becomes evident that Ashburton (WA) and Barkly attract the highest number of holiday-goers, with peaks nearing 250,000 and over 600,000 visits respectively. Notably, Ashburton and Barkly regions coincide with the highest reported sightings of the Weeping mulla mulla. Furthermore, the surge in visits to these areas aligns with the apex of Weeping mulla mulla sightings around 2015, as showcased in the `Weeping Mulla Mulla Observations by Year` graph. 
+Through a visual representation of the total trips to each region, it becomes evident that Ashburton (WA) and Barkly attract the highest number of holiday-goers, with peaks nearing 250,000 and over 600,000 visits respectively. Notably, Ashburton and Barkly regions coincide with the highest reported sightings of the Weeping Mulla Mulla. Furthermore, the surge in visits to these areas aligns with the apex of Weeping Mulla Mulla sightings around 2015, as showcased in the `Weeping Mulla Mulla Observations by Year` graph. 
 
 Interestingly, while Ashburton (WA) and Barkly are the standout regions in terms of trip numbers, some regions such as East Pilbara, Halls Creek and Victoria River have also seen an upward trend in visitors from 2015 onward. These regions might not match the visitor volume of Ashburton or Barkly, but their growth indicates an increasing tourist interest, which merits attention in the analysis. 
 
-Meanwhile, the subsequent decline in trips to Ashburton and Barkly post-2015 cannot be overlooked. This drop suggests that the factors influencing the initial surge in tourism might have been temporary or have since evolved. The sharp decline post-peak warrants further investigation to discern if it was a result of decreasing Weeping mulla mulla sightings or if other external factors were at play. This hints at a potential connection between these trips and the Weeping mulla mulla. 
+Meanwhile, the subsequent decline in trips to Ashburton and Barkly post-2015 cannot be overlooked. This drop suggests that the factors influencing the initial surge in tourism might have been temporary or have since evolved. The sharp decline post-peak warrants further investigation to discern if it was a result of decreasing Weeping Mulla Mulla sightings or if other external factors were at play. This hints at a potential connection between these trips and the Weeping Mulla Mulla. 
 
-However, our current data doesn't provide enough support to solidify this connection, and it remains inconclusive whether the influx of visitors to Ashburton and Barkly was primarily driven by the prominence of the Weeping mulla mulla. A more detailed perspective can be gained by examining the subsequent map, which juxtaposes Weeping mulla mulla sightings with the number of trips to these regions. 
+However, our current data doesn't provide enough support to solidify this connection, and it remains inconclusive whether the influx of visitors to Ashburton and Barkly was primarily driven by the prominence of the Weeping Mulla Mulla. A more detailed perspective can be gained by examining the subsequent map, which juxtaposes Weeping Mulla Mulla sightings with the number of trips to these regions. 
 
 ```{r}
-# Mapping occurences and trips tp Weeping mulla mulla areas
+# Mapping occurences and trips tp Weeping Mulla Mulla areas
 AU_region_subset <- AU_region %>%
                       st_crop(xmin = 115, xmax = 155, 
                               ymin = -40, ymax = -10)
@@ -1164,16 +1165,16 @@ wmm_tourism_holiday %>%
           color = "black",        
           size = 0.5) +
   geom_count(data = weeping_mulla_mulla, aes(x = longitude, y = latitude), alpha = 0.7, color = "red")+ 
-  labs(fill = "The total of people visit (x1000)", size = "The number of occurencies recorded")
+  labs(fill = "The total of people visit (x1000)", size = "The number of occurences recorded")
 ```
 
 **Discussion**
 
-Expanding on our prior discussion, this map offers an insightful visualization of the relationship between Weeping mulla mulla occurrences and tourism numbers.
+Expanding on our prior discussion, this map offers an insightful visualisation of the relationship between Weeping Mulla Mulla occurrences and tourism numbers.
 
-The map clearly illustrates a prominent presence of Weeping mulla mulla in the North-central areas of Western Australia and parts of the Northern Territory. Notably, Ashburton, situated in the most vivid blue region, contrasts with Barkly, which is depicted in a darker hue representing fewer tourists. This suggests that the ecological significance of these regions, underscored by the substantial number of Weeping mulla mulla sightings, might not be the main draw for visitors to these areas.
+The map clearly illustrates a prominent presence of Weeping Mulla Mulla in the North-central areas of Western Australia and parts of the Northern Territory. Notably, Ashburton (WA), situated in the most vivid blue region, contrasts with Barkly, which is depicted in a darker hue representing fewer tourists. This suggests that the ecological significance of these regions, underscored by the substantial number of Weeping Mulla Mulla sightings, might not be the main draw for visitors to these areas.
 
-On the other hand, regions closer to the top Western coast, which have sparser Weeping mulla mulla occurrences, exhibit a lighter shade of blue, indicating higher tourism numbers. This discrepancy could point towards the existence of other influential factors driving tourism, such as popular attractions, infrastructural development, or easier accessibility.
+On the other hand, regions closer to the top Western coast, which have sparser Weeping Mulla Mulla occurrences, exhibit a lighter shade of blue, indicating higher tourism numbers. This discrepancy could point towards the existence of other influential factors driving tourism, such as popular attractions, infrastructural development, or easier accessibility.
 
 ## Summary
 
