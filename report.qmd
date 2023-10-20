@@ -534,71 +534,136 @@ wmm_tourism <- wmm_region %>%
 
 #### Temporal analysis of the seasonal patterns to understand if they are increasing or decreasing.
 
-```{r , warning = FALSE , message = FALSE}
-library(ggplot2)
-
-# Filter out "Total" and NA values in the "Purpose" column
-filtered_data <- wmm_tourism %>%
-  filter(!Purpose %in% c("Total", NA))
-
-# Group by Year_Quarter and Purpose, and calculate the total trips
-temporal_analysis <- filtered_data %>%
-  group_by(Year_Quarter, Purpose) %>%
-  summarise(Total_Trips = sum(Trips, na.rm = TRUE)) %>%
-  ungroup()
-
-# Calculate the moving average and seasonal component
-temporal_analysis <- temporal_analysis %>%
-  group_by(Purpose) %>%
-  mutate(Moving_Average = zoo::rollmean(Total_Trips, k = 4, fill = NA)) %>%
-  mutate(Seasonal_Component = Total_Trips - Moving_Average) %>%
-  ungroup()
-
-# Create a plot to visualize the seasonal trend
-ggplot(temporal_analysis, aes(x = Year_Quarter, y = Seasonal_Component, color = Purpose)) +
-  geom_line() +
-  labs(title = "Seasonal Trend Analysis by Purpose",
-       x = "Year and Quarter",
-       y = "Seasonal Component") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~ Purpose) +
-  scale_color_brewer(palette = "Set1") +
-  coord_cartesian(expand = FALSE)
-
-
-```
-
+##### General Trend of tourists over time 
 
 ```{r}
-# Load the necessary libraries
-library(ggplot2)
-library(dplyr)
 
-# Create a time series plot for the "Trips" variable
-wmm_tourism %>%
+time_series_plot <- wmm_tourism %>%
   group_by(Year_Quarter) %>%
   summarise(Total_Trips = sum(Trips)) %>%
   ggplot(aes(x = Year_Quarter, y = Total_Trips)) +
   geom_line() +
-  labs(title = "Tourist Trips Over Time",
+  labs(title = "Interactive Tourist Trips Over Time",
        x = "Year and Quarter",
        y = "Total Trips") +
   theme_minimal()
 
+interactive_time_series_plot <- ggplotly(time_series_plot)
 
-wmm_tourism %>%
-  group_by(Year_Quarter, Purpose) %>%
-  summarise(Total_Trips = sum(Trips)) %>%
-  ggplot(aes(x = Year_Quarter, y = Total_Trips, color = Purpose)) +
-  geom_line() +
-  labs(title = "Tourist Trips Over Time by Purpose",
-       x = "Year and Quarter",
-       y = "Total Trips",
-       color = "Purpose") +
-  theme_minimal()
+interactive_time_series_plot
 
 ```
+
+
+- The plot shows the total number of tourist trips over time, grouped by year and quarter. There is a clear seasonal pattern, with more trips occurring in the summer months (Q1 and Q2). There is also a slight increasing trend over time.
+
+- The seasonal pattern is most likely due to a number of factors, including school holidays, summer vacations, and favorable weather conditions. The increasing trend over time is likely due to a combination of factors, including rising incomes, increasing globalization, and the growing popularity of air travel.
+
+
+###### Scatter Plot of Tourist Trips by Region and Purpose
+
+```{r , warning = FALSE , message=FALSE}
+library(plotly)
+
+scatter_plot <- wmm_tourism %>%
+  filter(!is.na(Purpose) & Purpose %in% c("Business", "Holiday", "Other", "Visiting")) %>%
+  group_by(Year_Quarter, region, Purpose) %>%
+  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Tourist Trips by Region and Purpose",
+       x = "Year and Quarter",
+       y = "Total Trips",
+       color = "Region") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~ Purpose)
+
+interactive_scatter_plot <- ggplotly(scatter_plot)
+
+interactive_scatter_plot
+
+```
+
+###### Temporal Trends by Quarter for Different Purposes and Regions
+
+```{r}
+
+# Filter out rows with NA values in the 'Purpose' and 'Region' columns
+filtered_data <- wmm_tourism %>%
+  filter(!is.na(Purpose) & !is.na(region) & Purpose != "Total")
+
+# Create a facetted plot with non-missing 'Purpose' and 'Region' data
+facet_by_purpose_region <- filtered_data %>%
+  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
+  geom_line() +
+  facet_wrap(~ Purpose, scales = "free") +
+  labs(
+    title = "Temporal Trends by Quarter for Different Purposes and Regions",
+    x = "Year and Quarter",
+    y = "Total Trips",
+    color = "Region"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+facet_by_purpose_region_plotly <- ggplotly(facet_by_purpose_region)
+
+facet_by_purpose_region_plotly
+
+
+```
+
+
+###### Temporal Trends by Quarter for Different Purposes
+
+```{r , warning = FALSE ,  message = FALSE}
+
+wmm_tourism %>%
+  filter(!is.na(Purpose) & Purpose != "Total") %>%
+  group_by(Year_Quarter, Purpose) %>%
+  ggplot(aes(x = Year_Quarter, y = Trips, color = Purpose)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Temporal Trends by Quarter for Different Purposes",
+    x = "Year and Quarter",
+    y = "Trips",
+    color = "Purpose"
+  ) +
+  theme_minimal() +
+  facet_wrap(~ Purpose, scales = "free") +
+  scale_color_brewer(palette = "Set1") +
+  geom_smooth(method = "loess", se = FALSE) -> temporal_plot
+
+# Creating an interactive version of the plot using plotly
+temporal_plotly <- ggplotly(temporal_plot)
+
+temporal_plotly
+
+```
+
+
+###### Temporal Trends by Quarter for Different Regions
+
+```{r}
+# Create a temporal analysis for tourism data
+tourism_temporal <- wmm_tourism %>%
+  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
+  geom_line() +
+  labs(
+    title = "Temporal Trends by Quarter for Different Regions",
+    x = "Quarter",
+    y = "Trips",
+    color = "region"
+  ) +
+  theme_minimal()
+
+# Convert the ggplot object to Plotly
+tourism_temporal_plotly <- ggplotly(tourism_temporal)
+
+tourism_temporal_plotly
+
+```
+
 
 ## Exploratory data analysis
 
