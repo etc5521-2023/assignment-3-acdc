@@ -536,55 +536,6 @@ wmm_tourism <- wmm_region %>%
                 left_join(tourism, by = c("region" = "Region", "Year_Quarter" = "Quarter"))
 ```
 
-
-```{r, message = FALSE, warning = FALSE}
-# Delete white spaces
-# wmm_tourism <- wmm_tourism |> mutate(lga2 = str_trim(lga)) 
-
-# Narrow down the trip purpose
-wmm_tourism_holiday <- wmm_tourism %>% 
-  filter(Purpose %in% c("Holiday"))
-```
-
-```{r, warning = FALSE, message = FALSE}
-packages <- c("tidyverse","here","lubridate","GGally","tsibble","forcats","cartogram","sf","cartogram","patchwork","ggthemes", "sugarbag", "viridis", "rmapshaper", "cubble")
-
-lapply(packages, library, character.only = TRUE)
-
-wmm_tourism_tot <- wmm_tourism_holiday %>% 
-  group_by(Purpose, region, Year_Quarter, Year) %>% 
-  summarise(tot_trip = sum(Trips))
-
-ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip, color = region))+
-  geom_line() +
-  labs(title = "Total trips to investigated areas over the years",
-       x = "Quarter of Year", 
-       y = "Total trips")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.text = element_text(size = 6), 
-        legend.title = element_text(size = 10),
-        strip.text = element_text(size = 7, margin = margin(t = 8, b = 8))) +
-  facet_wrap(~region, scales = "free_y")
-
-# tourism |> filter(region == "Ashburton")
-```
-```{r}
-AU_region_subset <- AU_region %>%
-                      st_crop(xmin = 115, xmax = 155, 
-                              ymin = -40, ymax = -10)
-
-wmm_tourism_holiday %>%
-  ggplot() +
-  geom_sf(aes(geometry = geometry, fill = Trips)) +
-  geom_sf(data = AU_region_subset, aes(geometry = geometry), 
-          fill = "transparent",  
-          color = "black",        
-          size = 0.5) +
-  geom_count(data = weeping_mulla_mulla, aes(x = longitude, y = latitude), alpha = 0.7, color = "red")+ 
-  labs(fill = "The total of people visit (x1000)", size = "The number of occurencies recorded")
-```
-
-
 ## Exploratory data analysis
 
 ### Spatial expectation
@@ -1019,6 +970,78 @@ to warmer weather in the lower figure. We also consider the possibility
 that the mentality effect of *"the weather is getting warmer"* enables a
 greater inclination in people for outdoor ventures - increasing the
 sighting frequency of the plant.
+
+## Tourism Exploratory
+
+### Ecotourist interest in Weeping mulla mulla
+
+We firstly narrow down the necessary data related to Ecotourst interest of Weeping mulla mulla by filtering out Trips with "Holiday" purpose only.
+
+```{r, message = FALSE, warning = FALSE}
+# Delete white spaces
+# wmm_tourism <- wmm_tourism |> mutate(lga2 = str_trim(lga)) 
+
+# Narrow down the trip purpose
+wmm_tourism_holiday <- wmm_tourism %>% 
+  filter(Purpose %in% c("Holiday"))
+```
+
+```{r, warning = FALSE, message = FALSE}
+# Running neccessary library
+library(sf)
+
+# Calculating total trips for each quarter and region from our joined data
+wmm_tourism_tot <- wmm_tourism_holiday %>% 
+  group_by(Purpose, region, Year_Quarter, Year) %>% 
+  summarise(tot_trip = sum(Trips))
+
+# Plotting time series of total number of trips to each region
+ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip, color = region))+
+  geom_line() +
+  labs(title = "Total trips to investigated areas over the years",
+       x = "Time series", 
+       y = "Total trips (x1000)")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 10),
+        strip.text = element_text(size = 7, margin = margin(t = 8, b = 8))) +
+  facet_wrap(~region, scales = "free_y")
+
+# tourism |> filter(region == "Ashburton")
+```
+
+**Discussion**
+Through a visual representation of the total trips to each region, it becomes evident that Ashburton (WA) and Barkly attract the highest number of holiday-goers, with peaks nearing 250,000 and over 600,000 visits respectively. Notably, Ashburton and Barkly regions coincide with the highest reported sightings of the Weeping mulla mulla. Furthermore, the surge in visits to these areas aligns with the apex of Weeping mulla mulla sightings around 2015, as showcased in the `Weeping Mulla Mulla Observations by Year` graph. 
+
+Interestingly, while Ashburton (WA) and Barkly are the standout regions in terms of trip numbers, some regions such as East Pilbara, Halls Creek and Victoria River have also seen an upward trend in visitors from 2015 onward. These regions might not match the visitor volume of Ashburton or Barkly, but their growth indicates an increasing tourist interest, which merits attention in the analysis. 
+
+Meanwhile, the subsequent decline in trips to Ashburton and Barkly post-2015 cannot be overlooked. This drop suggests that the factors influencing the initial surge in tourism might have been temporary or have since evolved. The sharp decline post-peak warrants further investigation to discern if it was a result of decreasing Weeping mulla mulla sightings or if other external factors were at play. This hints at a potential connection between these trips and the Weeping mulla mulla. 
+
+However, our current data doesn't provide enough support to solidify this connection, and it remains inconclusive whether the influx of visitors to Ashburton and Barkly was primarily driven by the prominence of the Weeping mulla mulla. A more detailed perspective can be gained by examining the subsequent map, which juxtaposes Weeping mulla mulla sightings with the number of trips to these regions. 
+
+```{r}
+# Mapping occurences and trips tp Weeping mulla mulla areas
+AU_region_subset <- AU_region %>%
+                      st_crop(xmin = 115, xmax = 155, 
+                              ymin = -40, ymax = -10)
+
+wmm_tourism_holiday %>%
+  ggplot() +
+  geom_sf(aes(geometry = geometry, fill = Trips)) +
+  geom_sf(data = AU_region_subset, aes(geometry = geometry), 
+          fill = "transparent",  
+          color = "black",        
+          size = 0.5) +
+  geom_count(data = weeping_mulla_mulla, aes(x = longitude, y = latitude), alpha = 0.7, color = "red")+ 
+  labs(fill = "The total of people visit (x1000)", size = "The number of occurencies recorded")
+```
+
+**Discussion**
+Expanding on our prior discussion, this map offers an insightful visualization of the relationship between Weeping mulla mulla occurrences and tourism numbers.
+
+The map clearly illustrates a prominent presence of Weeping mulla mulla in the North-central areas of Western Australia and parts of the Northern Territory. Notably, Ashburton, situated in the most vivid blue region, contrasts with Barkly, which is depicted in a darker hue representing fewer tourists. This suggests that the ecological significance of these regions, underscored by the substantial number of Weeping mulla mulla sightings, might not be the main draw for visitors to these areas.
+
+On the other hand, regions closer to the top Western coast, which have sparser Weeping mulla mulla occurrences, exhibit a lighter shade of blue, indicating higher tourism numbers. This discrepancy could point towards the existence of other influential factors driving tourism, such as popular attractions, infrastructural development, or easier accessibility.
 
 ## Summary
 
