@@ -1011,6 +1011,7 @@ ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip, color = region))+
 ```
 
 **Discussion**
+
 Through a visual representation of the total trips to each region, it becomes evident that Ashburton (WA) and Barkly attract the highest number of holiday-goers, with peaks nearing 250,000 and over 600,000 visits respectively. Notably, Ashburton and Barkly regions coincide with the highest reported sightings of the Weeping mulla mulla. Furthermore, the surge in visits to these areas aligns with the apex of Weeping mulla mulla sightings around 2015, as showcased in the `Weeping Mulla Mulla Observations by Year` graph. 
 
 Interestingly, while Ashburton (WA) and Barkly are the standout regions in terms of trip numbers, some regions such as East Pilbara, Halls Creek and Victoria River have also seen an upward trend in visitors from 2015 onward. These regions might not match the visitor volume of Ashburton or Barkly, but their growth indicates an increasing tourist interest, which merits attention in the analysis. 
@@ -1037,6 +1038,7 @@ wmm_tourism_holiday %>%
 ```
 
 **Discussion**
+
 Expanding on our prior discussion, this map offers an insightful visualization of the relationship between Weeping mulla mulla occurrences and tourism numbers.
 
 The map clearly illustrates a prominent presence of Weeping mulla mulla in the North-central areas of Western Australia and parts of the Northern Territory. Notably, Ashburton, situated in the most vivid blue region, contrasts with Barkly, which is depicted in a darker hue representing fewer tourists. This suggests that the ecological significance of these regions, underscored by the substantial number of Weeping mulla mulla sightings, might not be the main draw for visitors to these areas.
