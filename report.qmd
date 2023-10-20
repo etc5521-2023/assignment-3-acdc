@@ -466,10 +466,11 @@ some variables in this data:
 ```{r tourism}
 load("data/tourism.rda")
 
-tourism <- tourism %>% 
-  janitor::clean_names() %>% 
-  mutate(Region = as.factor(region),
-         Purpose = as.factor(purpose))
+# Suggested way to clean data
+# tourism <- tourism %>% 
+#  janitor::clean_names() %>% 
+#  mutate(region = as.factor(region),
+#         rurpose = as.factor(purpose))
 ```
 
 | Variables | Description                                                                        |
@@ -525,7 +526,6 @@ wmm_region <-
   st_join(AU_region, wmm_sf, left = TRUE) %>%  # spatial join to get intersection of points and poly
   filter(!is.na(region), # get only the points (sightings) that fall in the polygon (tourism region)
          !is.na(eventDate)) # filter out the NA values that represents mismatch geometry with Occurences data
-
 ```
 
 ##### Join Temporal and Spatial Data
@@ -534,45 +534,54 @@ Now, our Occurence data has matching region name with the region in the Tourism 
 ```{r joined_data, warning = false, message = false}
 wmm_tourism <- wmm_region %>%
                 left_join(tourism, by = c("region" = "Region", "Year_Quarter" = "Quarter"))
-# Delete white spaces
-wmm_tourism <- wmm_tourism |> mutate(lga2 = str_trim(lga)) 
-tourism |> filter(region == "Ashburton (WA)",
-                  purpose == "Holiday") |>
-  ggplot(aes(x = quarter, y = trips))+
-  geom_line()
 ```
 
 
 ```{r, message = FALSE, warning = FALSE}
-# Narrow down the most-observed sighting areas
-wmm_tourism_nr <- wmm_tourism %>% 
-  filter(Purpose %in% c("Holiday")) %>% 
-  filter(lga %in% c("Broome ", "Port Hedland ", "Ashburton ", "Central Desert ", "Barkly "))
+# Delete white spaces
+# wmm_tourism <- wmm_tourism |> mutate(lga2 = str_trim(lga)) 
+
+# Narrow down the trip purpose
+wmm_tourism_holiday <- wmm_tourism %>% 
+  filter(Purpose %in% c("Holiday"))
 ```
 
-```{r}
+```{r, warning = FALSE, message = FALSE}
 packages <- c("tidyverse","here","lubridate","GGally","tsibble","forcats","cartogram","sf","cartogram","patchwork","ggthemes", "sugarbag", "viridis", "rmapshaper", "cubble")
 
 lapply(packages, library, character.only = TRUE)
 
-wmm_tourism_tot <- wmm_tourism_nr %>% 
-  group_by(Purpose, lga, Year_Quarter, Year) %>% 
+wmm_tourism_tot <- wmm_tourism_holiday %>% 
+  group_by(Purpose, region, Year_Quarter, Year) %>% 
   summarise(tot_trip = sum(Trips))
 
-ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip, color = lga))+
+ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip, color = region))+
   geom_line() +
-  labs(x = "Quarter of Year", 
+  labs(title = "Total trips to investigated areas over the years",
+       x = "Quarter of Year", 
        y = "Total trips")+
-  facet_wrap(~lga, scales = "free_y")
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 10),
+        strip.text = element_text(size = 7, margin = margin(t = 8, b = 8))) +
+  facet_wrap(~region, scales = "free_y")
 
 # tourism |> filter(region == "Ashburton")
 ```
-
-
 ```{r}
-ggplot(wmm_tourism_nr) +
-  geom_sf(aes(fill = lga))+
-  theme_map()
+AU_region_subset <- AU_region %>%
+                      st_crop(xmin = 115, xmax = 155, 
+                              ymin = -40, ymax = -10)
+
+wmm_tourism_holiday %>%
+  ggplot() +
+  geom_sf(aes(geometry = geometry, fill = Trips)) +
+  geom_sf(data = AU_region_subset, aes(geometry = geometry), 
+          fill = "transparent",  
+          color = "black",        
+          size = 0.5) +
+  geom_count(data = weeping_mulla_mulla, aes(x = longitude, y = latitude), alpha = 0.7, color = "red")+ 
+  labs(fill = "The total of people visit (x1000)", size = "The number of occurencies recorded")
 ```
 
 
