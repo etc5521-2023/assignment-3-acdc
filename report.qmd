@@ -488,7 +488,8 @@ The temporal variables between Occurences and Tourism data are represented by `e
 ```{r}
 # Adding new yearquarter column
 weeping_mulla_mulla <- weeping_mulla_mulla %>%
-                          mutate(Year_Quarter = yearquarter(eventDate))
+                          mutate(Quarter = paste("Q", lubridate::quarter(eventDate), sep = ""), #extract quarter using lubridate package
+                                 Year_Quarter = tsibble::yearquarter(eventDate)) #extract quarter using tsibble package for join purpose
 ```
 
 
@@ -528,7 +529,9 @@ wmm_region <-
 Now, our Occurence data has matching region name with the region in the Tourism data, we also have transformed the format for temporal variables. Finally, We can start to join the temporal and spatial variables between these two datasets.
 ```{r joined_data, warning = false, message = false}
 wmm_tourism <- wmm_region %>%
-                left_join(tourism, by = c("region" = "Region", "Year_Quarter" = "Quarter"))
+                left_join(tourism, by = c("region" = "Region", "Year_Quarter" = "Quarter")) %>%
+                filter(!is.na(Purpose), #removing unmatch quarter
+                       !Purpose == "Total") #removing summarised number
 ```
 
 
@@ -969,23 +972,38 @@ greater inclination in people for outdoor ventures - increasing the
 sighting frequency of the plant.
 
 
-#### Temporal analysis of the seasonal patterns to understand if they are increasing or decreasing.
+### Tourism Pattern
 
-##### General Trend of tourists over time 
+In this section we are going to correlate the number of sightings of Weeping Mulla Mulla to the number of tourist within the area of the sightings. Does the number of sightings is affected by tourism activities nearby? Does the increasing number of visit resulted in increasing number of Weeping Mulla Mulla sightings? Let's explore the data that we have to understand that. 
 
-```{r}
+By continuing our observation previously, here we are going to focus on the area where the most sightings recorded, which we stated in the previous section is area close to the Tennant Creek Airport weather station. By utilising data from Australian Bureau of Statistics of SA2, we identified that Tennant Creek Airport is located in the region of Barkly, Northern Territory. Going forward, we will focus on Barkly region only. 
+
+#### Trend of Tourist Over Time 
+
+```{r trend, message = false, warning = false}
 
 time_series_plot <- wmm_tourism %>%
+  filter(region == "Barkly") %>%
   group_by(Year_Quarter) %>%
-  summarise(Total_Trips = sum(Trips)) %>%
+  summarise(Total_Trips = sum(Trips, na.rm = TRUE)) %>%
   ggplot(aes(x = Year_Quarter, y = Total_Trips)) +
-  geom_line() +
-  labs(title = "Interactive Tourist Trips Over Time",
-       x = "Year and Quarter",
+  geom_line(linewidth = 1, color = "aquamarine4", alpha = 0.5) +
+  geom_point(size = 2, color = "maroon", aes(text = paste("Year & Quarter: ", Year_Quarter, "<br>Total Trips ('000): ", Total_Trips))) +
+  labs(x = "Year and Quarter",
        y = "Total Trips") +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(hjust=0.5, face = "bold"),
+          plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10))
 
-interactive_time_series_plot <- ggplotly(time_series_plot)
+interactive_time_series_plot <- ggplotly(time_series_plot, tooltip = "text") %>%
+                                  layout(title = list(y = .925, 
+                                                      xref = "plot", 
+                                                      text = paste0("Tourist Trips Over Time",
+                                                                    "<br>",
+                                                                    "<sup>",
+                                                                    "Region : Barkly",
+                                                                    "<sup>")),
+                                    margin = list(l = 50, t = 75))
 
 interactive_time_series_plot
 
@@ -996,42 +1014,51 @@ interactive_time_series_plot
 
 - The seasonal pattern is most likely due to a number of factors, including school holidays, summer vacations, and favorable weather conditions. The increasing trend over time is likely due to a combination of factors, including rising incomes, increasing globalization, and the growing popularity of air travel.
 
+#### Temporal Trends by Quarter
 
-###### Scatter Plot of Tourist Trips by Region and Purpose
+```{r trend, message = false, warning = false}
 
-```{r , warning = FALSE , message=FALSE}
-library(plotly)
-
-scatter_plot <- wmm_tourism %>%
-  filter(!is.na(Purpose) & Purpose %in% c("Business", "Holiday", "Other", "Visiting")) %>%
-  group_by(Year_Quarter, region, Purpose) %>%
-  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
-  geom_point() +
-  labs(title = "Scatter Plot of Tourist Trips by Region and Purpose",
-       x = "Year and Quarter",
-       y = "Total Trips",
-       color = "Region") +
+quarter_series_plot <- wmm_tourism %>%
+  filter(region == "Barkly") %>%
+  group_by(Quarter) %>%
+  summarise(Total_Trips = sum(Trips, na.rm = TRUE)) %>%
+  ggplot(aes(x = Quarter, y = Total_Trips)) +
+  geom_bar(position = "dodge", 
+           stat = "identity", 
+           fill = "aquamarine4",
+           aes(text = paste("Quarter: ", Quarter, "<br>Total Trips ('000): ", Total_Trips))) +
+  #geom_line(linewidth = 1, color = "aquamarine4", alpha = 0.5) +
+  #geom_point(size = 2, color = "maroon", aes(text = paste("Quarter: ", Quarter, "<br>Total Trips ('000): ", Total_Trips))) +
+  labs(x = "Quarter",
+       y = "Total Trips") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~ Purpose)
+  theme(plot.title = element_text(hjust=0.5, face = "bold"),
+          plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10))
 
-interactive_scatter_plot <- ggplotly(scatter_plot)
+interactive_quarter <- ggplotly(quarter_series_plot, tooltip = "text") %>%
+                                  layout(title = list(y = .925, 
+                                                      xref = "plot", 
+                                                      text = paste0("Tourist Trips Over Time (Summarised per Quarter)",
+                                                                    "<br>",
+                                                                    "<sup>",
+                                                                    "Region : Barkly",
+                                                                    "<sup>")),
+                                    margin = list(l = 50, t = 75))
 
-interactive_scatter_plot
+interactive_quarter
 
 ```
 
-###### Temporal Trends by Quarter for Different Purposes and Regions
+
+
+#### Temporal Trends by Quarter for Different Purposes and Regions
 
 ```{r}
 
-# Filter out rows with NA values in the 'Purpose' and 'Region' columns
-filtered_data <- wmm_tourism %>%
-  filter(!is.na(Purpose) & !is.na(region) & Purpose != "Total")
-
 # Create a facetted plot with non-missing 'Purpose' and 'Region' data
-facet_by_purpose_region <- filtered_data %>%
-  ggplot(aes(x = Year_Quarter, y = Trips, color = region)) +
+facet_by_purpose <- wmm_tourism %>%
+  filter(region == "Barkly") %>%
+  ggplot(aes(x = Year_Quarter, y = Trips)) +
   geom_line() +
   facet_wrap(~ Purpose, scales = "free") +
   labs(
@@ -1043,9 +1070,9 @@ facet_by_purpose_region <- filtered_data %>%
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-facet_by_purpose_region_plotly <- ggplotly(facet_by_purpose_region)
+facet_by_purpose_plotly <- ggplotly(facet_by_purpose)
 
-facet_by_purpose_region_plotly
+facet_by_purpose_plotly
 
 
 ```
@@ -1058,7 +1085,7 @@ facet_by_purpose_region_plotly
 wmm_tourism %>%
   filter(!is.na(Purpose) & Purpose != "Total") %>%
   group_by(Year_Quarter, Purpose) %>%
-  ggplot(aes(x = Year_Quarter, y = Trips, color = Purpose)) +
+  ggplot(aes(x = Year_Quarter, y = Trips)) +
   geom_line(size = 1) +
   labs(
     title = "Temporal Trends by Quarter for Different Purposes",
@@ -1114,7 +1141,8 @@ We firstly narrow down the necessary data related to Eco-tourism interest of Wee
 
 # Narrow down the trip purpose
 wmm_tourism_holiday <- wmm_tourism %>% 
-  filter(Purpose %in% c("Holiday"))
+  filter(Purpose %in% c("Holiday"),
+         region %in% c("Barkly", "Tanami", "Victoria River"))
 ```
 
 ```{r, warning = FALSE, message = FALSE}
@@ -1276,3 +1304,8 @@ water requirements for survival.
     Frames." *JOSS*, *2*(16), 355. doi:10.21105/joss.00355
     https://doi.org/10.21105/joss.00355,
     http://dx.doi.org/10.21105/joss.00355.
+-   **sf**: Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman and Hall/CRC.
+https://doi.org/10.1201/9780429459016
+-   **rmapshaper**: Teucher A, Russell K (2023). _rmapshaper: Client for 'mapshaper' for 'Geospatial' Operations_. R package version 0.5.0,
+  <https://CRAN.R-project.org/package=rmapshaper>.
+-   **zoo**: Zeileis A, Grothendieck G (2005). “zoo: S3 Infrastructure for Regular and Irregular Time Series.” _Journal of Statistical Software_, *14*(6), 1-27. doi:10.18637/jss.v014.i06 <https://doi.org/10.18637/jss.v014.i06>.
