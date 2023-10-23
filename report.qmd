@@ -1102,6 +1102,8 @@ grid.arrange(qtr_tourism, qtr_temp, ncol = 2)
 
 #### Temporal Trends by Quarter for Different Purposes
 
+Now we are going to look at how the tourism activities varies across multiple categories, including holidays, business activities, leisurely visits, and other significant reasons. By looking at this spectrum, we will be able to gain valuable insights into what sort of activities that tourist intended to do in Barkly region, helping us to shape our understanding towards this analysis in general. The graph below will provide us with such information.
+
 ```{r , warning = FALSE ,  message = FALSE}
 
 temporal_plot <- wmm_tourism_dg %>%
@@ -1127,12 +1129,13 @@ temporal_plotly <- ggplotly(temporal_plot)
 temporal_plotly
 
 ```
+- According to the graph ... above, we can see clearly that all purposes have the same peak, which is in Q3 2015. It turns out Barkly region was very popular back then. Moving on to the purposes itself, "Holiday" come out on top as the main reason, followed by "Visiting", "Other", and "Business".  
 
+In the next section, we will utilise all these informations we gather around the tourism trend in Barkly region to compare it with Occurences dataset. We hope to see if there is any specific eco-tourism related to Weeping Mulla Mulla that may have contributed to the significant jump over the number of tourism into Barkly region. 
 
+### Weeping Mulla Mulla Eco-Tourism
 
-## Tourism Exploratory
-
-### Ecotourist interest in Weeping Mulla Mulla
+#### Ecotourist interest in Weeping Mulla Mulla
 
 We firstly narrow down the necessary data related to Eco-tourism interest of Weeping Mulla Mulla by filtering out Trips with "Holiday" purpose only. We assume that people who join eco-tourism activities must be on their vacation, hence the selection of variable `Purpose` plays a role here.
 
