@@ -1135,9 +1135,13 @@ In the next section, we will utilise all these informations we gather around the
 
 ### Weeping Mulla Mulla Eco-Tourism
 
+In this part, we will shift our focus into finding the correlation between the sightings of Weeping Mulla Mulla with the number of tourism of Barkly region. We will expose any hinder pattern that could not be spotted just by looking at the data separately. Let's unveil it!   
+
 #### Ecotourist interest in Weeping Mulla Mulla
 
-We firstly narrow down the necessary data related to Eco-tourism interest of Weeping Mulla Mulla by filtering out Trips with "Holiday" purpose only. We assume that people who join eco-tourism activities must be on their vacation, hence the selection of variable `Purpose` plays a role here.
+Before we employ data analysis to reveal any insights regarding this topic, we perform a thorough research on the Weeping Mulla Mulla eco-tourism. Unfortunately, after spending hours looking, there is no single information leading us to any news/articles/announcements related to it, not even local government website. There is no single advertisement by tour & travel organisation that specifically offer an eco-tourism to Barkly region for Weeping Mulla Mulla. So, we are going to rely on the data that we have and look for any pattern that we can expose.  
+
+Now, We move on into the data analysis part. Firstly, we narrow down the necessary data related to eco-tourism interest of Weeping Mulla Mulla by filtering out Trips with "Holiday" purpose only. We assume that people who has spotted and reported the occurences are on their vacation, hence the selection of variable `Purpose` plays a role here.
 
 ```{r, message = FALSE, warning = FALSE}
 # Delete white spaces
