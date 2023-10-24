@@ -151,7 +151,7 @@ the location and event time data. This is because the other variables do
 not contribute significantly to meaningful insights. However, a
 comprehensive dictionary of all the variables is provided below:
 
-```{r data-dictionary, echo=FALSE, warning=FALSE}
+```{r data-dictionary, echo=FALSE, message=FALSE, warning=FALSE}
 dictionary <- data.frame(
   Variable = c("decimalLatitude", "decimalLongitude", "eventDate", "scientificName", "taxonConceptID", "recordID", "dataResourceName",  "occurrenceStatus", "eventRemarks", "eventTime", "eventID", "samplingEffort", "samplingProtocol", "basisOfRecord", "cl959"),
   Description = c(
@@ -185,7 +185,7 @@ removing unnecessary strings and missing values were applied before
 saving a clean version for further analysis. The code for data cleaning
 can be referred to below:
 
-```{r species-data-cleaning}
+```{r species-data-cleaning , message=FALSE, warning=FALSE}
 weeping_mulla_mulla <- storage %>%
   select(decimalLongitude, decimalLatitude, eventDate, cl959) %>%
   rename(longitude = decimalLongitude,
@@ -250,7 +250,7 @@ aus_stations_filtered <- aus_stations %>%
          -24.92637 <= latitude & latitude <= -15.14837)
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE , message=FALSE, warning=FALSE}
 #| fig-align: center
 #| echo: false
 data(world, package = "spData")
@@ -297,7 +297,7 @@ Tennant Creek.
 For another view of these findings, the same map was recreated using
 `leaflet`:
 
-```{r echo=FALSE}
+```{r echo=FALSE , message=FALSE, warning=FALSE}
 #| fig-align: center
 #| echo: false
 weeping_mulla_mulla %>%
@@ -351,7 +351,7 @@ tennant_creek_airport <- aus_stations |>
 
 The code below will add some new variables to the data that will be utilised in the analysis in later part. The new variables was created to extract Year, Quarter, and Month from the date of weather report, also we added a new variable to get the daily average temperature.
 
-```{r}
+```{r Weather-station , message=FALSE, warning=FALSE}
 
 tca <- tennant_creek_airport %>% 
         mutate(Year = lubridate::year(date),
@@ -382,7 +382,7 @@ data, a comprehensive dataset can be generated that encompasses both
 observational data and daily weather information. Dates with records in
 this region would be given **1** while others would be **0**.
 
-```{r}
+```{r temperature, message=FALSE, warning=FALSE}
 temperature <- tennant_creek_airport %>%
   left_join(weeping_mulla_mulla, by = c("date" = "eventDate")) %>%
   mutate(sighting = ifelse(lga == "Barkly ", 1, 0)) %>%
@@ -460,7 +460,7 @@ precision in temperature measurements. Some NAs were carried over fromt
 the previous vis_dat() results, which will be removed as they lack the
 necessary data from further analysis.
 
-```{r}
+```{r modified-temp ,message=FALSE, warning=FALSE}
 modified_temperature <- 
   temperature %>% 
   na.omit()
@@ -506,11 +506,11 @@ To join these two dataset, we are planning to use the spatial and temporal data 
 
 The temporal variables between Occurences and Tourism data are represented by `eventDate` and `Quarter` variables, respectively. As both of these variables are in different format, we are going to transform one of them to enable the join process later. In this case, we are going to break down the `eventDate` variable into year & quarter format.
 
-```{r}
-# Adding new yearquarter column
+```{r temporal-data, message=FALSE, warning=FALSE}
+
 weeping_mulla_mulla <- weeping_mulla_mulla %>%
-                          mutate(Quarter = paste("Q", lubridate::quarter(eventDate), sep = ""), #extract quarter using lubridate package
-                                 Year_Quarter = tsibble::yearquarter(eventDate)) #extract quarter using tsibble package for join purpose
+                          mutate(Quarter = paste("Q", lubridate::quarter(eventDate), sep = ""), 
+                                 Year_Quarter = tsibble::yearquarter(eventDate)) 
 ```
 
 
@@ -518,7 +518,7 @@ weeping_mulla_mulla <- weeping_mulla_mulla %>%
 
 As we know, the spatial variables between Tourism and Occurences data are presented by `Region` and `longitude` & `latitude`, respectively. It is not possible to just join the data based on the value of these variables, so some data transformations are needed. Looking at the extraction code (given) for Tourism data and researching TRA's website [here](https://www.tra.gov.au/en/regional/tourism-regions.html), we have got the idea that `Region` variable is the area level of the Statistical Area 2 (SA2). The SA2 is part of the main structure of the Australian Statistical Geography Standard (ASGS) Edition 3, meaning we can use its shapefile and extract the geometry of every region in Australia (which contain longitude & latitude values). We will match the `geometry` in the SA2 data with `longitude` & `latitude` in the Occurences dataset to get the SA2 region name of each sighting. The code below will provide the step-by-step of the extraction process.
 
-```{r}
+```{r shapefile , warning = false, message = false}
 # Get shapefile
 AU_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")) %>%
   ms_simplify(keep = 0.1) %>%
@@ -530,13 +530,13 @@ AU_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GD
          "sa2_code21" = SA2_CODE21)
 
 
-# Convert Occurences data to a sf object
+# Converting Occurences data to a sf object
 wmm_sf <- weeping_mulla_mulla %>%
   st_as_sf(coords = c("longitude", "latitude"),
   crs = st_crs("WGS84"))
 
 
-# Join
+# Joining
 ## some points are out of the polygon, lets filter out so we get only points in the polygon
 wmm_region <-
   st_join(AU_region, wmm_sf, left = TRUE) %>%  # spatial join to get intersection of points and poly
@@ -574,7 +574,7 @@ To evaluate the spatial distribution of the species, a method involving
 the use of a map to pinpoint locations was employed. This was achieved
 by utilising the `spData` package in conjunction with its `world` data.
 
-```{r ,include=FALSE}
+```{r ,include=FALSE , warning = false, message = false}
 #| include: false
 temperature <- tennant_creek_airport %>%
   left_join(weeping_mulla_mulla, by = c("date" = "eventDate")) %>%
@@ -582,7 +582,7 @@ temperature <- tennant_creek_airport %>%
   mutate(sighting = ifelse(lga == "Barkly ", 1, 0))
 ```
 
-```{r}
+```{r , warning = false, message = false}
 #| label: fig-plots3
 #| fig-cap: "Weeping Mulla Mulla Sightings Across Australia"
 #| fig-align: center
@@ -638,7 +638,7 @@ frequent, namely Western Australia and the Northern Territory. Now, when
 the data is subset by month, it becomes apparent that these two regions
 remain the primary clusters.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE ,warning = false, message = false}
 #| label: fig-plots4
 #| fig-cap: "Weeping Mulla Mulla Sightings By Month"
 #| fig-align: center
@@ -657,7 +657,7 @@ To test the validity of our visual inference, we decided to employ
 -   $H_1:$ There is a difference in the distribution of geographical
     points between the "Active" months and the "Others" months.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE , warning = false, message = false}
 #| label: fig-plots5
 #| fig-cap: "Weeping Mulla Mulla Sightings Null Plots"
 #| fig-align: center
@@ -754,7 +754,7 @@ occurrences by month. While there are some indications from the previous
 considerably more observation points, we would like create a bar plot
 for a better visualization inference.
 
-```{r}
+```{r , warning = false, message = false}
 #| label: fig-plots6
 #| fig-cap: "Weeping Mulla Mulla Observations by Month (Bars)"
 #| fig-align: center
@@ -798,7 +798,7 @@ source. To test our this expectation, we deploy a `leaflet` map, which
 displays geographical features such as subsurface water, creeks, lakes,
 and rivers.
 
-```{r}
+```{r , warning = false, message = false}
 #| label: fig-plots7
 #| fig-cap: "Habitat Map Of Weeping Mulla Mulla Distribution"
 #| fig-align: center
@@ -819,7 +819,7 @@ The map is seen in the @fig-plots7, but due to the zoom level, we could
 not see the water body features of the map; Therefore, we decided to
 investigate a cluster of sightings near Ali Curung.
 
-```{r}
+```{r , warning = false, message = false}
 #| label: fig-plots8
 #| fig-cap: "Habitat Map Of Weeping Mulla Mulla Distribution(Ali Curung, Barkly)"
 #| fig-align: center
@@ -851,7 +851,7 @@ allows us to investigate the relation between precipitation and sighting
 directly, resulting in the graph below which visualizes annual average
 rainfall and annual sightings.
 
-```{r echo=FALSE}
+```{r echo=FALSE , warning = false, message = false}
 #| label: fig-plots9
 #| fig-cap: "Sighting Count and Average Precipitation by Year \n(Barkly and Tennant Creek Station)"
 #| fig-align: center
@@ -1111,7 +1111,7 @@ grid.arrange(qtr_tourism, qtr_temp, ncol = 2)
 
 Now we are going to look at how the tourism activities varies across multiple categories, including holidays, business activities, leisurely visits, and other significant reasons. By looking at this spectrum, we will be able to gain valuable insights into what sort of activities that tourist intended to do in Barkly region, helping us to shape our understanding towards this analysis in general. The graph below will provide us with such information.
 
-```{r , warning = FALSE ,  message = FALSE}
+```{r quarter-trend, warning = FALSE ,  message = FALSE}
 
 temporal_plot <- wmm_tourism_dg %>%
                   filter(region == "Barkly") %>%
@@ -1153,7 +1153,7 @@ Before we employ data analysis to reveal any insights regarding this topic, we p
 
 Now, We move on into the data analysis part. Firstly, we narrow down the necessary data related to eco-tourism interest of Weeping Mulla Mulla by filtering out Trips with "Holiday" purpose only. We assume that people who has spotted and reported the occurences are on their vacation, hence the selection of variable `Purpose` plays a role here.
 
-```{r, message = FALSE, warning = FALSE}
+```{r Ecotourism, message = FALSE, warning = FALSE}
 
 # Narrow down the trip purpose & Barkly Region
 wmm_tourism_holiday <- wmm_tourism %>% 
