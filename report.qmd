@@ -1016,7 +1016,7 @@ Before we dive deep into the correlation analysis of occurences and tourism, we 
 
 The chart below provide an information about the trend of tourism in Barkly Region.
 
-```{r tourist-trend, warning = FALSE, message = FALSE , echo= FALSE}
+```{r tourist-trend, warning = FALSE, message = FALSE }
 #| label: fig-plots13
 #| fig-cap: "Tourist Trips Over Time (Barkly))"
 #| fig-align: center
@@ -1059,9 +1059,9 @@ interactive_time_series_plot
 
 Let's now move deeper by looking at the trend on quarterly basis. By considering quarter spectrum, here we will ignore the year component, we will combine each quarter from all year into one. Through this approach, we are hoping to reveal any pattern arises from the similarity of time. .....!!!!
 
-The location of Barkly Region that is in the middle of the desert may also have a contribution to the number of tourism. Our intuition define a desert area will be very hot during summer, which make it a less suitable place to visit. It will be more suitable in the other season, hence probably one of the factor behind why it is a popular place to visit in Q3 (according to figure (@fig-plots14)). In the graph below, we will try to prove our intuiton by utilising the weather station data that has temperature data.
+The location of Barkly Region that is in the middle of the desert may also have a contribution to the number of tourism. Our intuition define a desert area will be very hot during summer, which make it a less suitable place to visit. It will be more suitable in the other season, hence probably one of the factor behind why it is a popular place to visit in Q3 (according to figure (...)). In the graph below, we will try to prove our intuiton by utilising the weather station data that has temperature data.
 
-```{r trend, warning = FALSE, message = FALSE, echo = FALSE }
+```{r trend, warning = FALSE, message = FALSE , echo=FALSE}
 
 #| label: fig-plots14
 #| fig-cap: "Quarterly Average Temperature (Barkly))"
@@ -1126,7 +1126,7 @@ grid.arrange(qtr_tourism, qtr_temp, ncol = 2)
 
 Now we are going to look at how the tourism activities varies across multiple categories, including holidays, business activities, leisurely visits, and other significant reasons. By looking at this spectrum, we will be able to gain valuable insights into what sort of activities that tourist intended to do in Barkly region, helping us to shape our understanding towards this analysis in general. The graph below will provide us with such information.
 
-```{r quarter-trend, warning = FALSE ,  message = FALSE,echo = FALSE}
+```{r quarter-trend, warning = FALSE ,  message = FALSE}
 #| label: fig-plots15
 #| fig-cap: "Temporal Trends by Quarter for Different Purposes (Barkly))"
 #| #| fig-align: center
@@ -1173,9 +1173,8 @@ Before we employ data analysis to reveal any insights regarding this topic, we p
 
 Now, We move on into the data analysis part. Firstly, we narrow down the necessary data related to eco-tourism interest of Weeping Mulla Mulla by filtering out Trips with "Holiday" purpose only. We assume that people who has spotted and reported the occurences are on their vacation, hence the selection of variable `Purpose` plays a role here.
 
-```{r Ecotourism, message = FALSE, warning = FALSE, echo = FALSE}
-
-#| label: fig-plots16
+```{r Ecotourism, message = FALSE, warning = FALSE}
+#| label: fig-plots17
 #| fig-cap: "Correlation between Number of Tourist to Weeping Mulla Mulla Sightings (Barkly))"
 #| #| fig-align: center
 #| echo: false
@@ -1214,7 +1213,7 @@ ggplotly(corr_plot, tooltip = "text") %>%
 
 **Discussion**
 
-Through a visual representation of number of tourist to number of sightings from the figure (@fig-plots17), we can clearly see there is no correlation between them. The increasing number of visitor to Barkly is not followed by the increasing number of Weeping Mulla Mulla sightings. Quarter 3 of 2015, where the most sightings recorded, does not even record top 5 number of tourist visit. In contrast, Quarter 3 of 2019, only record 2 sightings while having the highest number of tourist visit. This indicates that Weeping Mulla Mulla observation is not one of the deciding factor people go to Barkly.
+Through a visual representation of number of tourist to number of sightings from the figure (@fig-plots17)), we can clearly see there is no correlation between them. The increasing number of visitor to Barkly is not followed by the increasing number of Weeping Mulla Mulla sightings. Quarter 3 of 2015, where the most sightings recorded, does not even record top 5 number of tourist visit. In contrast, Quarter 3 of 2019, only record 2 sightings while having the highest number of tourist visit. This indicates that Weeping Mulla Mulla observation is not one of the deciding factor people go to Barkly.
 
 Our current data doesn't provide enough support to solidify this connection, and it remains inconclusive whether the influx of visitors to Barkly was partially driven by the prominence of the Weeping Mulla Mulla. A more detailed perspective can be gained by examining the subsequent map, which will place Weeping Mulla Mulla's sightings with the number of trips to this regions. 
 
@@ -1269,7 +1268,7 @@ map_p2 <- wmm_tourism %>%
             labs(fill = "Number of Visiting Tourist")
 ```
 
-```{r}
+```{r , warning=FALSE, message=FALSE ,echo = FALSE}
 grid.arrange(map_p2, map_p1, ncol = 2) 
 ```
 
