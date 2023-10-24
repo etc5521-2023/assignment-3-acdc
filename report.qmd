@@ -1045,6 +1045,7 @@ interactive_time_series_plot
 
 ```
 
+**Discussion**
 
 - The plot ... shows the total number of tourist trips over time, grouped by year and quarter. As can be seen, the trend is very fluctuatives from year to year. It seems that in Quarter 3 of 2019, Barkly region experienced the highest number of visit, while in contrast, Quarter 1 of 2022 has no visitor at all (primarily because of COVID-19). By looking at the trend alone is not enough. The trend is to wide, making us unable to see any seasonality that could be utilised to extract insightful informations. Hence, we will dig deep into this temporal analysis in order to get full understanding on tourism pattern of Barkly region. 
 
@@ -1097,6 +1098,7 @@ qtr_temp <- tca_cb %>% face_temporal() %>%
 grid.arrange(qtr_tourism, qtr_temp, ncol = 2) 
 
 ```
+**Discussion**
 
 - The left graph shows the number of tourism for each quarter, it clearly shows that Q3 has the highest number of tourism with more than 1.500('000) people travelling into Barkly, followed by Q2 with more than 500('000) people, Q4 with above 250('000) people, and last, Q1 with lower than 100('000) people. 
 
