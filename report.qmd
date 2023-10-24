@@ -1018,13 +1018,14 @@ The chart below provide an information about the trend of tourism in Barkly Regi
 
 ```{r trend, message = false, warning = false}
 
-time_series_plot <- wmm_tourism_dg %>%
-  filter(region == "Barkly") %>%
-  group_by(Year_Quarter) %>%
+time_series_plot <- tourism %>%
+  filter(Region == "Barkly",
+         !Purpose == "Total") %>%
+  group_by(as.factor(Quarter)) %>%
   summarise(Total_Trips = sum(Trips, na.rm = TRUE)) %>%
-  ggplot(aes(x = Year_Quarter, y = Total_Trips)) +
+  ggplot(aes(x = Quarter, y = Total_Trips)) +
   geom_line(linewidth = 1, color = "aquamarine4", alpha = 0.5) +
-  geom_point(size = 2, color = "maroon", aes(text = paste("Year & Quarter: ", Year_Quarter, "<br>Total Trips ('000): ", Total_Trips))) +
+  geom_point(size = 2, color = "maroon", aes(text = paste("Year & Quarter: ", Quarter, "<br>Total Trips ('000): ", Total_Trips))) +
   labs(x = "Year and Quarter",
        y = "Total Trips") +
   theme_minimal() +
@@ -1047,7 +1048,7 @@ interactive_time_series_plot
 
 **Discussion**
 
-- The plot ... shows the total number of tourist trips over time, grouped by year and quarter. As can be seen, the trend is very fluctuatives from year to year. It seems that in Quarter 3 of 2019, Barkly region experienced the highest number of visit, while in contrast, Quarter 1 of 2022 has no visitor at all (primarily because of COVID-19). By looking at the trend alone is not enough. The trend is to wide, making us unable to see any seasonality that could be utilised to extract insightful informations. Hence, we will dig deep into this temporal analysis in order to get full understanding on tourism pattern of Barkly region. 
+- The plot ... shows the total number of tourist trips over time, grouped by year and quarter. As can be seen, the trend is very fluctuatives from year to year. It seems that in Quarter 3 of 2003, Barkly region experienced the highest number of visit, while in contrast, Quarter 1 of 2022 and Quarter of 2018 have no visitor at all. By looking at this trend alone is not enough. The trend is to wide, making us unable to see any seasonality that could be utilised to extract insightful informations. Hence, we will dig deep into this temporal analysis in order to get full understanding on tourism pattern of Barkly region. 
 
 
 #### Temporal Trends by Quarter
@@ -1058,15 +1059,19 @@ The location of Barkly Region that is in the middle of the desert may also have 
 
 ```{r trend, message = false, warning = false}
 
-qtr_tourism <- quarter_series_plot <- wmm_tourism_dg %>%
-                filter(region == "Barkly") %>%
-                group_by(Quarter) %>%
+qtr_tourism <- tourism %>%
+                mutate(Quarter_oth = lubridate::quarter(Quarter)) %>%
+                filter(Region == "Barkly",
+                       !Purpose == "Total") %>%
+                as_tibble() %>%
+                select(Quarter_oth, Region, Purpose, Trips) %>%
+                group_by(Quarter_oth) %>%
                 summarise(Total_Trips = sum(Trips, na.rm = TRUE)) %>%
-                ggplot(aes(x = Quarter, y = Total_Trips)) +
+                ggplot(aes(x = Quarter_oth, y = Total_Trips)) +
                 geom_bar(position = "dodge", 
                          stat = "identity", 
                          fill = "aquamarine4",
-                         aes(text = paste("Quarter: ", Quarter, "<br>Total Trips ('000): ", Total_Trips))) +
+                         aes(text = paste("Quarter: ", Quarter_oth, "<br>Total Trips ('000): ", Total_Trips))) +
                 #geom_line(linewidth = 1, color = "aquamarine4", alpha = 0.5) +
                 #geom_point(size = 2, color = "maroon", aes(text = paste("Quarter: ", Quarter, "<br>Total Trips ('000): ", Total_Trips))) +
                 ggtitle(label = "Quarterly Tourism Number",
@@ -1098,9 +1103,10 @@ qtr_temp <- tca_cb %>% face_temporal() %>%
 grid.arrange(qtr_tourism, qtr_temp, ncol = 2) 
 
 ```
+
 **Discussion**
 
-- The left graph shows the number of tourism for each quarter, it clearly shows that Q3 has the highest number of tourism with more than 1.500('000) people travelling into Barkly, followed by Q2 with more than 500('000) people, Q4 with above 250('000) people, and last, Q1 with lower than 100('000) people. 
+- The left graph shows the number of tourism for each quarter, it clearly shows that Q3 has the highest number of tourism with more than 450('000) people travelling into Barkly, followed by Q2 with more than 250('000) people, Q4 with just below 250('000) people, and last, Q1 with just above than 100('000) people.
 
 - The right graph shows the trend of average temperature around Barkly region for each quarter. As can be seen that Q1 and Q4 temperature share a pretty similar range of temperature with around 30 degree, while Q2 and Q3 also share similar temperature with around 20 degree. We can conclude that Q2 and Q3 is colder than the other quarter. This is align with the seasonal condition in Australia, where Q1 is the period of summer to fall (higher temperature), Q2 is fall to winter (lower temperature), Q3 is winter to spring (lower temperature), and Q4 is spring to summer (higher temperature).
 
@@ -1113,11 +1119,12 @@ Now we are going to look at how the tourism activities varies across multiple ca
 
 ```{r quarter-trend, warning = FALSE ,  message = FALSE}
 
-temporal_plot <- wmm_tourism_dg %>%
-                  filter(region == "Barkly") %>%
-                  group_by(Year_Quarter, Purpose) %>%
+temporal_plot <- tourism %>%
+                  filter(Region == "Barkly",
+                         !Purpose == "Total") %>%
+                  group_by(as.factor(Quarter), Purpose) %>%
                   summarise(sum_trips = sum(Trips)) %>%
-                  ggplot(aes(x = Year_Quarter, y = sum_trips)) +
+                  ggplot(aes(x = Quarter, y = sum_trips)) +
                   geom_line(size = 1) +
                   labs(
                     title = "Temporal Trends by Quarter for Different Purposes",
