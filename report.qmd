@@ -709,7 +709,7 @@ Since the data relies on human observation, it was anticipated that
 there might have been fewer sightings due to a lack of reporting.
 
 By employing a simple method of plotting the number of observations
-against the years using a histogram (@fig-plots99), it can be seen that
+against the years using a histogram (@fig-plots6), it can be seen that
 there was no indication of reduced observations during the COVID-19
 years from 2000 to 2021. In fact, 2021 recorded the second-highest
 number of observations for the species.
@@ -726,7 +726,7 @@ proliferation of internet-of-things, allowing sightings to be reported
 with greater ease and more reliable reporting platforms/databanks.
 
 ```{r, echo=FALSE, warning = FALSE, message = FALSE}
-#| label: fig-plots99
+#| label: fig-plots6
 #| fig-cap: "Weeping Mulla Mulla Observations by Year"
 #| fig-align: center
 #| echo: false
@@ -755,7 +755,7 @@ considerably more observation points, we would like create a bar plot
 for a better visualization inference.
 
 ```{r , warning = FALSE, message = FALSE}
-#| label: fig-plots6
+#| label: fig-plots7
 #| fig-cap: "Weeping Mulla Mulla Observations by Month (Bars)"
 #| fig-align: center
 #| echo: false
@@ -778,7 +778,7 @@ ggplotly(wrapper1)
 ```
 
 Interestingly, we observe decreased sightings during June and July while
-August has the highest sighting occurrences (@fig-plots6). March marks
+August has the highest sighting occurrences (@fig-plots7). March marks
 the start of the blooming cycle with April and May being the autumn
 season in Western Australia (Tourism Australia n. d.), which has
 occasional showers. This explains the large rise in sightings for these
@@ -799,7 +799,7 @@ displays geographical features such as subsurface water, creeks, lakes,
 and rivers.
 
 ```{r , warning = FALSE, message = FALSE}
-#| label: fig-plots7
+#| label: fig-plots8
 #| fig-cap: "Habitat Map Of Weeping Mulla Mulla Distribution"
 #| fig-align: center
 #| echo: false
@@ -815,12 +815,12 @@ weeping_mulla_mulla %>%
 )
 ```
 
-The map is seen in the @fig-plots7, but due to the zoom level, we could
+The map is seen in the @fig-plots8, but due to the zoom level, we could
 not see the water body features of the map; Therefore, we decided to
 investigate a cluster of sightings near Ali Curung.
 
 ```{r , warning = FALSE, message = FALSE}
-#| label: fig-plots8
+#| label: fig-plots9
 #| fig-cap: "Habitat Map Of Weeping Mulla Mulla Distribution(Ali Curung, Barkly)"
 #| fig-align: center
 #| echo: false
@@ -836,7 +836,7 @@ weeping_mulla_mulla %>%
 ) 
 ```
 
-Based on the map above (@fig-plots8), we can see that the main cluster
+Based on the map above (@fig-plots9), we can see that the main cluster
 of **Weeping Mulla Mulla** does not live near a water source, which is
 different from what we expected. This suggests that the plant is
 dependent on rain, meaning that high precipitation periods might lead to
@@ -852,7 +852,7 @@ directly, resulting in the graph below which visualizes annual average
 rainfall and annual sightings.
 
 ```{r echo=FALSE , warning = FALSE, message = FALSE}
-#| label: fig-plots9
+#| label: fig-plots10
 #| fig-cap: "Sighting Count and Average Precipitation by Year \n(Barkly and Tennant Creek Station)"
 #| fig-align: center
 #| echo: false
@@ -885,7 +885,7 @@ rainplot <- temperature %>%
 rainplot
 ```
 
-From the @fig-plots9, we can see there are multiple gaps in the sighting
+From the @fig-plots10, we can see there are multiple gaps in the sighting
 of the **Weeping Mulla Mulla** from 2004 to 2023. This inconsistency can
 be explained by the lack of popularity of our plant species. As
 addressed above in the **Trend expectation** section, 2015 saw an
@@ -912,7 +912,7 @@ has a reported sighting. This is to determine at what average
 temperature that sighting is likely to be made.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-#| label: fig-plots10
+#| label: fig-plots11
 #| fig-cap: "Daily Mean Temperature and Sightings (Barkly) (2004-2023)"
 #| fig-align: center
 #| echo: false
@@ -934,14 +934,14 @@ ggplot(temperature, aes(x = as.Date(date))) +
 
 **Discussion**
 
-@fig-plots10 depicts that, even when the data ranges from 2004 to 2023,
+@fig-plots11 depicts that, even when the data ranges from 2004 to 2023,
 there are very little reported sightings of the **Weeping Mulla Mulla**
 in *Barkly*. Nonetheless, we can observe that most of the years have
 very similar seasonality trend for average temperatures; thus, we
 decided to investigate 2015 as it has the most reported sightings.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-#| label: fig-plots11
+#| label: fig-plots12
 #| fig-cap: "Daily Mean Temperature, Sighting, Plant Active Window (Barkly, 2015)"
 #| fig-align: center
 #| echo: false
@@ -988,7 +988,7 @@ combined_plot
 
 By narrowing it down to `2015`, we recognize that most of the sightings
 happened in the later half of the year, specifically when the weather
-begins to get warmer but not during the warmest days (@fig-plots11).
+begins to get warmer but not during the warmest days (@fig-plots12).
 While most of the observations were reported within the "Active" months
 of the flower, it is interesting to see that March to early July saw no
 reported sightings. We believe that lack of observations is caused by
@@ -1017,9 +1017,10 @@ Before we dive deep into the correlation analysis of occurences and tourism, we 
 The chart below provide an information about the trend of tourism in Barkly Region.
 
 ```{r tourist-trend, warning = FALSE, message = FALSE , echo= FALSE}
-#| label: fig-plots12
+#| label: fig-plots13
 #| fig-cap: "Tourist Trips Over Time (Barkly))"
-
+#| fig-align: center
+#| echo: false
 
 time_series_plot <- tourism %>%
   filter(Region == "Barkly",
@@ -1051,19 +1052,21 @@ interactive_time_series_plot
 
 **Discussion**
 
-- The plot (@fig-plots12) shows the total number of tourist trips over time, grouped by year and quarter. As can be seen, the trend is very fluctuatives from year to year. It seems that in Quarter 3 of 2003, Barkly region experienced the highest number of visit, while in contrast, Quarter 1 of 2022 and Quarter of 2018 have no visitor at all. By looking at this trend alone is not enough. The trend is to wide, making us unable to see any seasonality that could be utilised to extract insightful informations. Hence, we will dig deep into this temporal analysis in order to get full understanding on tourism pattern of Barkly region. 
+- The plot (@fig-plots13) shows the total number of tourist trips over time, grouped by year and quarter. As can be seen, the trend is very fluctuatives from year to year. It seems that in Quarter 3 of 2003, Barkly region experienced the highest number of visit, while in contrast, Quarter 1 of 2022 and Quarter of 2018 have no visitor at all. By looking at this trend alone is not enough. The trend is to wide, making us unable to see any seasonality that could be utilised to extract insightful informations. Hence, we will dig deep into this temporal analysis in order to get full understanding on tourism pattern of Barkly region. 
 
 
 #### Temporal Trends by Quarter
 
 Let's now move deeper by looking at the trend on quarterly basis. By considering quarter spectrum, here we will ignore the year component, we will combine each quarter from all year into one. Through this approach, we are hoping to reveal any pattern arises from the similarity of time. .....!!!!
 
-The location of Barkly Region that is in the middle of the desert may also have a contribution to the number of tourism. Our intuition define a desert area will be very hot during summer, which make it a less suitable place to visit. It will be more suitable in the other season, hence probably one of the factor behind why it is a popular place to visit in Q3 (according to figure (@fig-plots13)). In the graph below, we will try to prove our intuiton by utilising the weather station data that has temperature data.
+The location of Barkly Region that is in the middle of the desert may also have a contribution to the number of tourism. Our intuition define a desert area will be very hot during summer, which make it a less suitable place to visit. It will be more suitable in the other season, hence probably one of the factor behind why it is a popular place to visit in Q3 (according to figure (@fig-plots14)). In the graph below, we will try to prove our intuiton by utilising the weather station data that has temperature data.
 
 ```{r trend, warning = FALSE, message = FALSE, echo = FALSE }
 
-#| label: fig-plots13
+#| label: fig-plots14
 #| fig-cap: "Quarterly Average Temperature (Barkly))"
+#| fig-align: center
+#| echo: false
 
 qtr_tourism <- tourism %>%
                 mutate(Quarter_oth = lubridate::quarter(Quarter)) %>%
@@ -1124,6 +1127,10 @@ grid.arrange(qtr_tourism, qtr_temp, ncol = 2)
 Now we are going to look at how the tourism activities varies across multiple categories, including holidays, business activities, leisurely visits, and other significant reasons. By looking at this spectrum, we will be able to gain valuable insights into what sort of activities that tourist intended to do in Barkly region, helping us to shape our understanding towards this analysis in general. The graph below will provide us with such information.
 
 ```{r quarter-trend, warning = FALSE ,  message = FALSE,echo = FALSE}
+#| label: fig-plots15
+#| fig-cap: "Temporal Trends by Quarter for Different Purposes (Barkly))"
+#| #| fig-align: center
+#| echo: false
 
 temporal_plot <- tourism %>%
                   filter(Region == "Barkly",
@@ -1168,8 +1175,10 @@ Now, We move on into the data analysis part. Firstly, we narrow down the necessa
 
 ```{r Ecotourism, message = FALSE, warning = FALSE, echo = FALSE}
 
-#| label: fig-plots14
+#| label: fig-plots16
 #| fig-cap: "Correlation between Number of Tourist to Weeping Mulla Mulla Sightings (Barkly))"
+#| #| fig-align: center
+#| echo: false
 
 # Narrow down the trip purpose & Barkly Region
 wmm_tourism_holiday <- wmm_tourism %>% 
@@ -1205,7 +1214,7 @@ ggplotly(corr_plot, tooltip = "text") %>%
 
 **Discussion**
 
-Through a visual representation of number of tourist to number of sightings from the figure (@fig-plots14), we can clearly see there is no correlation between them. The increasing number of visitor to Barkly is not followed by the increasing number of Weeping Mulla Mulla sightings. Quarter 3 of 2015, where the most sightings recorded, does not even record top 5 number of tourist visit. In contrast, Quarter 3 of 2019, only record 2 sightings while having the highest number of tourist visit. This indicates that Weeping Mulla Mulla observation is not one of the deciding factor people go to Barkly.
+Through a visual representation of number of tourist to number of sightings from the figure (@fig-plots17), we can clearly see there is no correlation between them. The increasing number of visitor to Barkly is not followed by the increasing number of Weeping Mulla Mulla sightings. Quarter 3 of 2015, where the most sightings recorded, does not even record top 5 number of tourist visit. In contrast, Quarter 3 of 2019, only record 2 sightings while having the highest number of tourist visit. This indicates that Weeping Mulla Mulla observation is not one of the deciding factor people go to Barkly.
 
 Our current data doesn't provide enough support to solidify this connection, and it remains inconclusive whether the influx of visitors to Barkly was partially driven by the prominence of the Weeping Mulla Mulla. A more detailed perspective can be gained by examining the subsequent map, which will place Weeping Mulla Mulla's sightings with the number of trips to this regions. 
 
