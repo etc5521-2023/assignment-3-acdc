@@ -553,10 +553,15 @@ Now, our Occurence data has matching region name with the region in the Tourism 
 wmm_tourism <- wmm_region %>%
                 left_join(tourism, by = c("region" = "Region", "Year_Quarter" = "Quarter")) %>%
                 filter(!is.na(Purpose), #removing unmatch quarter
-                       !Purpose == "Total") #removing summarised number
+                       !Purpose == "Total") %>% #removing summarised number 
+                select(!c(4, 7:9)) %>% 
+                    group_by_all() %>% 
+                    summarise(sightings_tot = n())
 
 # Dropping `geometry` for non-spatial related analysis
-wmm_tourism_dg <- wmm_tourism %>% st_drop_geometry()
+wmm_tourism_dg <- wmm_tourism %>% 
+                    st_drop_geometry() 
+                    
 ```
 
 
@@ -1041,7 +1046,7 @@ interactive_time_series_plot
 ```
 
 
-- The plot ... shows the total number of tourist trips over time, grouped by year and quarter. As can be seen from the trend, there is a sudden and significant jump of number of tourism visiting Barkly region in Q3 2015. The numbers drop significantly after that particular period and continued the trend similar as before Q3 2015. After doing some research, there is no news, articles, or other type of informations that explained such uncommon trend.
+- The plot ... shows the total number of tourist trips over time, grouped by year and quarter. As can be seen from the trend, .
 
 
 #### Temporal Trends by Quarter
@@ -1077,8 +1082,8 @@ qtr_temp <- tca_cb %>% face_temporal() %>%
               select(id, date, Month, Quarter, Year, avg_tmp) %>%
               na.omit() %>%
               ggplot(aes(x = date, y = avg_tmp, group = 1)) +
-                geom_line(size = 1, color = "aquamarine4") +
-                geom_smooth(method = "loess", se = FALSE, color = "maroon") +
+                geom_line(size = 1, color = "honeydew4") +
+                geom_smooth(method = "loess", se = FALSE, color = "black") +
                 facet_wrap(~ Quarter) +
                 ggtitle(label = "Quarterly Average Temperature",
                         subtitle = "Region : Barkly") +
@@ -1144,37 +1149,38 @@ Before we employ data analysis to reveal any insights regarding this topic, we p
 Now, We move on into the data analysis part. Firstly, we narrow down the necessary data related to eco-tourism interest of Weeping Mulla Mulla by filtering out Trips with "Holiday" purpose only. We assume that people who has spotted and reported the occurences are on their vacation, hence the selection of variable `Purpose` plays a role here.
 
 ```{r, message = FALSE, warning = FALSE}
-# Delete white spaces
-# wmm_tourism <- wmm_tourism |> mutate(lga2 = str_trim(lga)) 
 
-# Narrow down the trip purpose
+# Narrow down the trip purpose & Barkly Region
 wmm_tourism_holiday <- wmm_tourism %>% 
-  filter(Purpose %in% c("Holiday"),
-         region %in% c("Barkly", "Tanami", "Victoria River"))
+  filter(Purpose == "Holiday",
+         region == "Barkly")
+
+# Plotting the correlation between Tourism and Occurences
+corr_plot <- wmm_tourism_holiday %>%
+              ggplot(aes(x = Trips, y = sightings_tot, color = as.factor(Year_Quarter))) +
+              geom_point(size = 2, aes(text = paste("Year & Quarter:", Year_Quarter, "<br>Total Visitor ('000): ", scales::comma(Trips), "<br>Total Sightings: ", sightings_tot))) +
+              xlab("Number of Visiting Tourist ('000)") +
+              ylab("Number of Sightings") +
+              theme_classic() +
+              theme(plot.title = element_text(hjust=0.5, face = "bold"),
+                    plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10),
+                    legend.position = "none")
+
+# Making the plot interactive
+ggplotly(corr_plot, tooltip = "text") %>%
+  layout(title = list(y = .925, 
+                      xref = "plot", 
+                      text = paste0("Correlation between Number of Tourist to Weeping Mulla Mulla Sightings",
+                                    "<br>",
+                                    "<sup>",
+                                    "Region : Barkly",
+                                    "<sup>")),
+   margin = list(l = 50, t = 75))
+
+
+
 ```
 
-```{r, warning = FALSE, message = FALSE}
-# Running neccessary library
-library(sf)
-
-# Calculating total trips for each quarter and region from our joined data
-wmm_tourism_tot <- wmm_tourism_holiday %>% 
-  group_by(Purpose, region, Year_Quarter, Year) %>% 
-  summarise(tot_trip = sum(Trips))
-
-# Plotting time series of total number of trips to each region
-ggplot(wmm_tourism_tot, aes(Year_Quarter, tot_trip))+
-  geom_line() +
-  labs(title = "Total trips to investigated areas over the years",
-       x = "Time series", 
-       y = "Total trips (x1000)")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.text = element_text(size = 6), 
-        legend.title = element_text(size = 10),
-        strip.text = element_text(size = 7, margin = margin(t = 8, b = 8))) +
-  facet_wrap(~region, scales = "free_y")
-
-```
 
 **Discussion**
 
@@ -1186,21 +1192,59 @@ Meanwhile, the subsequent decline in trips to Ashburton and Barkly post-2015 can
 
 However, our current data doesn't provide enough support to solidify this connection, and it remains inconclusive whether the influx of visitors to Ashburton and Barkly was primarily driven by the prominence of the Weeping Mulla Mulla. A more detailed perspective can be gained by examining the subsequent map, which juxtaposes Weeping Mulla Mulla sightings with the number of trips to these regions. 
 
-```{r}
+```{r barkly_map, warning=FALSE, message=FALSE}
 # Mapping occurences and trips tp Weeping Mulla Mulla areas
 AU_region_subset <- AU_region %>%
-                      st_crop(xmin = 115, xmax = 155, 
-                              ymin = -40, ymax = -10)
+                      st_crop(xmin = 131, xmax = 139, 
+                              ymin = -23, ymax = -16)
 
-wmm_tourism_holiday %>%
-  ggplot() +
-  geom_sf(aes(geometry = geometry, fill = Trips)) +
-  geom_sf(data = AU_region_subset, aes(geometry = geometry), 
-          fill = "transparent",  
-          color = "black",        
-          size = 0.5) +
-  geom_count(data = weeping_mulla_mulla, aes(x = longitude, y = latitude), alpha = 0.7, color = "red")+ 
-  labs(fill = "The total of people visit (x1000)", size = "The number of occurences recorded")
+map_p1 <- wmm_tourism_holiday %>%
+            ggplot() +
+            geom_sf(aes(geometry = geometry)) +
+            geom_sf(data = AU_region_subset, aes(geometry = geometry), 
+                    fill = "transparent",  
+                    color = "black",        
+                    size = 0.5) +
+            geom_count(data = weeping_mulla_mulla %>% filter(lga == "Barkly "), aes(x = longitude, y = latitude), alpha = 0.7, color = "red") + 
+            theme_map() +
+            #labs(fill = "The total of people visit ('000)", size = "The number of occurences recorded") +
+            ggtitle(label = "Location of Sightings",
+                    subtitle = "Region: Barkly") +
+            theme(legend.position = "none",
+                  plot.title = element_text(hjust=0.5, face = "bold"),
+                  plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10))
+```
+
+```{r wholemap, warning=FALSE, message=FALSE}
+# Mapping occurences and trips tp Weeping Mulla Mulla areas
+AU_region_subset_2 <- AU_region %>%
+                      st_crop(xmin = 115, xmax = 139, 
+                              ymin = -31, ymax = -12)
+
+map_p2 <- wmm_tourism %>%
+            filter(Purpose == "Holiday") %>%
+            ggplot() +
+            geom_sf(aes(geometry = geometry, fill = Trips)) +
+            scale_fill_viridis_c(option = "B") +
+            geom_sf(data = AU_region_subset_2, aes(geometry = geometry), 
+                    fill = "transparent",  
+                    color = "black",        
+                    size = 0.5) +
+            geom_count(data = weeping_mulla_mulla, aes(x = longitude, y = latitude), alpha = 0.7, color = "red")+ 
+            ggtitle(label = "Location of Sightings",
+                    subtitle = "Region: All Regions Where Sightings Recorded") +
+            theme_map() +
+            theme(legend.position = "bottom",
+                  legend.title = element_text(size=10), #change legend title font size
+                  legend.text = element_text(size=8), #change legend text font size
+                  plot.title = element_text(hjust=0.5, face = "bold"),
+                  plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10)) +
+            guides(size = FALSE) +
+            labs(fill = "Number of Visiting Tourist")
+```
+
+```{r}
+grid.arrange(map_p1, map_p2, ncol = 2) 
 ```
 
 **Discussion**
