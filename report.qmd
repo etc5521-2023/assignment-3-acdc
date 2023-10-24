@@ -1046,7 +1046,7 @@ interactive_time_series_plot
 ```
 
 
-- The plot ... shows the total number of tourist trips over time, grouped by year and quarter. As can be seen from the trend, .
+- The plot ... shows the total number of tourist trips over time, grouped by year and quarter. As can be seen, the trend is very fluctuatives from year to year. It seems that in Quarter 3 of 2019, Barkly region experienced the highest number of visit, while in contrast, Quarter 1 of 2022 has no visitor at all (primarily because of COVID-19). By looking at the trend alone is not enough. The trend is to wide, making us unable to see any seasonality that could be utilised to extract insightful informations. Hence, we will dig deep into this temporal analysis in order to get full understanding on tourism pattern of Barkly region. 
 
 
 #### Temporal Trends by Quarter
@@ -1134,9 +1134,12 @@ temporal_plotly <- ggplotly(temporal_plot)
 temporal_plotly
 
 ```
-- According to the graph ... above, we can see clearly that all purposes have the same peak, which is in Q3 2015. It turns out Barkly region was very popular back then. Moving on to the purposes itself, "Holiday" come out on top as the main reason, followed by "Visiting", "Other", and "Business".  
 
-In the next section, we will utilise all these informations we gather around the tourism trend in Barkly region to compare it with Occurences dataset. We hope to see if there is any specific eco-tourism related to Weeping Mulla Mulla that may have contributed to the significant jump over the number of tourism into Barkly region. 
+**Discussion**
+
+According to the graph ... above, we can see clearly that all purposes follow the fluctuative trend, align with the previous graph. It seems like "Holiday" experienced the most fluctuation, with "Other" is the most steady. From the quantity perspective, "Holiday" come out on top as the main reason, followed by "Business", "Visiting", and "Other". From this graph, we can conclude the Barkly is one of the place to go to when people decide where to spend their holiday to. We are interested to check if Weeping Mulla Mulla eco-tourism is one of the deciding factor.
+
+In the next section, we will utilise all these informations we gather around the tourism trend in Barkly region to compare it with Occurences dataset. We hope to see if there is any specific eco-tourism related to Weeping Mulla Mulla that may have contributed to the significant volume over the number of tourism into Barkly region. 
 
 ### Weeping Mulla Mulla Eco-Tourism
 
@@ -1184,13 +1187,9 @@ ggplotly(corr_plot, tooltip = "text") %>%
 
 **Discussion**
 
-Through a visual representation of the total trips to each region, it becomes evident that Ashburton (WA) and Barkly attract the highest number of holiday-goers, with peaks nearing 250,000 and over 600,000 visits respectively. Notably, Ashburton and Barkly regions coincide with the highest reported sightings of the Weeping Mulla Mulla. Furthermore, the surge in visits to these areas aligns with the apex of Weeping Mulla Mulla sightings around 2015, as showcased in the `Weeping Mulla Mulla Observations by Year` graph. 
+Through a visual representation of number of tourist to number of sightings from the figure ..., we can clearly see there is no correlation between them. The increasing number of visitor to Barkly is not followed by the increasing number of Weeping Mulla Mulla sightings. Quarter 3 of 2015, where the most sightings recorded, does not even record top 5 number of tourist visit. In contrast, Quarter 3 of 2019, only record 2 sightings while having the highest number of tourist visit. This indicates that Weeping Mulla Mulla observation is not one of the deciding factor people go to Barkly.
 
-Interestingly, while Ashburton (WA) and Barkly are the standout regions in terms of trip numbers, some regions such as East Pilbara, Halls Creek and Victoria River have also seen an upward trend in visitors from 2015 onward. These regions might not match the visitor volume of Ashburton or Barkly, but their growth indicates an increasing tourist interest, which merits attention in the analysis. 
-
-Meanwhile, the subsequent decline in trips to Ashburton and Barkly post-2015 cannot be overlooked. This drop suggests that the factors influencing the initial surge in tourism might have been temporary or have since evolved. The sharp decline post-peak warrants further investigation to discern if it was a result of decreasing Weeping Mulla Mulla sightings or if other external factors were at play. This hints at a potential connection between these trips and the Weeping Mulla Mulla. 
-
-However, our current data doesn't provide enough support to solidify this connection, and it remains inconclusive whether the influx of visitors to Ashburton and Barkly was primarily driven by the prominence of the Weeping Mulla Mulla. A more detailed perspective can be gained by examining the subsequent map, which juxtaposes Weeping Mulla Mulla sightings with the number of trips to these regions. 
+Our current data doesn't provide enough support to solidify this connection, and it remains inconclusive whether the influx of visitors to Barkly was partially driven by the prominence of the Weeping Mulla Mulla. A more detailed perspective can be gained by examining the subsequent map, which will place Weeping Mulla Mulla's sightings with the number of trips to this regions. 
 
 ```{r barkly_map, warning=FALSE, message=FALSE}
 # Mapping occurences and trips tp Weeping Mulla Mulla areas
@@ -1244,16 +1243,15 @@ map_p2 <- wmm_tourism %>%
 ```
 
 ```{r}
-grid.arrange(map_p1, map_p2, ncol = 2) 
+grid.arrange(map_p2, map_p1, ncol = 2) 
 ```
 
 **Discussion**
 
-Expanding on our prior discussion, this map offers an insightful visualisation of the relationship between Weeping Mulla Mulla occurrences and tourism numbers.
+Expanding on our prior discussion, this map offers an insightful visualisation of the relationship between Weeping Mulla Mulla occurrences and tourism numbers. A bit different approach to previous analysis, in here, we are including all regions that recording occurence numbers. We did this because we want to see if the data tells opposite fact when we consider other regions. By utilising spatial analysis, it will provide holistic view and expedite the understanding process. On the map visual itself, the left side is a map where all regions where sightings are recorded, while on the right side is just Barkly region only.
 
-The map clearly illustrates a prominent presence of Weeping Mulla Mulla in the North-central areas of Western Australia and parts of the Northern Territory. Notably, Ashburton (WA), situated in the most vivid blue region, contrasts with Barkly, which is depicted in a darker hue representing fewer tourists. This suggests that the ecological significance of these regions, underscored by the substantial number of Weeping Mulla Mulla sightings, might not be the main draw for visitors to these areas.
+The map illustrates a prominent presence of Weeping Mulla Mulla in the North-central areas of Western Australia and parts of the Northern Territory. Notably, the regions with more number of tourist are presented with lighter color, and the opposite condition stand (where darker color represent fewer number of tourist). As can be seen, the regions with higher number of tourism are not the regions where the most sightings recorded. The number could just be contributed from other essential factors, such as popular attractions, infrastructural development, or easier accessibility. So, this spatial analysis supports our previous analysis which could not see any correlation between these two events. Ultimately, this also align with our research about Weeping Mulla Mulla eco-tourism which gave us no information.   
 
-On the other hand, regions closer to the top Western coast, which have sparser Weeping Mulla Mulla occurrences, exhibit a lighter shade of blue, indicating higher tourism numbers. This discrepancy could point towards the existence of other influential factors driving tourism, such as popular attractions, infrastructural development, or easier accessibility.
 
 ## Summary
 
