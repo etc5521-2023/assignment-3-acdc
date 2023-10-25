@@ -1004,9 +1004,9 @@ sighting frequency of the plant.
 
 ### Tourism vs Occurences
 
-In this section we are going to correlate the number of sightings of Weeping Mulla Mulla to the number of tourist within the area of the sightings. Does the number of sightings is affected by tourism activities nearby? Does the increasing number of visit resulted in increasing number of Weeping Mulla Mulla sightings? Let's explore the data that we have to understand that. 
+In this section, we aim to correlate the number of sightings of Weeping Mulla Mulla with the number of tourists in the area of the sightings. Is the number of sightings influenced by nearby tourism activities? Does the increasing number of visit resulted in increasing number of Weeping Mulla Mulla sightings? Let's explore the data that we have to understand that. 
 
-By continuing our observation previously, here we are going to focus on the area where the most sightings recorded, which we stated in the previous section is area close to the Tennant Creek Airport weather station. By utilising data from Australian Bureau of Statistics of SA2, we identified that Tennant Creek Airport is located in the region of Barkly, Northern Territory. Thus, going forward, we will focus on Barkly region only. 
+By continuing our earlier observations, we will now focus on the area with the most recorded sightings, which, as mentioned in the previous section, is close to the Tennant Creek Airport weather station. By utilising data from Australian Bureau of Statistics of SA2, we identified that Tennant Creek Airport is located in the region of Barkly, Northern Territory. Therefore, our subsequent analysis will concentrate solely on the Barkly region.
 
 #### Tourism Pattern
 
@@ -1014,7 +1014,7 @@ Before we dive deep into the correlation analysis of occurences and tourism, we 
 
 ##### Trend of Tourist Over Time 
 
-The chart below provide an information about the trend of tourism in Barkly Region.
+The chart below illustrates the trend of tourism in Barkly Region.
 
 ```{r tourist-trend, warning = FALSE, message = FALSE }
 #| label: fig-plots13
