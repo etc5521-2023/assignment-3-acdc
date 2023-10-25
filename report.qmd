@@ -851,7 +851,7 @@ allows us to investigate the relation between precipitation and sighting
 directly, resulting in the graph below which visualizes annual average
 rainfall and annual sightings.
 
-```{r echo=FALSE , warning = FALSE, message = FALSE}
+```{r, echo=FALSE , warning = FALSE, message = FALSE}
 #| label: fig-plots10
 #| fig-cap: "Sighting Count and Average Precipitation by Year \n(Barkly and Tennant Creek Station)"
 #| fig-align: center
@@ -1081,7 +1081,7 @@ analysis in order to get full understanding on tourism pattern of Barkly region.
 Let's explore the data further by looking at the trend on quarterly basis. 
 By considering quarter spectrum, here we will ignore the year component, we 
 will combine each quarter from all year into one. Through this approach, we are 
-hoping to reveal any pattern arises from the similarity of time. .....!!!!
+hoping to reveal any pattern arises from the similarity of time.
 
 The location of Barkly Region that is in the middle of the desert may also 
 have a contribution to the number of tourism. Our intuition define a desert area 
@@ -1147,30 +1147,13 @@ qtr_temp <- tca_cb %>% face_temporal() %>%
 #| fig-align: center
 #| echo: false
 
-
-qtr_temp <- tca_cb %>% face_temporal() %>%
-              select(id, date, Month, Quarter, Year, avg_tmp) %>%
-              na.omit() %>%
-              ggplot(aes(x = date, y = avg_tmp, group = 1)) +
-                geom_line(size = 1, color = "honeydew4") +
-                geom_smooth(method = "loess", se = FALSE, color = "black") +
-                facet_wrap(~ Quarter) +
-                ggtitle(label = "Quarterly Average Temperature",
-                        subtitle = "Region : Barkly") +
-                labs(x = "Date",
-                     y = "Avg. Temperature") +
-                theme_classic() +
-                theme(plot.title = element_text(hjust=0.5, face = "bold"),
-                      plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10),
-                      aspect.ratio = 0.5)
-
 grid.arrange(qtr_tourism, qtr_temp, ncol = 2)
 ```
 
 
 **Discussion**
 
-- The left graph in (@fig-plots14) shows the number of tourism for each quarter, 
+- The left graph in (@fig-plots15) shows the number of tourism for each quarter, 
 it's evident that Q3 attracts the most tourists, with over 450,000 people 
 visiting Barkly, followed by Q2 with more than 250('000) people, 
 Q4 with just below 250('000) people, and last, Q1 with just above than 
@@ -1235,7 +1218,7 @@ temporal_plotly
 
 According to the (@fig-plots16) above, it's evident that all the graphs 
 representing different trip purposes display a fluctuating trend, consistent 
-with the (@fig-plots14) graph. It seems like "Holiday" experienced the most 
+with the (@fig-plots15). It seems like "Holiday" experienced the most 
 fluctuation, with "Other" is the most steady. From the quantity perspective, 
 "Holiday" come out on top as the main reason, followed by "Business", 
 "Visiting", and "Other". From this graph, we can conclude the Barkly is one of 
@@ -1310,7 +1293,7 @@ ggplotly(corr_plot, tooltip = "text") %>%
 **Discussion**
 
 Through a visual representation of number of tourist to number of sightings 
-from the figure (@fig-plots17), we can clearly see there is no correlation 
+from the (@fig-plots17), we can clearly see there is no correlation 
 between them. The increasing number of visitor to Barkly is not followed by 
 the increasing number of Weeping Mulla Mulla sightings. For instance, Quarter 3 
 of 2015, which recorded the top number of sightings, isn't even within the top 
@@ -1375,13 +1358,20 @@ map_p2 <- wmm_tourism %>%
                   plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10)) +
             guides(size = FALSE) +
             labs(fill = "Number of Visiting Tourist")
+```
+
+```{r maparrange, warning=FALSE, message=FALSE ,echo = FALSE}
+#| label: fig-plots18
+#| fig-cap: "Mapping correlation between the Number of Tourist and Weeping Mulla Mulla Sightings (Barkly))"
+#| #| fig-align: center
+#| echo: false
 
 grid.arrange(map_p2, map_p1, ncol = 2) 
 ```
 
 **Discussion**
 
-Building on our prior discussion, this map offers an insightful visualization
+Building on our prior discussion, the map in (@fig-plots18) offers an insightful visualization
 of the relationship between Weeping Mulla Mulla occurrences and tourism numbers. 
 A bit different approach to previous analysis, in here, we are including 
 all regions that recording occurrence numbers. We did this because we want to see 
@@ -1537,3 +1527,8 @@ https://doi.org/10.1201/9780429459016
 -   **rmapshaper**: Teucher A, Russell K (2023). _rmapshaper: Client for 'mapshaper' for 'Geospatial' Operations_. R package version 0.5.0,
   <https://CRAN.R-project.org/package=rmapshaper>.
 -   **zoo**: Zeileis A, Grothendieck G (2005). “zoo: S3 Infrastructure for Regular and Irregular Time Series.” _Journal of Statistical Software_, *14*(6), 1-27. doi:10.18637/jss.v014.i06 <https://doi.org/10.18637/jss.v014.i06>.
+-   **cubble**: Zhang H, Cook D, Laa U, Langrené N, Menéndez P (2023). _cubble: A Vector Spatio-Temporal Data Structure for
+  Data Analysis_. R package version 0.3.0, <https://github.com/huizezhang-sherry/cubble>.
+-   **gridExtra**: Auguie B (2017). _gridExtra: Miscellaneous Functions for "Grid" Graphics_. R package version 2.3,
+  <https://CRAN.R-project.org/package=gridExtra>.
+
