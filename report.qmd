@@ -1373,9 +1373,11 @@ and the opposite condition stand (where darker color represent fewer number of t
 As can be seen, the regions with higher number of tourism are not the regions 
 where the most sightings recorded. The number could just be contributed 
 from other essential factors, such as popular attractions, 
-infrastructural development, or easier accessibility. So, this spatial analysis 
-supports our previous analysis which could not see any correlation between 
-these two events. Ultimately, this also align with our research about 
+infrastructural development, or easier accessibility, which was supported by 
+Australian government as an act to make this region a tourism attractive 
+destination (Tourism NT, 2016). So, this spatial analysis supports 
+our previous analysis which could not see any correlation between these two events. 
+Ultimately, this also align with our research about 
 Weeping Mulla Mulla eco-tourism which gave us no information.   
 
 
@@ -1420,25 +1422,25 @@ several key expectations:
     relying heavily on water.
     
 6. **Tourism Peak Seasons**: Examining the Barkly region's tourism patterns 
-  in detail, particularly in the area surrounding Tennant Creek Airport, 
-  reveals that visitors vary over time. Quarter 3 of 2003 has a noteworthy high, 
-  whereas some quarters—like Q1 2022—recorded zero tourists. 
-  Additional information gleaned from the quarterly analysis suggests 
-  possible seasonal trends. Considering Barkly's desert terrain and the 
-  temperature data from nearby weather stations, it seems that Q3's 
-  cooler temperatures provide a more enticing window of time for visitors. 
-  In addition, our research indicates that the Barkly region is 
-  a popular destination for vacationers. 
+    in detail, particularly in the area surrounding Tennant Creek Airport, 
+    reveals that visitors vary over time. Quarter 3 of 2003 has a noteworthy high, 
+    whereas some quarters—like Q1 2022—recorded zero tourists. 
+    Additional information gleaned from the quarterly analysis suggests 
+    possible seasonal trends. Considering Barkly's desert terrain and the 
+    temperature data from nearby weather stations, it seems that Q3's 
+    cooler temperatures provide a more enticing window of time for visitors. 
+    In addition, our research indicates that the Barkly region is 
+    a popular destination for vacationers. 
 
 7. **Eco-tourism Insights**: Examining the potential association between 
-  sightings of Weeping Mulla Mulla and eco-tourism, the study is unable to 
-  find proof of a direct connection. According to the data research, 
-  even areas where there are a lot of reports of Weeping Mulla Mulla sightings 
-  may not necessarily draw in more visitors. An in-depth geographical examination, 
-  comparing the number of Weeping Mulla Mulla sightings with 
-  the number of tourists in various locations, validates this finding. 
-  It suggests that factors other than Weeping Mulla Mulla sightings 
-  might affect visitor patterns.
+    sightings of Weeping Mulla Mulla and eco-tourism, the study is unable to 
+    find proof of a direct connection. According to the data research, 
+    even areas where there are a lot of reports of Weeping Mulla Mulla sightings 
+    may not necessarily draw in more visitors. An in-depth geographical examination, 
+    comparing the number of Weeping Mulla Mulla sightings with 
+    the number of tourists in various locations, validates this finding. 
+    It suggests that factors other than Weeping Mulla Mulla sightings 
+    might affect visitor patterns.
 
 In conclusion, the findings in this report affirm that the **Weeping
 Mulla Mulla** is an exceptionally unique and endemic plant, exclusively
@@ -1461,10 +1463,12 @@ the eco-tourism potential of this plant remains relatively unexplored.
     29, 2023, from
     https://florabase.dbca.wa.gov.au/browse/profile.php/2704
 -   **The Atlas of Living Australia**. Ptilotus calostachyus
-    F.Muell.Retrieved September 27, 2023, from
+    F.Muell. Retrieved September 27, 2023, from
     https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#
     overview
-
+-   **Tourism NT**. Annual Report 2015-16. Retrieved October 26, 2023, from
+    https://parliament.nt.gov.au/__data/assets/pdf_file/0005/385952/185.-Annual-Report-2015-2016,-Tourism-NT.pdf
+    
 ### Packages
 
 -   **cowplot**: Wilke C (2020). *cowplot: Streamlined Plot Theme and
