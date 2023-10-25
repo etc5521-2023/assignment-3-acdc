@@ -1419,17 +1419,36 @@ several key expectations:
     **Weeping Mulla Mulla** as a desert plant that thrives without
     relying heavily on water.
     
-6. **Tourism Pattern to Weeping Mulla Mulla area**: 
+6. **Tourism Peak Seasons**: Examining the Barkly region's tourism patterns 
+  in detail, particularly in the area surrounding Tennant Creek Airport, 
+  reveals that visitors vary over time. Quarter 3 of 2003 has a noteworthy high, 
+  whereas some quarters—like Q1 2022—recorded zero tourists. 
+  Additional information gleaned from the quarterly analysis suggests 
+  possible seasonal trends. Considering Barkly's desert terrain and the 
+  temperature data from nearby weather stations, it seems that Q3's 
+  cooler temperatures provide a more enticing window of time for visitors. 
+  In addition, our research indicates that the Barkly region is 
+  a popular destination for vacationers. 
 
-
-7. **Weeping Mulla Mulla Eco-Tourism**
+7. **Eco-tourism Insights**: Examining the potential association between 
+  sightings of Weeping Mulla Mulla and eco-tourism, the study is unable to 
+  find proof of a direct connection. According to the data research, 
+  even areas where there are a lot of reports of Weeping Mulla Mulla sightings 
+  may not necessarily draw in more visitors. An in-depth geographical examination, 
+  comparing the number of Weeping Mulla Mulla sightings with 
+  the number of tourists in various locations, validates this finding. 
+  It suggests that factors other than Weeping Mulla Mulla sightings 
+  might affect visitor patterns.
 
 In conclusion, the findings in this report affirm that the **Weeping
 Mulla Mulla** is an exceptionally unique and endemic plant, exclusively
 located in the northern regions of Australia. Tourists seeking to
 experience the harsh desert climate can observe it at its peak during
 the months of March to October. This desert plant thrives with minimal
-water requirements for survival.
+water requirements for survival. In addition, while the Barkly region attracts 
+tourists for various reasons, the presence of the Weeping Mulla Mulla doesn't 
+significantly influence tourist numbers. Despite its uniqueness, 
+the eco-tourism potential of this plant remains relatively unexplored.
 
 ## References
 
