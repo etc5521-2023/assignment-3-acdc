@@ -1091,10 +1091,10 @@ behind why it is a popular place to visit in Q3 (according to figure (@fig-plots
 In the graph below, we will try to prove our intuiton by utilising the weather 
 station data that has temperature data.
 
-```{r trend, warning = FALSE, message = FALSE , echo=FALSE}
+```{r quarterly-tourism, warning = FALSE, message = FALSE , echo =FALSE}
 
 #| label: fig-plots14
-#| fig-cap: "Quarterly Average Temperature (Barkly))"
+#| fig-cap: "Quarterly Tourism Number (Barkly))"
 #| fig-align: center
 #| echo: false
 
@@ -1139,9 +1139,34 @@ qtr_temp <- tca_cb %>% face_temporal() %>%
                       plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10),
                       aspect.ratio = 0.5)
 
-grid.arrange(qtr_tourism, qtr_temp, ncol = 2) 
-
 ```
+
+```{r Qyarterly-temp, warning = FALSE, message = FALSE , echo =FALSE}
+#| label: fig-plots15
+#| fig-cap: "Quarterly Average Temperature (Barkly))"
+#| fig-align: center
+#| echo: false
+
+
+qtr_temp <- tca_cb %>% face_temporal() %>%
+              select(id, date, Month, Quarter, Year, avg_tmp) %>%
+              na.omit() %>%
+              ggplot(aes(x = date, y = avg_tmp, group = 1)) +
+                geom_line(size = 1, color = "honeydew4") +
+                geom_smooth(method = "loess", se = FALSE, color = "black") +
+                facet_wrap(~ Quarter) +
+                ggtitle(label = "Quarterly Average Temperature",
+                        subtitle = "Region : Barkly") +
+                labs(x = "Date",
+                     y = "Avg. Temperature") +
+                theme_classic() +
+                theme(plot.title = element_text(hjust=0.5, face = "bold"),
+                      plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10),
+                      aspect.ratio = 0.5)
+
+grid.arrange(qtr_tourism, qtr_temp, ncol = 2)
+```
+
 
 **Discussion**
 
@@ -1151,7 +1176,7 @@ visiting Barkly, followed by Q2 with more than 250('000) people,
 Q4 with just below 250('000) people, and last, Q1 with just above than 
 100('000) people.
 
-- The right graph in (@fig-plots14) depicts the average temperature trends 
+- The right graph in (@fig-plots15) depicts the average temperature trends 
 around Barkly region for each quarter. As can be seen that Q1 and Q4 
 temperature share a pretty similar range of temperature with around 
 30 Celsius degree, while Q2 and Q3 hover around a cooler 20 Celsius degree. 
@@ -1177,7 +1202,7 @@ to do in Barkly region, helping us to shape our understanding towards
 this analysis in general. The graph below will provide us with such information.
 
 ```{r quarter-trend, warning = FALSE ,  message = FALSE}
-#| label: fig-plots15
+#| label: fig-plots16
 #| fig-cap: "Temporal Trends by Quarter for Different Purposes (Barkly))"
 #| #| fig-align: center
 #| echo: false
@@ -1208,7 +1233,7 @@ temporal_plotly
 
 **Discussion**
 
-According to the (@fig-plots15) above, it's evident that all the graphs 
+According to the (@fig-plots16) above, it's evident that all the graphs 
 representing different trip purposes display a fluctuating trend, consistent 
 with the (@fig-plots14) graph. It seems like "Holiday" experienced the most 
 fluctuation, with "Other" is the most steady. From the quantity perspective, 
