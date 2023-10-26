@@ -28,10 +28,10 @@ library(rmapshaper)
 library(zoo)
 library(cubble)
 library(gridExtra)
+library(DT)
 ```
 
 ::: {style="text-align: justify;"}
-
 ## Introduction
 
 The *Ptilotus calostachyus F.Muell*, which is also known as the
@@ -90,7 +90,7 @@ may lead to gaps in the dataset.
 
 ## Data description
 
-### Species data
+### Occurences data
 
 Below is the code to download the raw data directly from *ALA Atlas of
 Living Australia*.
@@ -178,39 +178,7 @@ dictionary <- data.frame(
 kable(dictionary, format = "markdown", caption = "**Data Dictionary for the Weeping Mulla Mulla dataset**")
 ```
 
-### Data cleaning
-
-As mentioned earlier, only location and event time variables
-significantly contribute to the analysis. Methods for selecting and
-renaming variables, extracting time variables from the date, and
-removing unnecessary strings and missing values were applied before
-saving a clean version for further analysis. The code for data cleaning
-can be referred to below:
-
-```{r species-data-cleaning , message=FALSE, warning=FALSE}
-weeping_mulla_mulla <- storage %>%
-  select(decimalLongitude, decimalLatitude, eventDate, cl959) %>%
-  rename(longitude = decimalLongitude,
-         latitude = decimalLatitude,
-         lga = cl959) %>%
-  mutate(
-    eventDate = as.Date(eventDate),
-    Year = lubridate::year(eventDate),
-    Month = lubridate::month(eventDate),
-    monthName = lubridate::month(eventDate, label = TRUE, abbr = TRUE),
-    Day = lubridate::day(eventDate),
-    lga = str_remove(lga, "\\(.*")
-  ) %>%
-  filter(!is.na(eventDate)) %>%
-  filter(!is.na(longitude)) 
-save(weeping_mulla_mulla, file = ("data/weeping_mulla_mulla.rda"))
-```
-
-## Initial data analysis
-
 ### Weather data
-
-#### **Obtaining weather station data**
 
 The distribution of the **Weeping Mulla Mulla** commonly spans the local
 government areas (LGAs) of Ashburton, Broome, Derby-West Kimberley, East
@@ -239,7 +207,156 @@ aus_stations <- ghcnd_stations() |>
   select(-data) 
 ```
 
-Next, when filtering the weather stations to be within the vicinity of
+| Variables | Description                                                                         |
+|------------------------------------|------------------------------------|
+| id        | An identifier associated with a specific station.                                   |
+| latitude  | The latitude (in decimal degrees) of the station's location.                        |
+| longitude | The longitude (in decimal degrees) of the station's location.                       |
+| elevation | The elevation (in meters) of the station's location.                                |
+| name      | The name or description of the station.                                             |
+| wmo_id    | The World Meteorological Organization (WMO) identifier associated with the station. |
+
+: **Data Dictionary for the All AU Weather Station**
+
+#### Obtaining weather data for Tennant Creek
+
+The code for obtaining precipitation, maximum temperature, and minimum
+temperature data for Tennant Creek is provided below by filtering using
+the station ID ASN00015135:
+
+```{r, warning=FALSE, message=FALSE}
+tennant_creek_airport <- aus_stations |>
+  filter(id == "ASN00015135") |>
+  rowwise() |>
+  mutate(ts = list(meteo_pull_monitors(
+    monitors = id, var = c("PRCP", "TMAX", "TMIN"),
+    date_min = "2004-01-01",
+    date_max = "2023-09-13") |>
+      select(-id))) |>
+  rename(lat = latitude, long = longitude, elev = elevation) |> 
+  select(id, long, lat, elev, name, wmo_id, ts) %>%
+  unnest(ts) |>
+  mutate(tmax = tmax/10, tmin = tmin/ 10)
+```
+
+| Variables | Description                                                                          |
+|------------------------------------|------------------------------------|
+| id        | An identifier associated with a specific location or station.                        |
+| long      | The longitude (in decimal degrees) of the location.                                  |
+| lat       | The latitude (in decimal degrees) of the location.                                   |
+| elev      | The elevation (in meters) of the location.                                           |
+| name      | The name or description of the location or station.                                  |
+| wmo_id    | The World Meteorological Organization (WMO) identifier associated with the location. |
+| date      | The date of the recorded weather data.                                               |
+| prcp      | Precipitation amount.                                                                |
+| tmax      | Maximum temperature.                                                                 |
+| tmin      | Minimum temperature.                                                                 |
+
+: **Data Dictionary for the Tennant Creek Weather Station**
+
+### Tourism Data
+
+We are going to extend our focus beyond the mere observation of this
+wild flower by looking into the tourism activities within its habitat.
+Leveraging data sourced from Tourism Research Australia (TRA), our
+objective is to discern whether the tourist activities have played a
+role in the number of Weeping Mulla Mulla sightings. In doing so, there
+are some steps that have to be done to combine the occurence information
+and the tourism activities.
+
+As we have been given the tourism dataset, below is the code and the
+table containing all variables in this data:
+
+```{r tourism}
+load("data/tourism.rda")
+```
+
+| Variables | Description                                                                       |
+|------------------|------------------------------------------------------|
+| Quarter   | The Year and Quarter when the trips happened                                      |
+| Region    | The Region where the people going to. Region is equivalent to Statistical Area 2. |
+| Purpose   | The reason of the trips (Business, Holiday, Other).                               |
+| Trips     | Number of people doing the trip.                                                  |
+
+: **Data Dictionary for the Tourism Data**
+
+## Initial data analysis
+
+### Occurences Data
+
+#### Data cleaning
+
+For Occurence Data, only location and event time variables significantly
+contribute to the analysis. Methods for selecting and renaming
+variables, extracting time variables from the date, and removing
+unnecessary strings and missing values were applied before saving a
+clean version for further analysis. The code for data cleaning can be
+referred to below:
+
+```{r species-data-cleaning , message=FALSE, warning=FALSE}
+weeping_mulla_mulla <- storage %>%
+  select(decimalLongitude, decimalLatitude, eventDate, cl959) %>%
+  rename(longitude = decimalLongitude,
+         latitude = decimalLatitude,
+         lga = cl959) %>%
+  mutate(
+    eventDate = as.Date(eventDate),
+    Year = lubridate::year(eventDate),
+    Month = lubridate::month(eventDate),
+    monthName = lubridate::month(eventDate, label = TRUE, abbr = TRUE),
+    Day = lubridate::day(eventDate),
+    lga = str_remove(lga, "\\(.*")
+  ) %>%
+  filter(!is.na(eventDate)) %>%
+  filter(!is.na(longitude)) 
+save(weeping_mulla_mulla, file = ("data/weeping_mulla_mulla.rda"))
+```
+
+#### Checking data quality (Weeping Mulla Mulla)
+
+We will be using `visdat` library to check for data type errors
+
+```{r message=FALSE, warning=FALSE}
+#| label: fig-plots1
+#| fig-cap: "vis_dat() results of weeping_mulla_mulla"
+#| fig-align: center
+#| echo: false
+vis_dat(weeping_mulla_mulla)
+```
+
+**Discussion**
+
+In @fig-plots1, the result of `visdat` does not signify any anomalies
+that needed to be addressed before proceeding with further analysis.
+
+```{r message=FALSE, warning=FALSE}
+#| label: fig-plots2
+#| fig-cap: "vis_guess() results of weeping_mulla_mulla"
+#| fig-align: center
+#| echo: false
+vis_guess(weeping_mulla_mulla)
+```
+
+**Discussion**
+
+In @fig-plots2, `vis_guess` shows that the *longitude* and *latitude*
+columns both have a record with potentially integer coordinates entry.
+While this is a sign of rounding given that the coordinates span from a
+length of values with 5 decimal places precision, we believe this value
+does not need any alterations as sighting coordinates span across a very
+wide geographical area, making rounding to the nearest whole number (1.0
+degree is 111 kilometers) insignificant in our spatial analysis.
+
+### Weather Data
+
+From the initial weather data that we extracted using rnoaa package, We
+obtained data for all weather stations across Australia. This is too
+broad for our analysis, also the sightings of Weeping Mulla Mulla are
+not even recorded in all parts of Australia. Therefore, some data
+transformation are needed. We will filter out the location where Weeping
+Mulla Mulla are recorded to make the analysis more precise.
+
+When filtering the weather stations to be within the vicinity of
 **Weeping Mulla Mulla**, it becomes evident that the **Weeping Mulla
 Mulla** is found in the vicinity of 42 weather stations.
 
@@ -328,30 +445,12 @@ weeping_mulla_mulla %>%
                    radius = 5)
 ```
 
-#### **Obtaining weather data for Tennant Creek**
+#### Transforming Weather Station Data
 
-The code for obtaining precipitation, maximum temperature, and minimum
-temperature data for Tennant Creek is provided below by filtering using
-the station ID ASN00015135:
-
-```{r, warning=FALSE, message=FALSE}
-tennant_creek_airport <- aus_stations |>
-  filter(id == "ASN00015135") |>
-  rowwise() |>
-  mutate(ts = list(meteo_pull_monitors(
-    monitors = id, var = c("PRCP", "TMAX", "TMIN"),
-    date_min = "2004-01-01",
-    date_max = "2023-09-13") |>
-      select(-id))) |>
-  rename(lat = latitude, long = longitude, elev = elevation) |> 
-  select(id, long, lat, elev, name, wmo_id, ts) %>%
-  unnest(ts) |>
-  mutate(tmax = tmax/10, tmin = tmin/ 10)
-```
-
-#### **Transforming Weather Station Data**
-
-The code below will add some new variables to the data that will be utilised in the analysis in later part. The new variables was created to extract Year, Quarter, and Month from the date of weather report, also we added a new variable to get the daily average temperature.
+The code below will add some new variables to the data that will be
+utilised in the analysis in later part. The new variables was created to
+extract Year, Quarter, and Month from the date of weather report, also
+we added a new variable to get the daily average temperature.
 
 ```{r Weather-station , message=FALSE, warning=FALSE}
 
@@ -366,7 +465,6 @@ tca_cb <- as_cubble(as_tibble(tca),
                     index = date,
                     coords = c(long, lat))
 ```
-
 
 **Tennant Creek in Barkly Region**
 
@@ -394,45 +492,10 @@ temperature <- tennant_creek_airport %>%
 save(temperature, file = ("data/temperature.rda"))
 ```
 
-### Checking data quality (Weeping Mulla Mulla)
+#### Checking data quality (Temperature)
 
-We will be using `visdat` library to check for data type errors
-
-```{r message=FALSE, warning=FALSE}
-#| label: fig-plots1
-#| fig-cap: "vis_dat() results of weeping_mulla_mulla"
-#| fig-align: center
-#| echo: false
-vis_dat(weeping_mulla_mulla)
-```
-
-**Discussion**
-
-In @fig-plots1, the result of `visdat` does not signify any anomalies
-that needed to be addressed before proceeding with further analysis.
-
-```{r message=FALSE, warning=FALSE}
-#| label: fig-plots2
-#| fig-cap: "vis_guess() results of weeping_mulla_mulla"
-#| fig-align: center
-#| echo: false
-vis_guess(weeping_mulla_mulla)
-```
-
-**Discussion**
-
-In @fig-plots2, `vis_guess` shows that the *longitude* and *latitude*
-columns both have a record with potentially integer coordinates entry.
-While this is a sign of rounding given that the coordinates span from a
-length of values with 5 decimal places precision, we believe this value
-does not need any alterations as sighting coordinates span across a very
-wide geographical area, making rounding to the nearest whole number (1.0
-degree is 111 kilometers) insignificant in our spatial analysis.
-
-### Checking data quality (Temperature)
-
-Similarly, we will be using `visdat` library to check for data type
-errors
+Similarly to Occurence Data, we will be using `visdat` library to check
+for data type errors
 
 ```{r message=FALSE, warning=FALSE}
 #| label: fig-plots98
@@ -473,39 +536,29 @@ The modified temperature data has been updated.
 
 ### Tourism Data
 
-We are going to extend our focus beyond the mere observation of this
-wild flower by looking into the tourism activities within its habitat.
-Leveraging data sourced from Tourism Research Australia (TRA), our objective
-is to discern whether the tourist activities have played a role in the
-number of Weeping Mulla Mulla sightings. In doing so, there are some
-steps that have to be done to combine the occurence information and the
-tourism activities.
+As we will analyse the correlation between Tourism and Occurence
+(sightings), it will be best to join these two datasets. By joining
+these two datasets, we will be able to perform temporal and spatial
+analysis. Temporal and spatial analysis will be helpful to perform since
+it will reveal seasonal variation, long-term trends, short-term
+fluctuations, identifying hotspots, and causality.
 
-#### Loading Tourism Data
+#### Join the Tourism Data with Occurences Data
 
-As we have been given the tourism dataset, below is the table containing
-some variables in this data:
-
-```{r tourism}
-load("data/tourism.rda")
-```
-
-| Variables | Description                                                                        |
-|-------------|-----------------------------------------------------------|
-| Quarter   | The Year and Quarter when the trips happened                                       |
-| Region    | The Region where the people going to. Region is equivalent to Statistical Area 2.  |
-| Purpose   | The reason of the trips (Business, Holiday, Other).                                |
-| Trips     | Number of people doing the trip.                                                   |
-
-: Tourism Data
-
-#### Join the Occurences Data with Tourism Data
-
-To join these two dataset, we are planning to use the spatial and temporal data that is contained in each dataset as the join condition. We are going to start the preparation for temporal variables before we move to spatial variables. Hence, in the next section the order will be temporal then spatial.
+To join these two datasets, we are planning to use the spatial and
+temporal data that is contained in each dataset as the join condition.
+We are going to start the preparation for temporal variables before we
+move to spatial variables. Hence, in the next section the order will be
+temporal then spatial.
 
 ##### Preparation for the Temporal Data
 
-The temporal variables between Occurences and Tourism data are represented by `eventDate` and `Quarter` variables, respectively. As both of these variables are in different format, we are going to transform one of them to enable the join process later. In this case, we are going to break down the `eventDate` variable into year & quarter format.
+The temporal variables between Occurences and Tourism data are
+represented by `eventDate` and `Quarter` variables, respectively. As
+both of these variables are in different format, we are going to
+transform one of them to enable the join process later. In this case, we
+are going to break down the `eventDate` variable into year & quarter
+format.
 
 ```{r temporal-data, message=FALSE, warning=FALSE}
 
@@ -514,12 +567,25 @@ weeping_mulla_mulla <- weeping_mulla_mulla %>%
                                  Year_Quarter = tsibble::yearquarter(eventDate)) 
 ```
 
-
 ##### Preparation for the Spatial Data
 
-As we know, the spatial variables between Tourism and Occurences data are presented by `Region` and `longitude` & `latitude`, respectively. It is not possible to just join the data based on the value of these variables, so some data transformations are needed. Looking at the extraction code (given) for Tourism data and researching TRA's website [here](https://www.tra.gov.au/en/regional/tourism-regions.html), we have got the idea that `Region` variable is the area level of the Statistical Area 2 (SA2). The SA2 is part of the main structure of the Australian Statistical Geography Standard (ASGS) Edition 3, meaning we can use its shapefile and extract the geometry of every region in Australia (which contain longitude & latitude values). We will match the `geometry` in the SA2 data with `longitude` & `latitude` in the Occurences dataset to get the SA2 region name of each sighting. The code below will provide the step-by-step of the extraction process.
+As we know, the spatial variables between Tourism and Occurences data
+are presented by `Region` and `longitude` & `latitude`, respectively. It
+is not possible to just join the data based on the value of these
+variables, so some data transformations are needed. Looking at the
+extraction code (given) for Tourism data and researching TRA's website
+[here](https://www.tra.gov.au/en/regional/tourism-regions.html), we have
+got the idea that `Region` variable is the area level of the Statistical
+Area 2 (SA2). The SA2 is part of the main structure of the Australian
+Statistical Geography Standard (ASGS) Edition 3, meaning we can use its
+shapefile and extract the geometry of every region in Australia (which
+contain longitude & latitude values). We will match the `geometry` in
+the SA2 data with `longitude` & `latitude` in the Occurences dataset to
+get the SA2 region name of each sighting. The code below will provide
+the step-by-step of the extraction process.
 
-```{r shapefile , warning = FALSE, message = FALSE}
+```{r shapefile , include = FALSE, warning = FALSE, message = FALSE}
+
 # Get shapefile
 AU_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")) %>%
   ms_simplify(keep = 0.1) %>%
@@ -530,7 +596,10 @@ AU_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GD
          "region" = SA2_NAME21,
          "sa2_code21" = SA2_CODE21)
 
+# this workaround is done because the message "Reading layer `SA2_2021_AUST_GDA2020' from data source ..." do not go away even if we use warning or message = false. So we put include = FALSE to solve this.
+```
 
+```{r}
 # Converting Occurences data to a sf object
 wmm_sf <- weeping_mulla_mulla %>%
   st_as_sf(coords = c("longitude", "latitude"),
@@ -548,7 +617,11 @@ wmm_region <-
 
 ##### Join Temporal and Spatial Data
 
-Now, our Occurence data has matching region name with the region in the Tourism data, we also have transformed the format for temporal variables. Finally, We can start to join the temporal and spatial variables between these two datasets.
+Now, our Occurence data has matching region name with the region in the
+Tourism data, we also have transformed the format for temporal
+variables. Finally, We can start joining the temporal and spatial
+variables between these two datasets.
+
 ```{r joined_data, warning = FALSE, message = FALSE}
 # Finalising joined occurences & tourism weeping mulla mulla data
 wmm_tourism <- wmm_region %>%
@@ -565,10 +638,17 @@ wmm_tourism_dg <- wmm_tourism %>%
                     
 ```
 
-
 ## Exploratory data analysis
 
-### Spatial expectation
+### The Analysis of Our Expectations
+
+In this section, we are going to analyse the data based on the
+expectations that we have set earlier in the report. We will answer
+those expectations through visual representation in order to help faster
+the process of understanding. Each of the analysis will be completed
+with discussion points that extracted from our analysis.
+
+#### Spatial expectation
 
 To evaluate the spatial distribution of the species, a method involving
 the use of a map to pinpoint locations was employed. This was achieved
@@ -617,16 +697,16 @@ Most of the sightings are clustered in the northern regions of Western
 Australia, aligning with expectations. Notably, there are no sightings
 in the southern areas of Western Australia, including the city of Perth.
 
-### Temporal expectation
+#### Temporal expectation
 
 To assess the temporal occurrences of the species, the same method of
 using a map to pinpoint locations was employed. However, an additional
 step was introduced, involving the segmentation of the data by month to
 distribute the results throughout the year.
 
-The initial expectation was that the **Weeping Mulla Mulla** would
-exhibit a higher frequency of observations from March to October
-("Active" months).
+The initial expectation was that the Weeping Mulla Mulla would exhibit a
+higher frequency of observations from March to October ("Active"
+months).
 
 The map (@fig-plots4) displaying the sightings by month validates this
 initial hypothesis, as there are fewer data points on the map in January
@@ -643,6 +723,9 @@ remain the primary clusters.
 #| fig-cap: "Weeping Mulla Mulla Sightings By Month"
 #| fig-align: center
 #| echo: false
+#| fig-width: 12
+#| fig-heigth: 6
+
 combined_plot +
   facet_wrap(~monthName, ncol = 6) +
   theme_void() +
@@ -703,7 +786,7 @@ for different `Month` periods ("*Active*" and "*Others*"). This means
 that the **Weeping Mulla Mulla** can still be found outside of their
 active months without being in specific area.
 
-### Trend expectation
+#### Trend expectation
 
 Since the data relies on human observation, it was anticipated that
 there might have been fewer sightings due to a lack of reporting.
@@ -745,7 +828,7 @@ wrapper <- weeping_mulla_mulla %>%
 ggplotly(wrapper)
 ```
 
-### Seasonality expectation
+#### Seasonality expectation
 
 To test whether our expectation that the **Weeping Mulla Mulla** becomes
 more active after rainfall seasons is accurate, we decided to plot the
@@ -788,7 +871,7 @@ thunderstorms and flooding, preventing casual observers to stumble upon
 these plants. Only August has high sighting occurrences, as the end of
 winter has milder downpours.
 
-### Habitat expectation
+#### Habitat expectation
 
 Given that the **Weeping Mulla Mulla** prefers stony and sandy
 environments, we expect the plants to be sighted near areas with
@@ -844,7 +927,15 @@ higher sightings. It is also interesting to see that these sightings
 were near the National 87 road, implying that these reports were made by
 passersby.
 
-### Precipitation and sighting annually
+### The Weather Analysis
+
+This section will cover the correlation between weather environment to
+the sightings of Weeping Mulla Mulla. We are going to analyse if there
+is any actual relationship between these two variables. We aim to spot
+the behaviour of Weeping Mulla Mulla towards environment condition.
+Let's find out!
+
+#### Precipitation and sighting annually
 
 The additional data from the `tenant creek airport` weather station
 allows us to investigate the relation between precipitation and sighting
@@ -885,11 +976,11 @@ rainplot <- temperature %>%
 rainplot
 ```
 
-From the @fig-plots10, we can see there are multiple gaps in the sighting
-of the **Weeping Mulla Mulla** from 2004 to 2023. This inconsistency can
-be explained by the lack of popularity of our plant species. As
-addressed above in the **Trend expectation** section, 2015 saw an
-abnormally high sighting count, despite a normal annual average
+From the @fig-plots10, we can see there are multiple gaps in the
+sighting of the **Weeping Mulla Mulla** from 2004 to 2023. This
+inconsistency can be explained by the lack of popularity of our plant
+species. As addressed above in the **Trend expectation** section, 2015
+saw an abnormally high sighting count, despite a normal annual average
 precipitation figure for that year, especially when there were no
 sighting records in 2013-2014. We can hypothesize a delayed effect of
 plant sightings where years with decreasing rainfall will be accompanied
@@ -904,7 +995,7 @@ sightings. Perhaps this is due to preference for dry weather of the
 plants; therefore, decreasing precips allow the **Weeping Mulla Mulla**
 to thrive better in constrast to being overwatered in wetter years.
 
-### Temperature and sightings
+#### Temperature and sightings
 
 Since the rainfall data did not signify any concrete answers, we decided
 to also investigate the daily average temperature and whether that date
@@ -1001,34 +1092,32 @@ that the mentality effect of *"the weather is getting warmer"* enables a
 greater inclination in people for outdoor ventures - increasing the
 sighting frequency of the plant.
 
+### Tourism Analysis
 
-### Tourism vs Occurences
+In this section, we aim to correlate the number of sightings of Weeping
+Mulla Mulla with the number of tourists in the area of the sightings. Is
+the number of sightings influenced by nearby tourism activities? Does
+the increasing number of visit resulted in increasing number of Weeping
+Mulla Mulla sightings? Let's explore the data that we have to understand
+that.
 
-In this section, we aim to correlate the number of sightings of 
-Weeping Mulla Mulla with the number of tourists in the area of the sightings. 
-Is the number of sightings influenced by nearby tourism activities? 
-Does the increasing number of visit resulted in increasing number of 
-Weeping Mulla Mulla sightings? Let's explore the data that we have to 
-understand that. 
+By continuing our earlier observations, we will now focus on the area
+with the most recorded sightings, which, as mentioned in the previous
+section, is close to the Tennant Creek Airport weather station. By
+utilizing data from Australian Bureau of Statistics of SA2, we
+identified that Tennant Creek Airport is located in the region of
+Barkly, Northern Territory.
 
-By continuing our earlier observations, we will now focus on the area with 
-the most recorded sightings, which, as mentioned in the previous section, 
-is close to the Tennant Creek Airport weather station. By utilizing data from 
-Australian Bureau of Statistics of SA2, we identified that Tennant Creek Airport 
-is located in the region of Barkly, Northern Territory. 
+Therefore, our subsequent analysis will concentrate solely on the Barkly
+region.
 
-Therefore, our subsequent analysis will concentrate solely on the Barkly region.
+#### Trend of Tourist Over Time
 
-#### Tourism Pattern
-
-Before we dive deep into the correlation analysis of occurrences and tourism,
-we would like to explore the tourism data. It is important to profile 
-this data first, as most of the time they provide a deeper understanding and 
-can sharpen our analysis later.
-
-##### Trend of Tourist Over Time 
-
-The chart below illustrates the trend of tourism in Barkly Region.
+Before we dive deep into the correlation analysis of occurrences and
+tourism, we would like to explore the tourism data. It is important to
+profile this data first, as most of the time they provide a deeper
+understanding and can sharpen our analysis later. The chart below
+illustrates the trend of tourism in Barkly Region.
 
 ```{r tourist-trend, warning = FALSE, message = FALSE }
 #| label: fig-plots13
@@ -1045,7 +1134,7 @@ time_series_plot <- tourism %>%
   geom_line(linewidth = 1, color = "aquamarine4", alpha = 0.5) +
   geom_point(size = 2, color = "maroon", aes(text = paste("Year & Quarter: ", Quarter, "<br>Total Trips ('000): ", Total_Trips))) +
   labs(x = "Year and Quarter",
-       y = "Total Trips") +
+       y = "Total Trips ('000)") +
   theme_classic() +
   theme(plot.title = element_text(hjust=0.5, face = "bold"),
           plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10))
@@ -1066,30 +1155,32 @@ interactive_time_series_plot
 
 **Discussion**
 
-The plot (@fig-plots13) shows the total number of tourist trips over time, 
-grouped by year and quarter. As can be seen, the trend fluctuates significantly 
-from year to year. Notably, Quarter 3 of 2003 saw the Barkly region record its 
-peak number of visits, while in contrast, Quarter 1 of 2022 and Quarter of 
-2018 have no visitor at all. This broad trend doesn't provide enough 
-granularity, making it challenging to identify any seasonality that might 
-yield insightful information. Hence, we will delve deeper into this temporal 
-analysis in order to get full understanding on tourism pattern of Barkly region. 
-
+The plot (@fig-plots13) shows the total number of tourist trips over
+time, grouped by year and quarter. As can be seen, the trend fluctuates
+significantly from year to year. Notably, Quarter 3 of 2003 saw the
+Barkly region record its peak number of visits, while in contrast,
+Quarter 1 of 2022 and Quarter of 2018 have no visitor at all. This broad
+trend doesn't provide enough granularity, making it challenging to
+identify any seasonality that might yield insightful information. Hence,
+we will delve deeper into this temporal analysis in order to get full
+understanding on tourism pattern of Barkly region.
 
 #### Temporal Trends by Quarter
 
-Let's explore the data further by looking at the trend on quarterly basis. 
-By considering quarter spectrum, here we will ignore the year component, we 
-will combine each quarter from all year into one. Through this approach, we are 
-hoping to reveal any pattern arises from the similarity of time.
+Let's explore the data further by looking at the trend on quarterly
+basis. By considering quarter spectrum, here we will ignore the year
+component, we will combine each quarter from all year into one. Through
+this approach, we are hoping to reveal any pattern arises from the
+similarity of time.
 
-The location of Barkly Region that is in the middle of the desert may also 
-have a contribution to the number of tourism. Our intuition define a desert area 
-will be very hot during summer, which make it a less suitable place to visit. 
-It will be more suitable in the other season, hence probably one of the factor 
-behind why it is a popular place to visit in Q3 (according to figure (@fig-plots13)). 
-In the graph below, we will try to prove our intuiton by utilising the weather 
-station data that has temperature data.
+The location of Barkly Region that is in the middle of the desert may
+also have a contribution to the number of tourism. Our intuition define
+a desert area will be very hot during summer, which make it a less
+suitable place to visit. It will be more suitable in the other season,
+hence probably one of the factor behind why it is a popular place to
+visit in Q3 (according to figure (@fig-plots13)). In the graph below, we
+will try to prove our intuiton by utilising the weather station data
+that has temperature data.
 
 ```{r quarterly-tourism, warning = FALSE, message = FALSE , echo =FALSE}
 
@@ -1152,46 +1243,46 @@ qtr_temp <- tca_cb %>% face_temporal() %>%
 grid.arrange(qtr_tourism, qtr_temp, ncol = 2)
 ```
 
-
 **Discussion**
 
 Some interesting insights that are shown in the plot above:
 
-- The left graph in (@fig-plots15) shows the number of tourism for each quarter, 
-it's evident that Q3 attracts the most tourists, with over 450,000 people 
-visiting Barkly, followed by Q2 with more than 250('000) people, 
-Q4 with just below 250('000) people, and last, Q1 with just above than 
-100('000) people.
+-   The left graph in (@fig-plots15) shows the number of tourism for
+    each quarter, it's evident that Q3 attracts the most tourists, with
+    over 450,000 people visiting Barkly, followed by Q2 with more than
+    250('000) people, Q4 with just below 250('000) people, and last, Q1
+    with just above than 100('000) people.
 
-- The right graph in (@fig-plots15) depicts the average temperature trends 
-around Barkly region for each quarter. As can be seen that Q1 and Q4 
-temperature share a pretty similar range of temperature with around 
-30 Celsius degree, while Q2 and Q3 hover around a cooler 20 Celsius degree. 
-This is align with the seasonal condition in Australia,
-where Q1 is the period of summer to fall (higher temperature), 
-Q2 is fall to winter (lower temperature), Q3 is winter to spring (lower temperature), 
-and Q4 is spring to summer (higher temperature).
+-   The right graph in (@fig-plots15) depicts the average temperature
+    trends around Barkly region for each quarter. As can be seen that Q1
+    and Q4 temperature share a pretty similar range of temperature with
+    around 30 Celsius degree, while Q2 and Q3 hover around a cooler 20
+    Celsius degree. This is align with the seasonal condition in
+    Australia, where Q1 is the period of summer to fall (higher
+    temperature), Q2 is fall to winter (lower temperature), Q3 is winter
+    to spring (lower temperature), and Q4 is spring to summer (higher
+    temperature).
 
-Based on above observations, it appears our initial assumption was accurate. 
-Given the desert landscape of Barkly, it's plausible that the milder 
-temperatures in Q3 make it a more attractive time for tourists. In contrast, 
-Q1 experienced the lowest number of tourism which potentially caused by higher 
-temperature to the area.   
-
+Based on above observations, it appears our initial assumption was
+accurate. Given the desert landscape of Barkly, it's plausible that the
+milder temperatures in Q3 make it a more attractive time for tourists.
+In contrast, Q1 experienced the lowest number of tourism which
+potentially caused by higher temperature to the area.
 
 #### Temporal Trends by Quarter for Different Purposes
 
-Now we are going to look at how the tourism activities varies across 
-multiple categories, including holidays, business activities, leisurely visits, 
-and other significant reasons. By looking at this spectrum, we will be able to 
-gain valuable insights into what sort of activities that visiters intended 
-to do in Barkly region, helping us to shape our understanding towards 
-this analysis in general. The graph below will provide us with such information.
+Now we are going to look at how the tourism activities varies across
+multiple categories, including holidays, business activities, leisurely
+visits, and other significant reasons. By looking at this spectrum, we
+will be able to gain valuable insights into what sort of activities that
+visiters intended to do in Barkly region, helping us to shape our
+understanding towards this analysis in general. The graph below will
+provide us with such information.
 
 ```{r quarter-trend, warning = FALSE ,  message = FALSE}
 #| label: fig-plots16
 #| fig-cap: "Temporal Trends by Quarter for Different Purposes (Barkly))"
-#| #| fig-align: center
+#| fig-align: center
 #| echo: false
 
 temporal_plot <- tourism %>%
@@ -1200,69 +1291,76 @@ temporal_plot <- tourism %>%
                   group_by(as.factor(Quarter), Purpose) %>%
                   summarise(sum_trips = sum(Trips)) %>%
                   ggplot(aes(x = Quarter, y = sum_trips)) +
-                  geom_line(size = 1) +
+                  geom_line(linewidth = 1, color = "aquamarine4") +
+                  geom_point(size = 2, color = "maroon", aes(text = paste("Year & Quarter: ", Quarter, "<br> Total Trips ('000): ", sum_trips))) +
+                  ggtitle(label = "Temporal Trends by Quarter for Different Purposes",
+                        subtitle = "Region : Barkly") +
                   labs(
-                    title = "Temporal Trends by Quarter for Different Purposes",
                     x = "Year and Quarter",
-                    y = "Trips",
+                    y = "Total Trips ('000)",
                     color = "Purpose"
                   ) +
                   theme_classic() +
                   facet_wrap(~ Purpose, scales = "free") +
                   scale_color_brewer(palette = "Set1") +
-                  geom_smooth(method = "loess", se = FALSE)
+                  geom_smooth(method = "loess", se = FALSE) +
+                  theme_classic() +
+                  theme(plot.title = element_text(hjust=0.5, face = "bold"),
+                        plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10),
+                        aspect.ratio = 0.5)
 
-# Creating an interactive version of the plot using plotly
-temporal_plotly <- ggplotly(temporal_plot)
-
-temporal_plotly
+temporal_plot                  
 ```
 
 **Discussion**
 
-According to the (@fig-plots16) above, it's evident that all the graphs 
-representing different trip purposes display a fluctuating trend, consistent 
-with the (@fig-plots15). It seems like "Holiday" experienced the most 
-fluctuation, with "Other" is the most steady. From the quantity perspective, 
-"Holiday" come out on top as the main reason, followed by "Business", 
-"Visiting", and "Other". From this graph, we can conclude the Barkly is one of 
-the popular destination when people decide where to spend their holiday to. 
-We are interested to determine if Weeping Mulla Mulla eco-tourism is one of 
-the a contributing factor to this trend.
+According to the (@fig-plots16) above, it's evident that all the graphs
+representing different trip purposes display a fluctuating trend,
+consistent with the (@fig-plots15). It seems like "Holiday" experienced
+the most fluctuation, with "Other" is the most steady. From the quantity
+perspective, "Holiday" come out on top as the main reason, followed by
+"Business", "Visiting", and "Other". From this graph, we can conclude
+the Barkly is one of the popular destination when people decide where to
+spend their holiday to. We are interested to determine if Weeping Mulla
+Mulla eco-tourism is one of the a contributing factor to this trend.
 
-In the next section, we will utilize all the information we gather around the 
-tourism trend in Barkly region to compare it with Occurrences dataset. Our goal
-is to determine if there is any specific eco-tourism related to Weeping 
-Mulla Mulla that may have contributed to the significant volume over the number
-of tourism into Barkly region. 
+In the next section, we will utilize all the information we gather
+around the tourism trend in Barkly region to compare it with Occurrences
+dataset. Our goal is to determine if there is any specific eco-tourism
+related to Weeping Mulla Mulla that may have contributed to the
+significant volume over the number of tourism into Barkly region.
 
 ### Weeping Mulla Mulla Eco-Tourism
 
-In this part, we will shift our focus into finding the correlation between the 
-sightings of Weeping Mulla Mulla with the number of tourism of Barkly region. We aim to see if the increasing number of tourist visit will also be followed by increasing number of Weeping Mulla Mulla sighting. We will expose any hinder pattern that could not be spotted just by looking at 
-the data separately. Let's unveil it!   
+In this part, we will shift our focus into finding the correlation
+between the sightings of Weeping Mulla Mulla with the number of tourism
+of Barkly region. We aim to see if the increasing number of tourist
+visit will also be followed by increasing number of Weeping Mulla Mulla
+sighting. We will expose any hinder pattern that could not be spotted
+just by looking at the data separately. Let's unveil it!
 
 #### Ecotourist interest in Weeping Mulla Mulla
 
-Before we employ data analysis to reveal any insights regarding this topic, 
-we perform a thorough research on the Weeping Mulla Mulla eco-tourism. 
-Unfortunately, after spending hours looking, there is no single information 
-leading us to any news/articles/announcements related to it, not even local 
-government website. There is no single advertisement by tour & travel 
-organisation that specifically offer an eco-tourism to Barkly region for 
-Weeping Mulla Mulla. As such, our analysis will be based on the data we have 
-on hand, aiming to discern any significant patterns.
+Before we employ data analysis to reveal any insights regarding this
+topic, we perform a thorough research on the Weeping Mulla Mulla
+eco-tourism. Unfortunately, after spending hours looking, there is no
+single information leading us to any news/articles/announcements related
+to it, not even local government website. There is no single
+advertisement by tour & travel organisation that specifically offer an
+eco-tourism to Barkly region for Weeping Mulla Mulla. As such, our
+analysis will be based on the data we have on hand, aiming to discern
+any significant patterns.
 
-We now move on into the data analysis part. Firstly, we narrow down the 
-necessary data related to eco-tourism interest of Weeping Mulla Mulla by 
-filtering out Trips with "Holiday" purpose only. We assume that people who 
-has spotted and reported the occurrences are on their vacation, hence the 
-selection of variable `Purpose` plays a role here.
+We now move on into the data analysis part. Firstly, we narrow down the
+necessary data related to eco-tourism interest of Weeping Mulla Mulla by
+filtering out Trips with "Holiday" purpose only. We assume that people
+who has spotted and reported the occurrences are on their vacation,
+hence the selection of variable `Purpose` plays a role here.
 
 ```{r Ecotourism, message = FALSE, warning = FALSE}
 #| label: fig-plots17
 #| fig-cap: "Correlation between Number of Tourist to Weeping Mulla Mulla Sightings (Barkly))"
-#| #| fig-align: center
+#| fig-align: center
 #| echo: false
 
 # Narrow down the trip purpose & Barkly Region
@@ -1295,24 +1393,26 @@ ggplotly(corr_plot, tooltip = "text") %>%
 
 **Discussion**
 
-Through a visual representation of number of tourist to number of sightings 
-from the (@fig-plots17), we can clearly see there is no correlation 
-between them. The increasing number of visitor to Barkly is not followed by 
-the increasing number of Weeping Mulla Mulla sightings. For instance, Quarter 3 
-of 2015, which recorded the top number of sightings, isn't even within the top 
-five quarters for tourist visits. In contrast, Quarter 3 of 2019, which had 
-the highest number of tourist visits, recorded only two sightings. This 
-indicates that Weeping Mulla Mulla observation potentially is not 
-one of the deciding factor people go to Barkly.
+Through a visual representation of number of tourist to number of
+sightings from the (@fig-plots17), we can clearly see there is no
+correlation between them. The increasing number of visitor to Barkly is
+not followed by the increasing number of Weeping Mulla Mulla sightings.
+For instance, Quarter 3 of 2015, which recorded the top number of
+sightings, isn't even within the top five quarters for tourist visits.
+In contrast, Quarter 3 of 2019, which had the highest number of tourist
+visits, recorded only two sightings. This indicates that Weeping Mulla
+Mulla observation potentially is not one of the deciding factor people
+go to Barkly.
 
-#### Ecotourist interest in Weeping Mulla Mulla
+#### Spatial Analysis of Tourism and Occurences
 
-Our current data doesn't provide enough support to solidify the connection 
-between Weeping Mulla Mulla and tourism number, and it remains inconclusive 
-whether the influx of visitors to Barkly was partially driven by 
-the prominence of the Weeping Mulla Mulla. A more detailed perspective 
-can be gained by examining the subsequent map, which will place 
-Weeping Mulla Mulla's sightings with the number of trips to multiple regions. 
+Our current data doesn't provide enough support to solidify the
+connection between Weeping Mulla Mulla and tourism number, and it
+remains inconclusive whether the influx of visitors to Barkly was
+partially driven by the prominence of the Weeping Mulla Mulla. A more
+detailed perspective can be gained by examining the subsequent map,
+which will place Weeping Mulla Mulla's sightings with the number of
+trips to multiple regions.
 
 ```{r barkly_map, warning=FALSE, message=FALSE ,echo = FALSE}
 # Mapping occurrences and trips to Weeping Mulla Mulla areas
@@ -1367,36 +1467,54 @@ map_p2 <- wmm_tourism %>%
 
 ```{r maparrange, warning=FALSE, message=FALSE ,echo = FALSE}
 #| label: fig-plots18
-#| fig-cap: "Mapping correlation between the Number of Tourist and Weeping Mulla Mulla Sightings (Barkly))"
-#| #| fig-align: center
+#| fig-cap: "Mapping correlation between the Number of Tourist and Weeping Mulla Mulla Sightings"
+#| fig-align: center
 #| echo: false
 
 grid.arrange(map_p2, map_p1, ncol = 2) 
 ```
 
+```{r table}
+#| label: tab-detail
+#| tbl-cap: "Table Detail of Tourism & Occurences"
+#| fig-align: center
+#| echo: false
+#| fig-width: 12
+#| fig-heigth: 10
+
+wmm_tourism_dg %>%
+    ungroup() %>%
+    filter(Purpose == "Holiday") %>%
+    mutate(Total_Sightings = sightings_tot) %>%
+    select(state, region, Year, Quarter, Trips, Purpose, Total_Sightings) %>%
+    DT::datatable(width = "100%", height = "50%", options = list(scrollX = TRUE))
+```
+
 **Discussion**
 
-Building on our prior discussion, the map in (@fig-plots18) offers an insightful visualisation
-of the relationship between Weeping Mulla Mulla occurrences and tourism numbers. 
-A bit different approach to previous analysis, in here, we are including 
-all regions that recording occurrence numbers. We did this because we want to see 
-if the data tells opposite fact when we consider other regions. 
-By utilising spatial analysis, it will provide holistic view and expedite 
-the understanding process. On the map visual itself, the left side is a map 
-of all regions where sightings are recorded, while on the right side is 
-just Barkly region only (our primary region).
+Building on our prior discussion, the map in (@fig-plots18) offers an
+insightful visualisation of the relationship between Weeping Mulla Mulla
+occurrences and tourism numbers. A bit different approach to previous
+analysis, in here, we are including all regions that recording
+occurrence numbers. We did this because we want to see if the data tells
+opposite fact when we consider other regions. By utilising spatial
+analysis, it will provide holistic view and expedite the understanding
+process. On the map visual itself, the left side is a map of all regions
+where sightings are recorded, while on the right side is just Barkly
+region only (our primary region).
 
-The map illustrates a prominent presence of Weeping Mulla Mulla 
-in the North-central areas of Western Australia and parts of the Northern Territory. 
-Notably, the regions with more number of tourist are presented with lighter color, 
-and the darker color represent fewer number of tourist. 
-As can be seen, the regions with higher number of tourism are not the regions 
-where the most sightings recorded. The number could just be contributed 
-from other essential factors, such as popular attractions, 
-infrastructural development, or easier accessibility. So, this spatial analysis supports 
-our previous analysis which could not see any correlation between these two events. 
-Ultimately, this also align with our research about Weeping Mulla Mulla eco-tourism which gave us no information.   
-
+The map illustrates a prominent presence of Weeping Mulla Mulla in the
+North-central areas of Western Australia and parts of the Northern
+Territory. Notably, the regions with more number of tourist are
+presented with lighter color, and the darker color represent fewer
+number of tourist. As can be seen, the regions with higher number of
+tourism are not the regions where the most sightings recorded. The
+number could just be contributed from other essential factors, such as
+popular attractions, infrastructural development, or easier
+accessibility. So, this spatial analysis supports our previous analysis
+which could not see any correlation between these two events.
+Ultimately, this also align with our research about Weeping Mulla Mulla
+eco-tourism which gave us no information.
 
 ## Summary
 
@@ -1437,36 +1555,39 @@ several key expectations:
     downpours. This observation aligns with the inherent nature of the
     **Weeping Mulla Mulla** as a desert plant that thrives without
     relying heavily on water.
-    
-6. **Tourism Peak Seasons**: Examining the Barkly region's tourism patterns 
-    in detail, particularly in the area surrounding Tennant Creek Airport, 
-    reveals that visitors vary over time. Quarter 3 of 2003 has a noteworthy high, 
-    whereas some quarters—like Q1 2022—recorded zero tourists. 
-    Additional information gleaned from the quarterly analysis suggests 
-    possible seasonal trends. Considering Barkly's desert terrain and the 
-    temperature data from nearby weather stations, it seems that Q3's 
-    cooler temperatures provide a more enticing window of time for visitors. 
-    In addition, our research indicates that the Barkly region is 
-    a popular destination for vacationers. 
 
-7. **Eco-tourism Insights**: Examining the potential association between 
-    sightings of Weeping Mulla Mulla and eco-tourism, the study is unable to 
-    find proof of a direct connection. According to the data research, 
-    even areas where there are a lot of tourist visit did not resulted in higher number of sightings. An in-depth geographical examination, 
-    comparing the number of Weeping Mulla Mulla sightings with 
-    the number of tourists in various locations, validates this finding. 
-    It suggests that factors other than Weeping Mulla Mulla sightings 
-    might affect visitor patterns.
+6.  **Tourism Peak Seasons**: Examining the Barkly region's tourism
+    patterns in detail, particularly in the area surrounding Tennant
+    Creek Airport, reveals that visitors vary over time. Quarter 3 of
+    2003 has a noteworthy high, whereas some quarters---like Q1
+    2022---recorded zero tourists. Additional information gleaned from
+    the quarterly analysis suggests possible seasonal trends.
+    Considering Barkly's desert terrain and the temperature data from
+    nearby weather stations, it seems that Q3's cooler temperatures
+    provide a more enticing window of time for visitors. In addition,
+    our research indicates that the Barkly region is a popular
+    destination for vacationers.
+
+7.  **Eco-tourism Insights**: Examining the potential association
+    between sightings of Weeping Mulla Mulla and eco-tourism, the study
+    is unable to find proof of a direct connection. According to the
+    data research, even areas where there are a lot of tourist visit did
+    not resulted in higher number of sightings. An in-depth geographical
+    examination, comparing the number of Weeping Mulla Mulla sightings
+    with the number of tourists in various locations, validates this
+    finding. It suggests that factors other than Weeping Mulla Mulla
+    sightings might affect visitor patterns.
 
 In conclusion, the findings in this report affirm that the **Weeping
 Mulla Mulla** is an exceptionally unique and endemic plant, exclusively
 located in the northern regions of Australia. Tourists seeking to
 experience the harsh desert climate can observe it at its peak during
 the months of March to October. This desert plant thrives with minimal
-water requirements for survival. In addition, while the Barkly region attracts 
-tourists for various reasons, the presence of the Weeping Mulla Mulla doesn't 
-significantly influence tourist numbers. Despite its uniqueness, 
-the eco-tourism potential of this plant remains relatively unexplored.
+water requirements for survival. In addition, while the Barkly region
+attracts tourists for various reasons, the presence of the Weeping Mulla
+Mulla doesn't significantly influence tourist numbers. Despite its
+uniqueness, the eco-tourism potential of this plant remains relatively
+unexplored.
 
 ## References
 
@@ -1478,13 +1599,14 @@ the eco-tourism potential of this plant remains relatively unexplored.
 -   **Florabase**, Ptilotus calostachyus F.Muell., Retrieved September
     29, 2023, from
     https://florabase.dbca.wa.gov.au/browse/profile.php/2704
--   **The Atlas of Living Australia**. Ptilotus calostachyus
-    F.Muell. Retrieved September 27, 2023, from
+-   **The Atlas of Living Australia**. Ptilotus calostachyus F.Muell.
+    Retrieved September 27, 2023, from
     https://bie.ala.org.au/species/https://id.biodiversity.org.au/node/apni/2910906#
     overview
--   **Tourism NT**. Annual Report 2015-16. Retrieved October 26, 2023, from
-    https://parliament.nt.gov.au/__data/assets/pdf_file/0005/385952/185.-Annual-Report-2015-2016,-Tourism-NT.pdf
-    
+-   **Tourism NT**. Annual Report 2015-16. Retrieved October 26, 2023,
+    from
+    https://parliament.nt.gov.au/\_\_data/assets/pdf_file/0005/385952/185.-Annual-Report-2015-2016,-Tourism-NT.pdf
+
 ### Packages
 
 -   **cowplot**: Wilke C (2020). *cowplot: Streamlined Plot Theme and
@@ -1523,21 +1645,31 @@ the eco-tourism potential of this plant remains relatively unexplored.
     Frames." *JOSS*, *2*(16), 355. doi:10.21105/joss.00355
     https://doi.org/10.21105/joss.00355,
     http://dx.doi.org/10.21105/joss.00355.
--   **tsibble**: Wang, E, D Cook, and RJ Hyndman (2020). A new tidy data structure to
-  support exploration and modeling of temporal data, Journal of
-  Computational and Graphical Statistics, 29:3, 466-478,
-  doi:10.1080/10618600.2019.1695624.  
--   **lubridate**: Garrett Grolemund, Hadley Wickham (2011). Dates and Times Made Easy
-  with lubridate. Journal of Statistical Software, 40(3), 1-25. URL
-  https://www.jstatsoft.org/v40/i03/.  
--   **sf**: Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman and Hall/CRC.
-https://doi.org/10.1201/9780429459016
--   **rmapshaper**: Teucher A, Russell K (2023). _rmapshaper: Client for 'mapshaper' for 'Geospatial' Operations_. R package version 0.5.0,
-  <https://CRAN.R-project.org/package=rmapshaper>.
--   **zoo**: Zeileis A, Grothendieck G (2005). “zoo: S3 Infrastructure for Regular and Irregular Time Series.” _Journal of Statistical Software_, *14*(6), 1-27. doi:10.18637/jss.v014.i06 <https://doi.org/10.18637/jss.v014.i06>.
--   **cubble**: Zhang H, Cook D, Laa U, Langrené N, Menéndez P (2023). _cubble: A Vector Spatio-Temporal Data Structure for
-  Data Analysis_. R package version 0.3.0, <https://github.com/huizezhang-sherry/cubble>.
--   **gridExtra**: Auguie B (2017). _gridExtra: Miscellaneous Functions for "Grid" Graphics_. R package version 2.3,
-  <https://CRAN.R-project.org/package=gridExtra>.
-
+-   **tsibble**: Wang, E, D Cook, and RJ Hyndman (2020). A new tidy data
+    structure to support exploration and modeling of temporal data,
+    Journal of Computational and Graphical Statistics, 29:3, 466-478,
+    doi:10.1080/10618600.2019.1695624.\
+-   **lubridate**: Garrett Grolemund, Hadley Wickham (2011). Dates and
+    Times Made Easy with lubridate. Journal of Statistical Software,
+    40(3), 1-25. URL https://www.jstatsoft.org/v40/i03/.\
+-   **sf**: Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With
+    Applications in R. Chapman and Hall/CRC.
+    https://doi.org/10.1201/9780429459016
+-   **rmapshaper**: Teucher A, Russell K (2023). *rmapshaper: Client for
+    'mapshaper' for 'Geospatial' Operations*. R package version 0.5.0,
+    <https://CRAN.R-project.org/package=rmapshaper>.
+-   **zoo**: Zeileis A, Grothendieck G (2005). "zoo: S3 Infrastructure
+    for Regular and Irregular Time Series." *Journal of Statistical
+    Software*, *14*(6), 1-27. doi:10.18637/jss.v014.i06
+    <https://doi.org/10.18637/jss.v014.i06>.
+-   **cubble**: Zhang H, Cook D, Laa U, Langrené N, Menéndez P (2023).
+    *cubble: A Vector Spatio-Temporal Data Structure for Data Analysis*.
+    R package version 0.3.0,
+    <https://github.com/huizezhang-sherry/cubble>.
+-   **gridExtra**: Auguie B (2017). *gridExtra: Miscellaneous Functions
+    for "Grid" Graphics*. R package version 2.3,
+    <https://CRAN.R-project.org/package=gridExtra>.
+-   **DT**: Xie Y, Cheng J, Tan X (2023). *DT: A Wrapper of the
+    JavaScript Library 'DataTables'*. R package version 0.28,
+    <https://CRAN.R-project.org/package=DT>.
 :::
