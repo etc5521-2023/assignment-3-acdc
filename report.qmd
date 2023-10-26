@@ -1404,6 +1404,35 @@ visits, recorded only two sightings. This indicates that Weeping Mulla
 Mulla observation potentially is not one of the deciding factor people
 go to Barkly.
 
+#### Visual Inference of Tourism & Sightings
+
+```{r}
+set.seed(20)
+
+ggplot(lineup(null_permute('sightings_tot'), wmm_tourism_holiday), aes(x = Trips, y = sightings_tot)) +
+              geom_point() +
+              facet_wrap(~ .sample, ncol = 5) +
+              theme_void() +
+              theme(axis.text = element_blank(), 
+                    panel.border = element_rect(fill=NA, colour="black"))
+```
+Null Hypothesis: There is no relationship between number of tourist visiting a certain region to the number of sightings of Weeping Mulla Mulla in that same region.
+
+The result for p-value
+
+x = 1 people
+
+n = 10 people
+
+p-value computation
+
+```{r}
+nullabor::pvisual(1,10,20)
+```
+
+From the computation, the p-value of correlation plot is 0.401 or 40.1%. Since it is more than 0.05 or 5% (significance level), then we will accept H0. This mean there is weak linear relationship between number of tourism and number of sightings. The majority of the participants in the survey expressed that identifying the most distinct plot from the selection is quite challenging due to the similarity in patterns among all of them.
+
+
 #### Spatial Analysis of Tourism and Occurences
 
 Our current data doesn't provide enough support to solidify the
