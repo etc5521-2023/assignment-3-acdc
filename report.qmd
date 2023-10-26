@@ -497,7 +497,6 @@ load("data/tourism.rda")
 
 : Tourism Data
 
-
 #### Join the Occurences Data with Tourism Data
 
 To join these two dataset, we are planning to use the spatial and temporal data that is contained in each dataset as the join condition. We are going to start the preparation for temporal variables before we move to spatial variables. Hence, in the next section the order will be temporal then spatial.
@@ -563,7 +562,6 @@ wmm_tourism_dg <- wmm_tourism %>%
                     st_drop_geometry() 
                     
 ```
-
 
 
 ## Exploratory data analysis
@@ -1143,7 +1141,7 @@ qtr_temp <- tca_cb %>% face_temporal() %>%
 
 ```{r Qyarterly-temp, warning = FALSE, message = FALSE , echo =FALSE}
 #| label: fig-plots15
-#| fig-cap: "Quarterly Average Temperature (Barkly))"
+#| fig-cap: "Quarterly Tourism Number (Barkly) & Quarterly Average Temperature (Barkly))"
 #| fig-align: center
 #| echo: false
 
