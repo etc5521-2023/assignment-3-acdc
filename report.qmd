@@ -1023,7 +1023,7 @@ Therefore, our subsequent analysis will concentrate solely on the Barkly region.
 
 Before we dive deep into the correlation analysis of occurrences and tourism,
 we would like to explore the tourism data. It is important to profile 
-our data first, as most of the time they provide a deeper understanding and 
+this data first, as most of the time they provide a deeper understanding and 
 can sharpen our analysis later.
 
 ##### Trend of Tourist Over Time 
@@ -1066,7 +1066,7 @@ interactive_time_series_plot
 
 **Discussion**
 
-- The plot (@fig-plots13) shows the total number of tourist trips over time, 
+The plot (@fig-plots13) shows the total number of tourist trips over time, 
 grouped by year and quarter. As can be seen, the trend fluctuates significantly 
 from year to year. Notably, Quarter 3 of 2003 saw the Barkly region record its 
 peak number of visits, while in contrast, Quarter 1 of 2022 and Quarter of 
@@ -1146,12 +1146,16 @@ qtr_temp <- tca_cb %>% face_temporal() %>%
 #| fig-cap: "Quarterly Tourism Number (Barkly) & Quarterly Average Temperature (Barkly))"
 #| fig-align: center
 #| echo: false
+#| fig-width: 12
+#| fig-heigth: 6
 
 grid.arrange(qtr_tourism, qtr_temp, ncol = 2)
 ```
 
 
 **Discussion**
+
+Some interesting insights that are shown in the plot above:
 
 - The left graph in (@fig-plots15) shows the number of tourism for each quarter, 
 it's evident that Q3 attracts the most tourists, with over 450,000 people 
@@ -1168,7 +1172,7 @@ where Q1 is the period of summer to fall (higher temperature),
 Q2 is fall to winter (lower temperature), Q3 is winter to spring (lower temperature), 
 and Q4 is spring to summer (higher temperature).
 
-- Based on above observations, it appears our initial assumption was accurate. 
+Based on above observations, it appears our initial assumption was accurate. 
 Given the desert landscape of Barkly, it's plausible that the milder 
 temperatures in Q3 make it a more attractive time for tourists. In contrast, 
 Q1 experienced the lowest number of tourism which potentially caused by higher 
@@ -1235,8 +1239,7 @@ of tourism into Barkly region.
 ### Weeping Mulla Mulla Eco-Tourism
 
 In this part, we will shift our focus into finding the correlation between the 
-sightings of Weeping Mulla Mulla with the number of tourism of Barkly region. 
-We will expose any hinder pattern that could not be spotted just by looking at 
+sightings of Weeping Mulla Mulla with the number of tourism of Barkly region. We aim to see if the increasing number of tourist visit will also be followed by increasing number of Weeping Mulla Mulla sighting. We will expose any hinder pattern that could not be spotted just by looking at 
 the data separately. Let's unveil it!   
 
 #### Ecotourist interest in Weeping Mulla Mulla
@@ -1302,12 +1305,14 @@ the highest number of tourist visits, recorded only two sightings. This
 indicates that Weeping Mulla Mulla observation potentially is not 
 one of the deciding factor people go to Barkly.
 
+#### Ecotourist interest in Weeping Mulla Mulla
+
 Our current data doesn't provide enough support to solidify the connection 
 between Weeping Mulla Mulla and tourism number, and it remains inconclusive 
 whether the influx of visitors to Barkly was partially driven by 
 the prominence of the Weeping Mulla Mulla. A more detailed perspective 
 can be gained by examining the subsequent map, which will place 
-Weeping Mulla Mulla's sightings with the number of trips to this regions. 
+Weeping Mulla Mulla's sightings with the number of trips to multiple regions. 
 
 ```{r barkly_map, warning=FALSE, message=FALSE ,echo = FALSE}
 # Mapping occurrences and trips to Weeping Mulla Mulla areas
@@ -1371,29 +1376,26 @@ grid.arrange(map_p2, map_p1, ncol = 2)
 
 **Discussion**
 
-Building on our prior discussion, the map in (@fig-plots18) offers an insightful visualization
+Building on our prior discussion, the map in (@fig-plots18) offers an insightful visualisation
 of the relationship between Weeping Mulla Mulla occurrences and tourism numbers. 
 A bit different approach to previous analysis, in here, we are including 
 all regions that recording occurrence numbers. We did this because we want to see 
 if the data tells opposite fact when we consider other regions. 
-By utilizing spatial analysis, it will provide holistic view and expedite 
+By utilising spatial analysis, it will provide holistic view and expedite 
 the understanding process. On the map visual itself, the left side is a map 
-where all regions where sightings are recorded, while on the right side is 
-just Barkly region only.
+of all regions where sightings are recorded, while on the right side is 
+just Barkly region only (our primary region).
 
 The map illustrates a prominent presence of Weeping Mulla Mulla 
 in the North-central areas of Western Australia and parts of the Northern Territory. 
 Notably, the regions with more number of tourist are presented with lighter color, 
-and the opposite condition stand (where darker color represent fewer number of tourist). 
+and the darker color represent fewer number of tourist. 
 As can be seen, the regions with higher number of tourism are not the regions 
 where the most sightings recorded. The number could just be contributed 
 from other essential factors, such as popular attractions, 
-infrastructural development, or easier accessibility, which was supported by 
-Australian government as an act to make this region a tourism attractive 
-destination (Tourism NT, 2016). So, this spatial analysis supports 
+infrastructural development, or easier accessibility. So, this spatial analysis supports 
 our previous analysis which could not see any correlation between these two events. 
-Ultimately, this also align with our research about 
-Weeping Mulla Mulla eco-tourism which gave us no information.   
+Ultimately, this also align with our research about Weeping Mulla Mulla eco-tourism which gave us no information.   
 
 
 ## Summary
@@ -1450,8 +1452,7 @@ several key expectations:
 7. **Eco-tourism Insights**: Examining the potential association between 
     sightings of Weeping Mulla Mulla and eco-tourism, the study is unable to 
     find proof of a direct connection. According to the data research, 
-    even areas where there are a lot of reports of Weeping Mulla Mulla sightings 
-    may not necessarily draw in more visitors. An in-depth geographical examination, 
+    even areas where there are a lot of tourist visit did not resulted in higher number of sightings. An in-depth geographical examination, 
     comparing the number of Weeping Mulla Mulla sightings with 
     the number of tourists in various locations, validates this finding. 
     It suggests that factors other than Weeping Mulla Mulla sightings 
