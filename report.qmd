@@ -1406,7 +1406,16 @@ go to Barkly.
 
 #### Visual Inference of Tourism & Sightings
 
+In supporting our discussion, we made a visual inference and asked some of our friends if they can distinguish the null plot that produced by permutating the variable. 
+
 ```{r}
+#| label: fig-plots18
+#| fig-cap: "Visual Inference"
+#| fig-align: center
+#| echo: false
+#| message: false
+#| warning: false
+
 set.seed(20)
 
 ggplot(lineup(null_permute('sightings_tot'), wmm_tourism_holiday), aes(x = Trips, y = sightings_tot)) +
@@ -1416,7 +1425,9 @@ ggplot(lineup(null_permute('sightings_tot'), wmm_tourism_holiday), aes(x = Trips
               theme(axis.text = element_blank(), 
                     panel.border = element_rect(fill=NA, colour="black"))
 ```
-Null Hypothesis: There is no relationship between number of tourist visiting a certain region to the number of sightings of Weeping Mulla Mulla in that same region.
+- $H_0:$: There is no relationship between number of tourist visiting a certain region to the number of sightings of Weeping Mulla Mulla in that same region.
+
+- $H_1:$: There is strong relationship between number of tourist visiting a certain region to the number of sightings of Weeping Mulla Mulla in that same region.
 
 The result for p-value
 
@@ -1430,7 +1441,7 @@ p-value computation
 nullabor::pvisual(1,10,20)
 ```
 
-From the computation, the p-value of correlation plot is 0.401 or 40.1%. Since it is more than 0.05 or 5% (significance level), then we will accept H0. This mean there is weak linear relationship between number of tourism and number of sightings. The majority of the participants in the survey expressed that identifying the most distinct plot from the selection is quite challenging due to the similarity in patterns among all of them.
+From the computation, `x simulated` shows 0.3707 and `binom` shows 0.4012631, meaning the p-value of correlation plot is 0.401 or 40.1%. Since it is more than 0.05 or 5% (significance level), then we will accept H0. This mean there is weak linear relationship between number of tourism and number of sightings. The majority of the participants in the survey expressed that identifying the most distinct plot from the selection is quite challenging due to the similarity in patterns among all of them.
 
 
 #### Spatial Analysis of Tourism and Occurences
@@ -1495,7 +1506,7 @@ map_p2 <- wmm_tourism %>%
 ```
 
 ```{r maparrange, warning=FALSE, message=FALSE ,echo = FALSE}
-#| label: fig-plots18
+#| label: fig-plots19
 #| fig-cap: "Mapping correlation between the Number of Tourist and Weeping Mulla Mulla Sightings"
 #| fig-align: center
 #| echo: false
