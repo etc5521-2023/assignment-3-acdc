@@ -30,6 +30,8 @@ library(cubble)
 library(gridExtra)
 ```
 
+::: {style="text-align: justify;"}
+
 ## Introduction
 
 The *Ptilotus calostachyus F.Muell*, which is also known as the
@@ -1520,6 +1522,13 @@ the eco-tourism potential of this plant remains relatively unexplored.
     Frames." *JOSS*, *2*(16), 355. doi:10.21105/joss.00355
     https://doi.org/10.21105/joss.00355,
     http://dx.doi.org/10.21105/joss.00355.
+-   **tsibble**: Wang, E, D Cook, and RJ Hyndman (2020). A new tidy data structure to
+  support exploration and modeling of temporal data, Journal of
+  Computational and Graphical Statistics, 29:3, 466-478,
+  doi:10.1080/10618600.2019.1695624.  
+-   **lubridate**: Garrett Grolemund, Hadley Wickham (2011). Dates and Times Made Easy
+  with lubridate. Journal of Statistical Software, 40(3), 1-25. URL
+  https://www.jstatsoft.org/v40/i03/.  
 -   **sf**: Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman and Hall/CRC.
 https://doi.org/10.1201/9780429459016
 -   **rmapshaper**: Teucher A, Russell K (2023). _rmapshaper: Client for 'mapshaper' for 'Geospatial' Operations_. R package version 0.5.0,
@@ -1530,3 +1539,4 @@ https://doi.org/10.1201/9780429459016
 -   **gridExtra**: Auguie B (2017). _gridExtra: Miscellaneous Functions for "Grid" Graphics_. R package version 2.3,
   <https://CRAN.R-project.org/package=gridExtra>.
 
+:::
