@@ -370,8 +370,11 @@ aus_stations_filtered <- aus_stations %>%
 ```
 
 ```{r echo=FALSE , message=FALSE, warning=FALSE}
+#| label: fig-map1
+#| fig-cap: "Weeping_mulla_mulla & All Nearest Weather Station"
 #| fig-align: center
 #| echo: false
+
 data(world, package = "spData")
 australia <- world[world$iso_a2 == "AU", ]
 
@@ -417,8 +420,11 @@ For another view of these findings, the same map was recreated using
 `leaflet`:
 
 ```{r echo=FALSE , message=FALSE, warning=FALSE}
+#| label: fig-map2
+#| fig-cap: "Location of Tennant Creek Airport Weather Station"
 #| fig-align: center
 #| echo: false
+
 weeping_mulla_mulla %>%
   leaflet() %>%
   addProviderTiles("Esri.DeLorme") %>%
