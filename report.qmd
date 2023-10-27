@@ -385,7 +385,7 @@ combined_plot <- australia_plot +
        x = "Longitude", 
        y = "Latitude", 
        subtitle = "1987 - Present") +
-  theme_classic()
+  theme_map()
 
 combined_plot +
   geom_point(
@@ -679,7 +679,7 @@ combined_plot <- australia_plot +
        x = "Longitude", 
        y = "Latitude", 
        subtitle = "1987 - Present") +
-  theme_classic()
+  theme_map()
 
 combined_plot
 ```
