@@ -960,8 +960,10 @@ rainplot <- temperature %>%
   geom_bar(aes(x = as.factor(Year), y = sighting_count), stat = "identity", fill = "aquamarine4") +
   geom_line(data = average_precipitation, aes(x = as.factor(Year), y = avg_prcp, group = 1), color = "#c599b2", linewidth = 1) +
   geom_point(data = average_precipitation, aes(x = as.factor(Year), y = avg_prcp), color = "#c599b2") +
-  labs(x = "Year", y = "Sighting Count",
-       title = "Sighting Count and Average Precipitation by Year \n(Barkly and Tennant Creek Station)",
+  ggtitle(label = "Sighting Count and Average Precipitation by Year",
+          subtitle = "Location: Barkly & Tennant Creek Weather Station") +
+  labs(x = "Year", 
+       y = "Sighting Count",
        color = "Average Precipitation",
        secondary = "Average Precipitation (mm)") +
   scale_y_continuous(name = "Sighting Count",
@@ -969,7 +971,9 @@ rainplot <- temperature %>%
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         axis.title.y = element_text(color = "aquamarine4"),
-        axis.title.y.right = element_text(color = "#c599b2"))
+        axis.title.y.right = element_text(color = "#c599b2"),
+        plot.title = element_text(hjust=0.5, face = "bold"),
+        plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10))
 
 rainplot
 ```
@@ -1014,11 +1018,15 @@ temperature$mean_temp <- (temperature$tmax + temperature$tmin) / 2
 ggplot(temperature, aes(x = as.Date(date))) +
   geom_line(aes(y = mean_temp), size = 1, color = "aquamarine4", alpha = 0.5) +
   geom_bar(data = sighting_data, aes(y = 40), stat = "identity", width = 5, fill = "maroon", alpha = 0.7) +
-  labs(x = "Date", y = "Mean Temperature (Celsius)",
-       title = "Daily Mean Temperature and Sightings (Barkly)",
+  ggtitle(label = "Daily Mean Temperature and Sightings",
+          subtitle = "Region: Barkly") +
+  labs(x = "Date", 
+       y = "Mean Temperature (Celsius)",
        color = "Mean Temperature") +
   coord_cartesian(ylim = c(10, 40)) +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(hjust=0.5, face = "bold"),
+        plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10))
 ```
 
 **Discussion**
@@ -1034,6 +1042,8 @@ decided to investigate 2015 as it has the most reported sightings.
 #| fig-cap: "Daily Mean Temperature, Sighting, Plant Active Window (Barkly, 2015)"
 #| fig-align: center
 #| echo: false
+
+
 sighting_data <- temperature %>%
   filter(sighting == 1) %>%
   distinct(date, .keep_all = TRUE)
@@ -1046,24 +1056,32 @@ march_oct_data <- temperature %>%
 plot_down <- ggplot() +
   geom_line(data = temperature, aes(x = as.Date(date), y = mean_temp), size = 1, color = "aquamarine4", alpha = 0.5) +
   geom_ribbon(data = march_oct_data, aes(x = as.Date(date), ymin = 0, ymax = 40), fill = "maroon", alpha = 0.3) +
-  labs(x = "Date", y = "Mean Temperature (Celsius)",
-       title = "Daily Mean Temperature and Plant Active Window (Barkly, 2015)",
+  ggtitle(label = "Daily Mean Temperature and Plant Active Window",
+          subtitle = "Region: Barkly, Year : 2015") +
+  labs(x = "Date", 
+       y = "Mean Temperature (Celsius)",
        color = "Mean Temperature") +
   coord_cartesian(ylim = c(10, 40)) +
   scale_x_date(limits = as.Date(c("2015-01-01", "2015-12-31"))) +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(hjust=0.5, face = "bold"),
+          plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10))
   
 plotup <-  
   ggplot(temperature, aes(x = as.Date(date))) +
     geom_line(aes(y = mean_temp), size = 1, color = "aquamarine4", alpha = 0.5) +
     geom_bar(data = sighting_data, aes(y = 40), stat = "identity", width = 0.5, fill = "maroon", alpha = 0.7) +
-    labs(x = "Date", y = "Mean Temperature (Celsius)",
-         title = "Daily Mean Temperature and Sightings (Barkly, 2015)",
+    ggtitle(label = "Daily Mean Temperature and Sightings",
+                    subtitle = "Region: Barkly, Year : 2015") +
+    labs(x = "Date", 
+         y = "Mean Temperature (Celsius)",
          color = "Mean Temperature") +
     coord_cartesian(ylim = c(10, 40)) +
     scale_x_date(limits = as.Date(c("2015-01-01", "2015-12-31"))) +
-    theme_classic()
-
+    theme_classic() +
+    theme(plot.title = element_text(hjust=0.5, face = "bold"),
+          plot.subtitle = element_text(hjust=0.5, face = "italic", size = 10))
+  
 combined_plot <- plot_grid(
   plotup,
   plot_down,
@@ -1510,6 +1528,8 @@ map_p2 <- wmm_tourism %>%
 #| fig-cap: "Mapping correlation between the Number of Tourist and Weeping Mulla Mulla Sightings"
 #| fig-align: center
 #| echo: false
+#| fig-width: 10
+#| fig-heigth: 10
 
 grid.arrange(map_p2, map_p1, ncol = 2) 
 ```
