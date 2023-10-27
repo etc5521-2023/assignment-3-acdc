@@ -40,8 +40,8 @@ the Western Australia territory (Florabase n. d.). This species thrives
 in arid region, particular in sandy habitats with red and stony plains
 (Florabase n. d.). Being a *perennial* plant, it can live up to more
 than two years with the seasonal pattern of being dormant in the winter
-and sprouting again in springtime (Florabase n. d.). Moreover, **Weeping
-Mulla Mulla** displays erect or spreading, herb or shrub
+and sprouting again in springtime (Florabase n. d.). Moreover, Weeping
+Mulla Mulla displays erect or spreading, herb or shrub
 characteristics, meaning that it can be found as a tall plant and/or
 covering an area, as well as with/without a woody body. They can grow
 from 0.2 to 2 meters tall with pink-white flowers, blooming from March
@@ -70,8 +70,8 @@ Five expectations when exploring the Weeping Mulla Mulla sightings:
     as plants typically begin to bloom after wet season, which is around
     June - August for Perth.
 
-This report aims to provide a comprehensive analysis of the **Weeping
-Mulla Mulla**, utilising primary data sources from the *ALA Atlas of
+This report aims to provide a comprehensive analysis of the Weeping
+Mulla Mulla, utilising primary data sources from the *ALA Atlas of
 Living Australia* and the *Global Historical Climatology Network (GHCN)*
 database.
 
@@ -537,8 +537,7 @@ The modified temperature data has been updated.
 ### Tourism Data
 
 As we will analyse the correlation between Tourism and Occurence
-(sightings), it will be best to join these two datasets. By joining
-these two datasets, we will be able to perform temporal and spatial
+(sightings), it will be best to join these two datasets. By joining, we will be able to perform temporal and spatial
 analysis. Temporal and spatial analysis will be helpful to perform since
 it will reveal seasonal variation, long-term trends, short-term
 fluctuations, identifying hotspots, and causality.
@@ -557,8 +556,7 @@ The temporal variables between Occurences and Tourism data are
 represented by `eventDate` and `Quarter` variables, respectively. As
 both of these variables are in different format, we are going to
 transform one of them to enable the join process later. In this case, we
-are going to break down the `eventDate` variable into year & quarter
-format.
+are going to break down the `eventDate` variable of Occurence dataset into year & quarter format.
 
 ```{r temporal-data, message=FALSE, warning=FALSE}
 
@@ -617,7 +615,7 @@ wmm_region <-
 
 ##### Join Temporal and Spatial Data
 
-Now, our Occurence data has matching region name with the region in the
+Now, our Occurence data has matching region name with the region name in the
 Tourism data, we also have transformed the format for temporal
 variables. Finally, We can start joining the temporal and spatial
 variables between these two datasets.
@@ -644,9 +642,9 @@ wmm_tourism_dg <- wmm_tourism %>%
 
 In this section, we are going to analyse the data based on the
 expectations that we have set earlier in the report. We will answer
-those expectations through visual representation in order to help faster
+those expectations through visual representation in order to accelerate
 the process of understanding. Each of the analysis will be completed
-with discussion points that extracted from our analysis.
+with discussion points that is gained from our analysis.
 
 #### Spatial expectation
 
@@ -1429,7 +1427,7 @@ ggplot(lineup(null_permute('sightings_tot'), wmm_tourism_holiday), aes(x = Trips
 
 - $H_1:$: There is strong relationship between number of tourist visiting a certain region to the number of sightings of Weeping Mulla Mulla in that same region.
 
-The result for p-value
+**The result for p-value:**
 
 x = 1 people
 
@@ -1440,6 +1438,8 @@ p-value computation
 ```{r}
 nullabor::pvisual(1,10,20)
 ```
+
+**Discussion**
 
 From the computation, `x simulated` shows 0.3707 and `binom` shows 0.4012631, meaning the p-value of correlation plot is 0.401 or 40.1%. Since it is more than 0.05 or 5% (significance level), then we will accept H0. This mean there is weak linear relationship between number of tourism and number of sightings. The majority of the participants in the survey expressed that identifying the most distinct plot from the selection is quite challenging due to the similarity in patterns among all of them.
 
