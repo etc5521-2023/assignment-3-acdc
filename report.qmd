@@ -31,11 +31,11 @@ library(gridExtra)
 library(DT)
 ```
 
-::: {style="text-align: justify;"}
+
 ## Introduction
 
 The *Ptilotus calostachyus F.Muell*, which is also known as the
-**Weeping Mulla Mulla**, is an endemic plant that is commonly found in
+Weeping Mulla Mulla, is an endemic plant that is commonly found in
 the Western Australia territory (Florabase n. d.). This species thrives
 in arid region, particular in sandy habitats with red and stony plains
 (Florabase n. d.). Being a *perennial* plant, it can live up to more
@@ -46,11 +46,11 @@ characteristics, meaning that it can be found as a tall plant and/or
 covering an area, as well as with/without a woody body. They can grow
 from 0.2 to 2 meters tall with pink-white flowers, blooming from March
 to October. Despite the widespread of its coverage, there are little to
-none organized sighting campaign of the **Weeping Mulla Mulla** due to
+none organized sighting campaign of the Weeping Mulla Mulla due to
 the outback nature of its habitat and lesser popularity as compared to
 other iconic Australia ecotourism species.
 
-Five expectations when exploring the **Weeping Mulla Mulla** sightings:
+Five expectations when exploring the Weeping Mulla Mulla sightings:
 
 -   We expect most of the sightings to occur between March to October.
 
@@ -180,7 +180,7 @@ kable(dictionary, format = "markdown", caption = "**Data Dictionary for the Weep
 
 ### Weather data
 
-The distribution of the **Weeping Mulla Mulla** commonly spans the local
+The distribution of the Weeping Mulla Mulla commonly spans the local
 government areas (LGAs) of Ashburton, Broome, Derby-West Kimberley, East
 Pilbara, Halls Creek, Karratha, Laverton, Meekatharra, Ngaanyatjarraku,
 Port Hedland, Upper Gascoyne, and Wyndham-East Kimberley, as per
@@ -357,7 +357,7 @@ transformation are needed. We will filter out the location where Weeping
 Mulla Mulla are recorded to make the analysis more precise.
 
 When filtering the weather stations to be within the vicinity of
-**Weeping Mulla Mulla**, it becomes evident that the **Weeping Mulla
+Weeping Mulla Mulla, it becomes evident that the **Weeping Mulla
 Mulla** is found in the vicinity of 42 weather stations.
 
 ```{r, echo=FALSE, results=FALSE}
@@ -783,7 +783,7 @@ hypothesis in favor of the alternative hypothesis. Consequently, we are
 95% confident that the selection of the true plot is by chance and there
 is no association between the combinations of `longitude` and `latitude`
 for different `Month` periods ("*Active*" and "*Others*"). This means
-that the **Weeping Mulla Mulla** can still be found outside of their
+that the Weeping Mulla Mulla can still be found outside of their
 active months without being in specific area.
 
 #### Trend expectation
@@ -830,7 +830,7 @@ ggplotly(wrapper)
 
 #### Seasonality expectation
 
-To test whether our expectation that the **Weeping Mulla Mulla** becomes
+To test whether our expectation that the Weeping Mulla Mulla becomes
 more active after rainfall seasons is accurate, we decided to plot the
 occurrences by month. While there are some indications from the previous
 *Temporal expectation* section, where June to August plots show
@@ -873,7 +873,7 @@ winter has milder downpours.
 
 #### Habitat expectation
 
-Given that the **Weeping Mulla Mulla** prefers stony and sandy
+Given that the Weeping Mulla Mulla prefers stony and sandy
 environments, we expect the plants to be sighted near areas with
 freshwater such as river banks. Moreover, observations by travelers
 might be more likely to be located near and/or on the way to a water
@@ -920,7 +920,7 @@ weeping_mulla_mulla %>%
 ```
 
 Based on the map above (@fig-plots9), we can see that the main cluster
-of **Weeping Mulla Mulla** does not live near a water source, which is
+of Weeping Mulla Mulla does not live near a water source, which is
 different from what we expected. This suggests that the plant is
 dependent on rain, meaning that high precipitation periods might lead to
 higher sightings. It is also interesting to see that these sightings
@@ -977,7 +977,7 @@ rainplot
 ```
 
 From the @fig-plots10, we can see there are multiple gaps in the
-sighting of the **Weeping Mulla Mulla** from 2004 to 2023. This
+sighting of the Weeping Mulla Mulla from 2004 to 2023. This
 inconsistency can be explained by the lack of popularity of our plant
 species. As addressed above in the **Trend expectation** section, 2015
 saw an abnormally high sighting count, despite a normal annual average
@@ -992,7 +992,7 @@ as well as the start of increasing precipitation trend from 2008 to
 dwindling sightings with increasing rainfall but from 2015 onwards,
 sightings were much higher and there were fewer gaps in annual
 sightings. Perhaps this is due to preference for dry weather of the
-plants; therefore, decreasing precips allow the **Weeping Mulla Mulla**
+plants; therefore, decreasing precips allow the Weeping Mulla Mulla
 to thrive better in constrast to being overwatered in wetter years.
 
 #### Temperature and sightings
@@ -1026,7 +1026,7 @@ ggplot(temperature, aes(x = as.Date(date))) +
 **Discussion**
 
 @fig-plots11 depicts that, even when the data ranges from 2004 to 2023,
-there are very little reported sightings of the **Weeping Mulla Mulla**
+there are very little reported sightings of the Weeping Mulla Mulla
 in *Barkly*. Nonetheless, we can observe that most of the years have
 very similar seasonality trend for average temperatures; thus, we
 decided to investigate 2015 as it has the most reported sightings.
@@ -1556,14 +1556,14 @@ eco-tourism which gave us no information.
 
 ## Summary
 
-Our analysis of the **Weeping Mulla Mulla** has confirmed or debunked
+Our analysis of the Weeping Mulla Mulla has confirmed or debunked
 several key expectations:
 
 1.  **Spatial Distribution**: The species' sightings are concentrated in
     the north of Western Australia and in the Northern Territory,
     forming the two primary clusters of observations.
 
-2.  **Temporal Patterns**: The majority of **Weeping Mulla Mulla**
+2.  **Temporal Patterns**: The majority of Weeping Mulla Mulla
     sightings occur between March and October, in line with its thriving
     period during these months.
 
@@ -1582,7 +1582,7 @@ several key expectations:
     are frequently reported near roads, suggesting observations by
     passersby.
 
-5.  **Rainfall Influence**: Considering that the **Weeping Mulla Mulla**
+5.  **Rainfall Influence**: Considering that the Weeping Mulla Mulla
     typically blooms after the wet season, which occurs approximately
     between June and August, we conducted an in-depth analysis of
     rainfall and precipitation. Intriguingly, while there were more
@@ -1591,7 +1591,7 @@ several key expectations:
     thunderstorms and flooding in June and July. The highest number of
     sightings was recorded in August, likely attributed to milder
     downpours. This observation aligns with the inherent nature of the
-    **Weeping Mulla Mulla** as a desert plant that thrives without
+    Weeping Mulla Mulla as a desert plant that thrives without
     relying heavily on water.
 
 6.  **Tourism Peak Seasons**: Examining the Barkly region's tourism
@@ -1710,4 +1710,3 @@ unexplored.
 -   **DT**: Xie Y, Cheng J, Tan X (2023). *DT: A Wrapper of the
     JavaScript Library 'DataTables'*. R package version 0.28,
     <https://CRAN.R-project.org/package=DT>.
-:::
