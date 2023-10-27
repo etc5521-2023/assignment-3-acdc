@@ -815,15 +815,19 @@ wrapper <- weeping_mulla_mulla %>%
   group_by(Year) %>%
   count() %>%
   ggplot(aes(x = Year, y = n, fill = as.factor(Year))) +
-  geom_histogram(stat = "identity") +
+  geom_histogram(stat = "identity", aes(text = paste("Year:", Year, "<br>", "No. of Sightings:", n))) +
   scale_fill_manual(values = c("2020" = "firebrick4", "2021" = "firebrick4")) +
-  labs(
-    title = "Weeping Mulla Mulla Observations by Year",
-    y = "Number of observations"
-  ) +
+  labs(y = "Number of observations") +
   theme_classic() +
   theme(legend.position = "none", legend.title = element_blank())
-ggplotly(wrapper)
+ggplotly(wrapper, tooltip = "text") %>%
+  layout(title = list(y = .900, 
+         xref = "plot", 
+         text = paste0("Weeping Mulla Mulla Observations",
+                       "<br>",
+                       "<sup>",
+                       "Period : Annually","<sup>")),
+          margin = list(l = 50, t = 50))
 ```
 
 #### Seasonality expectation
@@ -844,18 +848,24 @@ wrapper1 <- weeping_mulla_mulla %>%
   group_by(monthName) %>%
   count() %>%
   ggplot(aes(x = monthName, y = n, fill = as.factor(monthName))) +
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity", aes(text = paste("Month:", monthName, "<br>", "No. of Sightings:", n))) +
   scale_fill_manual(values = c("Jun" = "#c599b2", 
                                "Jul" = "#c599b2", 
                                "Aug" = "#c599b2")) +
   labs(
-    title = "Weeping Mulla Mulla Observations by Month",
     y = "Number of observations",
     x = "Month"
   ) +
   theme_classic() +
   theme(legend.position = "none", legend.title = element_blank())
-ggplotly(wrapper1)
+ggplotly(wrapper1, tooltip = "text") %>%
+  layout(title = list(y = .900, 
+         xref = "plot", 
+         text = paste0("Weeping Mulla Mulla Observations",
+                       "<br>",
+                       "<sup>",
+                       "Period : Monthly","<sup>")),
+          margin = list(l = 50, t = 50))
 ```
 
 Interestingly, we observe decreased sightings during June and July while
