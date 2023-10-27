@@ -743,6 +743,9 @@ To test the validity of our visual inference, we decided to employ
 #| fig-cap: "Weeping Mulla Mulla Sightings Null Plots"
 #| fig-align: center
 #| echo: false
+#| fig-width: 12
+#| fig-heigth: 6
+
 set.seed(20190709)
 
 custom_weep <- weeping_mulla_mulla
